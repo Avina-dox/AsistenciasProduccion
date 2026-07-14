@@ -19,9 +19,15 @@ class DatabaseSeeder extends Seeder
             EstatusAsistenciaSeeder::class,
         ]);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+       // User::factory()->create([
+       //     'name' => 'Test User',
+        //    'email' => 'test@example.com',
+       // ]);
+        $this->call([
+            EstatusAsistenciaSeeder::class,
+            DepartamentoSeeder::class,
+            TurnoSeeder::class,
+            RoleSeeder::class,
         ]);
     }
 }

@@ -7,13 +7,22 @@ use Livewire\Component;
 use App\Models\Empleado;
 use App\Models\Asistencia;
 use App\Models\EstatusAsistencia;
+use App\Models\Turno;
+use App\Models\Departamento;
 
 class TablaAsistencias extends Component
 {
     public $mes;
     public $anio;
     public $diasMes;
+
     public $estatus;
+    public $estatusEmpleado = 'ACTIVO';
+    public $departamento_id;
+    public $turno_id;
+
+    public $turnos;
+    public $departamentos;
 
     public function mount()
     {
@@ -25,15 +34,18 @@ class TablaAsistencias extends Component
             $this->mes
         )->daysInMonth;
 
-        $this->estatus =
-            EstatusAsistencia::all();
+        $this->estatus = EstatusAsistencia::all();
+
+        $this->turnos = Turno::all();
+
+        $this->departamentos = Departamento::all();
     }
 
     public function actualizarAsistencia(
         $empleadoId,
         $fecha,
-        $estatusId) 
-        {
+        $estatusId
+    ) {
 
         Asistencia::updateOrCreate(
 
@@ -43,74 +55,100 @@ class TablaAsistencias extends Component
             ],
 
             [
-                'estatus_asistencia_id'
-                    => $estatusId
+                'estatus_asistencia_id' => $estatusId,
             ]
 
         );
     }
-public function render()
-{
-    $empleados = Empleado::with([
 
-        'asistencias' => function ($query) {
+    public function render()
+    {
+        $empleados = Empleado::query()
 
-            $query->whereMonth(
-                'fecha',
-                $this->mes
-            )
+            ->whereIn('estatus', ['ACTIVO', 'BAJA'])
 
-            ->whereYear(
-                'fecha',
-                $this->anio
+            ->with([
+
+    'departamento',
+
+    'turno',
+
+    'asistencias' => function ($query) {
+
+        $query->whereMonth('fecha', $this->mes)
+              ->whereYear('fecha', $this->anio);
+
+    },
+
+    'asistencias.estatus',
+
+    'horasExtras.horaExtra.estatus',
+
+]);
+        if ($this->departamento_id) {
+
+            $empleados->where(
+                'departamento_id',
+                $this->departamento_id
             );
+        }
 
-        },
+        if ($this->turno_id) {
 
-        'asistencias.estatus'
+            $empleados->where(
+                'turno_id',
+                $this->turno_id
+            );
+        }
+        if ($this->estatusEmpleado != 'TODOS') {
 
-    ])->get();
+            $empleados->where(
+                'estatus',
+                $this->estatusEmpleado
+            );
+        }
 
-    return view(
-        'components.tabla-asistencias',
-        [
-            'empleados' => $empleados
-        ]
-    );
-}
+        return view(
+            'components.tabla-asistencias',
+            [
+                'empleados' => $empleados->get(),
+            ]
+        );
+    }
+
     public function mesAnterior()
-{
-    $this->mes--;
+    {
+        $this->mes--;
 
-    if ($this->mes < 1) {
+        if ($this->mes < 1) {
 
-        $this->mes = 12;
+            $this->mes = 12;
 
-        $this->anio--;
+            $this->anio--;
+        }
+
+        $this->actualizarDiasMes();
     }
 
-    $this->actualizarDiasMes();
-}
+    public function mesSiguiente()
+    {
+        $this->mes++;
 
-public function mesSiguiente()
-{
-    $this->mes++;
+        if ($this->mes > 12) {
 
-    if ($this->mes > 12) {
+            $this->mes = 1;
 
-        $this->mes = 1;
+            $this->anio++;
+        }
 
-        $this->anio++;
+        $this->actualizarDiasMes();
     }
 
-    $this->actualizarDiasMes();
-}
-
-public function actualizarDiasMes()
-{
-    $this->diasMes = Carbon::create(
-        $this->anio,
-        $this->mes
-    )->daysInMonth;
-}
+    public function actualizarDiasMes()
+    {
+        $this->diasMes = Carbon::create(
+            $this->anio,
+            $this->mes
+        )->daysInMonth;
+    }
 }

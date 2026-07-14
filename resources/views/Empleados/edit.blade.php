@@ -1,29 +1,31 @@
 <x-app-layout>
 
-    <div class="p-6">
+    <div class="p-6 bg-gray-100 min-h-screen">
 
-        <h1 class="text-2xl font-bold mb-4">
+        <div class="max-w-3xl mx-auto bg-white shadow-xl rounded-3xl overflow-hidden border border-gray-200">
+            <div class="bg-gradient-to-r from-cyan-500 to-blue-600 p-8 text-white">
+                <h1 class="text-3xl font-semibold">Editar empleado</h1>
+                <p class="mt-2 text-sm text-cyan-100">Actualiza la información del empleado y guarda los cambios.</p>
+            </div>
 
-            Editar empleado
+            <div class="p-8">
+                <form action="{{ route('empleados.update', $empleado) }}" method="POST">
 
-        </h1>
+                    @csrf
+                    @method('PUT')
 
-        <form action="{{ route('empleados.update', $empleado) }}"
-              method="POST">
+                    @include('empleados.form')
 
-            @csrf
-            @method('PUT')
+                    <div class="mt-6 flex justify-end">
+                        <button type="submit"
+                                class="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-full shadow-lg transition duration-200">
+                            Actualizar
+                        </button>
+                    </div>
 
-            @include('empleados.form')
-
-            <button
-                class="bg-blue-500 text-white px-4 py-2 rounded mt-4">
-
-                Actualizar
-
-            </button>
-
-        </form>
+                </form>
+            </div>
+        </div>
 
     </div>
 

@@ -58,6 +58,22 @@ class EmpleadoController extends Controller
     {
         //
     }
+    
+    public function actualizarEstatus(Request $request, Empleado $empleado)
+    {
+        $request->validate([
+            'estatus' => 'required|in:ACTIVO,INACTIVO,VACACIONES,BAJA',
+        ]);
+
+        $empleado->update([
+            'estatus' => $request->estatus,
+        ]);
+
+        return back()->with(
+            'success',
+            'Estado actualizado correctamente.'
+        );
+    }
 
     /**
      * Show the form for editing the specified resource.
@@ -65,11 +81,11 @@ class EmpleadoController extends Controller
     public function edit(Empleado $empleado)
     {
         $departamentos = Departamento::all();
-        $turnos= Turno::all();
+        $turnos = Turno::all();
 
         return view(
             'empleados.edit',
-            compact('empleado', 'departamentos','turnos')
+            compact('empleado', 'departamentos', 'turnos')
         );
     }
 
@@ -77,30 +93,32 @@ class EmpleadoController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, Empleado $empleado)
-{
-    $request->validate([
-        'codigo_empleado' => 'required|unique:empleados,codigo_empleado,' . $empleado->id,
-        'nombre' => 'required',
-        'apellido_paterno' => 'required',
-        'turno_id ' => 'required|exists:turnos,id',
-    ]);
+    {
+        $request->validate([
+            'codigo_empleado' => 'required|unique:empleados,codigo_empleado,' . $empleado->id,
+            'nombre' => 'required',
+            'apellido_paterno' => 'required',
+            'turno_id' => 'required|exists:turnos,id',
+        ]);
 
-    $empleado->update($request->all());
+        $empleado->update($request->all());
 
-    return redirect()
-        ->route('empleados.index')
-        ->with('success', 'Empleado actualizado correctamente');
-}
+        return redirect()
+            ->route('empleados.index')
+            ->with('success', 'Empleado actualizado correctamente');
+    }
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(Empleado $empleado)
-{
-    $empleado->delete();
+    {
+        $empleado->delete();
 
-    return redirect()
-        ->route('empleados.index')
-        ->with('success', 'Empleado eliminado correctamente');
-}
+        return redirect()
+            ->route('empleados.index')
+            ->with('success', 'Empleado eliminado correctamente');
+    }
+
+    
 }

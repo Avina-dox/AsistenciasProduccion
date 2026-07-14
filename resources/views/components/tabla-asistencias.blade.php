@@ -8,10 +8,10 @@ new class extends Component
 };
 ?>
 
-{{-- TODO DEBE IR DENTRO DE ESTE DIV PRINCIPAL PARA LIVEWIRE --}}
+
 <div class="min-h-screen p-6 space-y-6" style="background-color: #f8fafc;">
 
-    {{-- ESTILOS DEL DISEÑO QUE TE GUSTÓ --}}
+
     <style>
         .modern-font {
             font-family: 'Inter', system-ui, sans-serif;
@@ -94,6 +94,12 @@ new class extends Component
             background: rgba(255, 180, 0, 0.15);
             border-color: rgba(255, 180, 0, 0.4);
             color: #b37e00;
+        }
+
+        .status-O {
+            background: rgba(236, 110, 72, 0.15);
+            border-color: rgba(236, 146, 72, 0.4);
+            color: #be5518;
         }
 
         .status-I {
@@ -205,6 +211,78 @@ new class extends Component
             </button>
 
         </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+
+            <div class="space-y-2">
+
+                <label class="block text-sm font-semibold text-slate-900 tracking-wide">
+
+                    Departamento
+
+                </label>
+
+                <select
+                    wire:model.live="departamento_id"
+                    class="w-full border border-slate-300 rounded-2xl px-3 py-2 bg-slate-50 shadow-xl focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100 transition">
+
+                    <option value="">Todos</option>
+
+                    @foreach($departamentos as $departamento)
+
+                    <option value="{{ $departamento->id }}">{{ $departamento->nombre }}</option>
+
+                    @endforeach
+
+                </select>
+
+            </div>
+
+            <div class="space-y-2">
+
+                <label class="block text-sm font-semibold text-slate-900 tracking-wide">
+
+                    Turno
+
+                </label>
+
+                <select
+                    wire:model.live="turno_id"
+                    class="w-full border border-slate-300 rounded-2xl px-3 py-2 bg-slate-50 shadow-xl focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100 transition">
+
+                    <option value="">Todos</option>
+
+                    @foreach($turnos as $turno)
+
+                    <option value="{{ $turno->id }}">{{ $turno->nombre }}</option>
+
+                    @endforeach
+
+                </select>
+
+            </div>
+
+            <div class="space-y-2">
+
+                <label class="block text-sm font-semibold text-slate-900 tracking-wide">
+
+                    Estado
+
+                </label>
+
+                <select
+                    wire:model.live="estatusEmpleado"
+                    class="w-full border border-slate-300 rounded-2xl px-3 py-2 bg-slate-50 shadow-xl focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100 transition">
+
+                    <option value="ACTIVO">Activos</option>
+                    <option value="INACTIVO">Inactivos</option>
+                    <option value="BAJA">Baja</option>
+                    <option value="TODOS">Todos</option>
+
+                </select>
+
+            </div>
+
+        </div>
 
     </div>
     {{-- TABLA PRINCIPAL --}}
@@ -253,31 +331,51 @@ new class extends Component
 
                         @for($dia = 1; $dia <= $diasMes; $dia++)
                             @php
-                            $fecha=Carbon\Carbon::create($anio, $mes, $dia)->format('Y-m-d');
-                            $asistencia = $empleado->asistencias->where('fecha', $fecha)->first();
 
-                            // TU LÓGICA DE IF/ELSE, PERO CON LAS CLASES DEL DISEÑO HERMOSO
+                            $fecha=\Carbon\Carbon::create(
+                            $anio,
+                            $mes,
+                            $dia
+                            )->format('Y-m-d');
+
+                            $asistencia = $empleado->asistencias
+                            ->where('fecha', $fecha)
+                            ->first();
+
                             $statusClass = '';
 
                             if ($asistencia?->estatus?->codigo == 'A') {
                             $statusClass = 'status-A';
-                            } elseif ($asistencia?->estatus?->codigo == 'F') {
+                            }
+                            elseif ($asistencia?->estatus?->codigo == 'F') {
                             $statusClass = 'status-F';
-                            } elseif ($asistencia?->estatus?->codigo == 'V') {
+                            }
+                            elseif ($asistencia?->estatus?->codigo == 'V') {
                             $statusClass = 'status-V';
-                            } elseif ($asistencia?->estatus?->codigo == 'R') {
+                            }
+                            elseif ($asistencia?->estatus?->codigo == 'R') {
                             $statusClass = 'status-R';
-                            } elseif ($asistencia?->estatus?->codigo == 'I') {
+                            }
+                            elseif ($asistencia?->estatus?->codigo == 'I') {
                             $statusClass = 'status-I';
-                            } elseif ($asistencia?->estatus?->codigo == 'PCG') {
+                            }
+                            elseif ($asistencia?->estatus?->codigo == 'PCG') {
                             $statusClass = 'status-PCG';
-                            } elseif ($asistencia?->estatus?->codigo == 'PSG') {
+                            }
+                            elseif ($asistencia?->estatus?->codigo == 'PSG') {
                             $statusClass = 'status-PSG';
                             }
+                            elseif ($asistencia?->estatus?->codigo == 'O') {
+                            $statusClass = 'status-O';
+                            }
+
+
                             @endphp
 
-                            <td class="px-1.5 py-2 text-center">
+                            <td class="px-1.5 py-2 text-center relative">
                                 {{-- TU SELECT ORIGINAL QUE SÍ FUNCIONA CON LA APARIENCIA NUEVA --}}
+
+
                                 <select
 
                                     wire:key="sel-{{ $empleado->id }}-{{ $anio }}-{{ $mes }}-{{ $dia }}"
@@ -353,6 +451,7 @@ new class extends Component
         ['label' => 'Incapacidad', 'class' => 'status-I'],
         ['label' => 'PCG', 'class' => 'status-PCG'],
         ['label' => 'PSG', 'class' => 'status-PSG'],
+        ['label' => 'Onomástico', 'class' => 'status-O'],
         ];
         @endphp
 
@@ -380,15 +479,25 @@ new class extends Component
                 <thead>
                     <tr class="bg-gray-50 border-b border-gray-200">
                         <th class="px-5 py-3.5 text-left"><span class="modern-font text-xs font-bold tracking-wider uppercase text-gray-500">Empleado</span></th>
-                        <th class="px-5 py-3.5 text-center"><span class="modern-font text-xs font-bold tracking-wider uppercase status-F px-2 py-1 rounded-md border bg-white">Faltas</span></th>
-                        <th class="px-5 py-3.5 text-center"><span class="modern-font text-xs font-bold tracking-wider uppercase status-R px-2 py-1 rounded-md border bg-white">Retardos</span></th>
-                        <th class="px-5 py-3.5 text-center"><span class="modern-font text-xs font-bold tracking-wider uppercase status-V px-2 py-1 rounded-md border bg-white">Vacaciones</span></th>
                         <th class="px-5 py-3.5 text-center"><span class="modern-font text-xs font-bold tracking-wider uppercase status-A px-2 py-1 rounded-md border bg-white">Asistencias</span></th>
+                        <th class="px-5 py-3.5 text-center"><span class="modern-font text-xs font-bold tracking-wider uppercase status-F px-2 py-1 rounded-md border bg-white">Faltas</span></th>
+                        <th class="px-5 py-3.5 text-center"><span class="modern-font text-xs font-bold tracking-wider uppercase status-V px-2 py-1 rounded-md border bg-white">Vacaciones</span></th>
+                        <th class="px-5 py-3.5 text-center"><span class="modern-font text-xs font-bold tracking-wider uppercase status-R px-2 py-1 rounded-md border bg-white">Retardos</span></th>
+                        <th class="px-5 py-3.5 text-center"><span class="modern-font text-xs font-bold tracking-wider uppercase status-I px-2 py-1 rounded-md border bg-white">Incapacidades </span></th>
+                        <th class="px-5 py-3.5 text-center"><span class="modern-font text-xs font-bold tracking-wider uppercase status-PCG px-2 py-1 rounded-md border bg-white">PCG</span></th>
+                        <th class="px-5 py-3.5 text-center"><span class="modern-font text-xs font-bold tracking-wider uppercase status-PSG px-2 py-1 rounded-md border bg-white">PSG</span></th>
+                        <th class="px-5 py-3.5 text-center"><span class="modern-font text-xs font-bold tracking-wider uppercase status-O px-2 py-1 rounded-md border bg-white">Onomásticos</span></th>
+                        <th class="px-5 py-3.5 text-center">
+                            <span class="modern-font text-xs font-bold tracking-wider uppercase rounded-md border bg-green-100 text-green-700 px-2 py-1">
+                                Horas Extra
+                            </span>
+                        </th>
                     </tr>
                 </thead>
 
                 <tbody>
                     @foreach($empleados as $i => $empleado)
+
                     @php
 
                     $faltas = $empleado->asistencias
@@ -421,6 +530,46 @@ new class extends Component
                     })
                     ->count();
 
+                    $incapacidades = $empleado->asistencias
+                    ->filter(function ($a) {
+
+                    return $a->estatus?->codigo == 'I'
+                    && \Carbon\Carbon::parse($a->fecha)->month == $this->mes
+                    && \Carbon\Carbon::parse($a->fecha)->year == $this->anio;
+
+                    })
+                    ->count();
+
+                    $pcg = $empleado->asistencias
+                    ->filter(function ($a) {
+
+                    return $a->estatus?->codigo == 'PCG'
+                    && \Carbon\Carbon::parse($a->fecha)->month == $this->mes
+                    && \Carbon\Carbon::parse($a->fecha)->year == $this->anio;
+
+                    })
+                    ->count();
+
+                    $psg = $empleado->asistencias
+                    ->filter(function ($a) {
+
+                    return $a->estatus?->codigo == 'PSG'
+                    && \Carbon\Carbon::parse($a->fecha)->month == $this->mes
+                    && \Carbon\Carbon::parse($a->fecha)->year == $this->anio;
+
+                    })
+                    ->count();
+
+                    $onomasticos = $empleado->asistencias
+                    ->filter(function ($a) {
+
+                    return $a->estatus?->codigo == 'O'
+                    && \Carbon\Carbon::parse($a->fecha)->month == $this->mes
+                    && \Carbon\Carbon::parse($a->fecha)->year == $this->anio;
+
+                    })
+                    ->count();
+
                     $asistenciasTotal = $empleado->asistencias
                     ->filter(function ($a) {
 
@@ -430,6 +579,19 @@ new class extends Component
 
                     })
                     ->count();
+                    $horasExtra = $empleado->horasExtras
+                    ->filter(function ($detalle) {
+
+                    return
+                    $detalle->horaExtra &&
+                    $detalle->horaExtra->estatus &&
+                    $detalle->horaExtra->estatus->nombre == 'AUTORIZADA' &&
+                    \Carbon\Carbon::parse($detalle->horaExtra->fecha)->month == $this->mes &&
+                    \Carbon\Carbon::parse($detalle->horaExtra->fecha)->year == $this->anio;
+                    
+
+                    })
+                    ->sum('horas');
 
                     @endphp
 
@@ -443,17 +605,76 @@ new class extends Component
                             </div>
                         </td>
                         <td class="px-5 py-4 text-center">
-                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg border status-F modern-font text-base font-bold bg-white stat-badge">{{ $faltas }}</div>
+                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg border status-A modern-font text-base font-bold bg-white stat-badge">
+                                {{ $asistenciasTotal }}
+                            </div>
+                        </td>
+
+                        <td class="px-5 py-4 text-center">
+                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg border status-F modern-font text-base font-bold bg-white stat-badge">
+                                {{ $faltas }}
+                            </div>
+                        </td>
+
+                        <td class="px-5 py-4 text-center">
+                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg border status-V modern-font text-base font-bold bg-white stat-badge">
+                                {{ $vacaciones }}
+                            </div>
+                        </td>
+
+                        <td class="px-5 py-4 text-center">
+                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg border status-R modern-font text-base font-bold bg-white stat-badge">
+                                {{ $retardos }}
+                            </div>
+                        </td>
+
+                        <td class="px-5 py-4 text-center">
+                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg border status-I modern-font text-base font-bold bg-white stat-badge">
+                                {{ $incapacidades }}
+                            </div>
+                        </td>
+
+                        <td class="px-5 py-4 text-center">
+                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg border status-PCG modern-font text-base font-bold bg-white stat-badge">
+                                {{ $pcg }}
+                            </div>
+                        </td>
+
+                        <td class="px-5 py-4 text-center">
+                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg border status-PSG modern-font text-base font-bold bg-white stat-badge">
+                                {{ $psg }}
+                            </div>
                         </td>
                         <td class="px-5 py-4 text-center">
-                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg border status-R modern-font text-base font-bold bg-white stat-badge">{{ $retardos }}</div>
+                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg border status-O modern-font text-base font-bold bg-white stat-badge">
+                                {{ $onomasticos }}
+                            </div>
                         </td>
+
                         <td class="px-5 py-4 text-center">
-                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg border status-V modern-font text-base font-bold bg-white stat-badge">{{ $vacaciones }}</div>
+
+                            @if($horasExtra > 0)
+
+                            <div class="inline-flex items-center justify-center min-w-[60px] h-10 rounded-lg bg-green-100 text-green-700 font-bold border border-green-300">
+
+                                {{ $horasExtra }} h
+
+                            </div>
+
+                            @else
+
+                            <span class="text-gray-400">
+
+                                —
+
+                            </span>
+
+                            @endif
+
                         </td>
-                        <td class="px-5 py-4 text-center">
-                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg border status-A modern-font text-base font-bold bg-white stat-badge">{{ $asistenciasTotal }}</div>
-                        </td>
+
+
+
                     </tr>
                     @endforeach
                 </tbody>

@@ -15,8 +15,8 @@ public function run(): void
 {
     Turno::create([
         'nombre' => 'Diurno',
-        'hora_entrada' => '07:00:00',
-        'hora_salida' => '19:00:00'
+        'hora_entrada' => '08:00:00',
+        'hora_salida' => '17:00:00'
     ]);
 
     Turno::create([
