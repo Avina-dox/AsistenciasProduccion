@@ -19,16 +19,20 @@ class UsuarioController extends Controller
         );
     }
 
-    public function create()
-    {
-        $roles = Role::all();
+public function create()
+{
+    $usuarios = User::orderBy('name')->get();
 
-        return view(
-            'usuarios.create',
-            compact('roles')
-        );
-    }
+    $roles = Role::orderBy('name')->get();
 
+    return view(
+        'usuarios.create',
+        compact(
+            'usuarios',
+            'roles'
+        )
+    );
+}
     public function store(Request $request)
     {
         $request->validate([

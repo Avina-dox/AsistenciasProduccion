@@ -156,6 +156,7 @@ new class extends Component
     </div>
     {{-- NAVEGACIÓN MES/AÑO --}}
 
+
     <div class="flex items-center justify-between mb-6">
 
         <div class="flex items-center gap-4">
@@ -163,7 +164,7 @@ new class extends Component
             {{-- BOTÓN ATRÁS --}}
 
             <button
-                wire:click="mesAnterior"
+                wire:click="periodoAnterior"
                 class="
                 px-4
                 py-2
@@ -184,8 +185,44 @@ new class extends Component
             <div class="text-center">
 
                 <h2 class="text-2xl font-bold modern-font text-gray-800">
+                    Del {{ \Carbon\Carbon::parse($desde)->translatedFormat('d M Y') }}
+                    al {{ \Carbon\Carbon::parse($hasta)->translatedFormat('d M Y') }}
+                    <div class="flex justify-center gap-2 mt-3">
 
-                    {{ \Carbon\Carbon::create($anio, $mes)->translatedFormat('F Y') }}
+                        <button
+                            wire:click="mesActual"
+                            class="px-4 py-2 rounded-lg transition
+            {{ $modo == 'MES'
+                ? 'bg-purple-600 text-white'
+                : 'bg-white border hover:bg-gray-100' }}">
+
+                            Mes
+
+                        </button>
+
+                        <button
+                            wire:click="semanaActual"
+                            class="px-4 py-2 rounded-lg transition
+            {{ $modo == 'SEMANA'
+                ? 'bg-purple-600 text-white'
+                : 'bg-white border hover:bg-gray-100' }}">
+
+                            Semana
+
+                        </button>
+
+                        <button
+                            wire:click="quincenaActual"
+                            class="px-4 py-2 rounded-lg transition
+            {{ $modo == 'QUINCENA'
+                ? 'bg-purple-600 text-white'
+                : 'bg-white border hover:bg-gray-100' }}">
+
+                            Quincena
+
+                        </button>
+
+                    </div>
 
                 </h2>
 
@@ -194,7 +231,7 @@ new class extends Component
             {{-- BOTÓN SIGUIENTE --}}
 
             <button
-                wire:click="mesSiguiente"
+                wire:click="siguientePeriodo"
                 class="
                 px-4
                 py-2
@@ -279,8 +316,22 @@ new class extends Component
                     <option value="TODOS">Todos</option>
 
                 </select>
+                
 
             </div>
+            <a
+    href="{{ route('asistencias.exportar',[
+        'desde'=>$desde,
+        'hasta'=>$hasta,
+        'departamento'=>$departamento_id,
+        'turno'=>$turno_id,
+        'estatus'=>$estatusEmpleado
+    ]) }}"
+    class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg">
+
+    Exportar Excel
+
+</a>
 
         </div>
 
@@ -306,13 +357,19 @@ new class extends Component
                                 Empleado
                             </span>
                         </th>
-                        @for($dia = 1; $dia <= $diasMes; $dia++)
-                            <th class="px-2 py-3.5 text-center min-w-[52px] border-b border-gray-200">
-                            <span class="mono-font text-xs font-bold" style="color: #6a2c75;">
-                                {{ str_pad($dia, 2, '0', STR_PAD_LEFT) }}
+                        @foreach($this->dias as $fecha)
+
+                        <th class="px-2 py-3.5 text-center min-w-[52px] border-b border-gray-200">
+
+                            <span class="mono-font text-xs font-bold" style="color:#6a2c75;">
+
+                                {{ $fecha->format('d') }}
+
                             </span>
-                            </th>
-                            @endfor
+
+                        </th>
+
+                        @endforeach
                     </tr>
                 </thead>
 
@@ -329,66 +386,61 @@ new class extends Component
                             </div>
                         </td>
 
-                        @for($dia = 1; $dia <= $diasMes; $dia++)
-                            @php
+                        @foreach($this->dias as $fecha)
+                        @php
 
-                            $fecha=\Carbon\Carbon::create(
-                            $anio,
-                            $mes,
-                            $dia
-                            )->format('Y-m-d');
+                        $fechaCompleta = $fecha->format('Y-m-d');
 
-                            $asistencia = $empleado->asistencias
-                            ->where('fecha', $fecha)
-                            ->first();
+                        $asistencia = $empleado->asistencias
+                        ->where('fecha', $fechaCompleta)
+                        ->first();
 
-                            $statusClass = '';
+                        $statusClass = '';
 
-                            if ($asistencia?->estatus?->codigo == 'A') {
-                            $statusClass = 'status-A';
-                            }
-                            elseif ($asistencia?->estatus?->codigo == 'F') {
-                            $statusClass = 'status-F';
-                            }
-                            elseif ($asistencia?->estatus?->codigo == 'V') {
-                            $statusClass = 'status-V';
-                            }
-                            elseif ($asistencia?->estatus?->codigo == 'R') {
-                            $statusClass = 'status-R';
-                            }
-                            elseif ($asistencia?->estatus?->codigo == 'I') {
-                            $statusClass = 'status-I';
-                            }
-                            elseif ($asistencia?->estatus?->codigo == 'PCG') {
-                            $statusClass = 'status-PCG';
-                            }
-                            elseif ($asistencia?->estatus?->codigo == 'PSG') {
-                            $statusClass = 'status-PSG';
-                            }
-                            elseif ($asistencia?->estatus?->codigo == 'O') {
-                            $statusClass = 'status-O';
-                            }
+                        if ($asistencia?->estatus?->codigo == 'A') {
+                        $statusClass = 'status-A';
+                        }
+                        elseif ($asistencia?->estatus?->codigo == 'F') {
+                        $statusClass = 'status-F';
+                        }
+                        elseif ($asistencia?->estatus?->codigo == 'V') {
+                        $statusClass = 'status-V';
+                        }
+                        elseif ($asistencia?->estatus?->codigo == 'R') {
+                        $statusClass = 'status-R';
+                        }
+                        elseif ($asistencia?->estatus?->codigo == 'I') {
+                        $statusClass = 'status-I';
+                        }
+                        elseif ($asistencia?->estatus?->codigo == 'PCG') {
+                        $statusClass = 'status-PCG';
+                        }
+                        elseif ($asistencia?->estatus?->codigo == 'PSG') {
+                        $statusClass = 'status-PSG';
+                        }
+                        elseif ($asistencia?->estatus?->codigo == 'O') {
+                        $statusClass = 'status-O';
+                        }
 
+                        @endphp
 
-                            @endphp
-
-                            <td class="px-1.5 py-2 text-center relative">
-                                {{-- TU SELECT ORIGINAL QUE SÍ FUNCIONA CON LA APARIENCIA NUEVA --}}
+                        <td class="px-1.5 py-2 text-center relative">
+                            {{-- TU SELECT ORIGINAL QUE SÍ FUNCIONA CON LA APARIENCIA NUEVA --}}
 
 
-                                <select
+                            <select
 
-                                    wire:key="sel-{{ $empleado->id }}-{{ $anio }}-{{ $mes }}-{{ $dia }}"
+                                wire:key="sel-{{ $empleado->id }}-{{ $fechaCompleta }}"
 
-                                    wire:change="
+                                wire:change="
         actualizarAsistencia(
             {{ $empleado->id }},
-            '{{ $fecha }}',
+            '{{ $fechaCompleta }}',
             $event.target.value
         )
     "
 
-                                    class="
+                                class="
         select-clean
         mono-font
         w-full
@@ -402,7 +454,7 @@ new class extends Component
         {{ $statusClass }}
     "
 
-                                    style="
+                                style="
         min-width: 44px;
         {{ !$statusClass
             ? 'background: #f8fafc; border-color: #e2e8f0; color: #94a3b8;'
@@ -410,28 +462,28 @@ new class extends Component
         }}
     ">
 
-                                    <option value="">
-                                        —
-                                    </option>
+                                <option value="">
+                                    —
+                                </option>
 
-                                    @foreach($estatus as $item)
+                                @foreach($estatus as $item)
 
-                                    <option
-                                        value="{{ $item->id }}"
-                                        @selected(
-                                        $asistencia?->estatus_asistencia_id
-                                        == $item->id
-                                        )>
+                                <option
+                                    value="{{ $item->id }}"
+                                    @selected(
+                                    $asistencia?->estatus_asistencia_id
+                                    == $item->id
+                                    )>
 
-                                        {{ $item->codigo }}
+                                    {{ $item->codigo }}
 
-                                    </option>
+                                </option>
 
-                                    @endforeach
+                                @endforeach
 
-                                </select>
-                            </td>
-                            @endfor
+                            </select>
+                        </td>
+                        @endforeach
 
                     </tr>
                     @endforeach
@@ -500,95 +552,98 @@ new class extends Component
 
                     @php
 
+                    $desde = \Carbon\Carbon::parse($this->desde);
+
+                    $hasta = \Carbon\Carbon::parse($this->hasta);
+
                     $faltas = $empleado->asistencias
-                    ->filter(function ($a) {
+                    ->filter(function ($a) use ($desde, $hasta) {
 
                     return $a->estatus?->codigo == 'F'
-                    && \Carbon\Carbon::parse($a->fecha)->month == $this->mes
-                    && \Carbon\Carbon::parse($a->fecha)->year == $this->anio;
+                    && \Carbon\Carbon::parse($a->fecha)
+                    ->between($desde, $hasta);
 
                     })
                     ->count();
 
                     $retardos = $empleado->asistencias
-                    ->filter(function ($a) {
+                    ->filter(function ($a) use ($desde, $hasta) {
 
                     return $a->estatus?->codigo == 'R'
-                    && \Carbon\Carbon::parse($a->fecha)->month == $this->mes
-                    && \Carbon\Carbon::parse($a->fecha)->year == $this->anio;
+                    && \Carbon\Carbon::parse($a->fecha)
+                    ->between($desde, $hasta);
 
                     })
                     ->count();
 
                     $vacaciones = $empleado->asistencias
-                    ->filter(function ($a) {
+                    ->filter(function ($a) use ($desde, $hasta) {
 
                     return $a->estatus?->codigo == 'V'
-                    && \Carbon\Carbon::parse($a->fecha)->month == $this->mes
-                    && \Carbon\Carbon::parse($a->fecha)->year == $this->anio;
+                    && \Carbon\Carbon::parse($a->fecha)
+                    ->between($desde, $hasta);
 
                     })
                     ->count();
 
                     $incapacidades = $empleado->asistencias
-                    ->filter(function ($a) {
+                    ->filter(function ($a) use ($desde, $hasta) {
 
                     return $a->estatus?->codigo == 'I'
-                    && \Carbon\Carbon::parse($a->fecha)->month == $this->mes
-                    && \Carbon\Carbon::parse($a->fecha)->year == $this->anio;
+                    && \Carbon\Carbon::parse($a->fecha)
+                    ->between($desde, $hasta);
 
                     })
                     ->count();
 
                     $pcg = $empleado->asistencias
-                    ->filter(function ($a) {
+                    ->filter(function ($a) use ($desde, $hasta) {
 
                     return $a->estatus?->codigo == 'PCG'
-                    && \Carbon\Carbon::parse($a->fecha)->month == $this->mes
-                    && \Carbon\Carbon::parse($a->fecha)->year == $this->anio;
+                    && \Carbon\Carbon::parse($a->fecha)
+                    ->between($desde, $hasta);
 
                     })
                     ->count();
 
                     $psg = $empleado->asistencias
-                    ->filter(function ($a) {
+                    ->filter(function ($a) use ($desde, $hasta) {
 
                     return $a->estatus?->codigo == 'PSG'
-                    && \Carbon\Carbon::parse($a->fecha)->month == $this->mes
-                    && \Carbon\Carbon::parse($a->fecha)->year == $this->anio;
+                    && \Carbon\Carbon::parse($a->fecha)
+                    ->between($desde, $hasta);
 
                     })
                     ->count();
 
                     $onomasticos = $empleado->asistencias
-                    ->filter(function ($a) {
+                    ->filter(function ($a) use ($desde, $hasta) {
 
                     return $a->estatus?->codigo == 'O'
-                    && \Carbon\Carbon::parse($a->fecha)->month == $this->mes
-                    && \Carbon\Carbon::parse($a->fecha)->year == $this->anio;
+                    && \Carbon\Carbon::parse($a->fecha)
+                    ->between($desde, $hasta);
 
                     })
                     ->count();
 
                     $asistenciasTotal = $empleado->asistencias
-                    ->filter(function ($a) {
+                    ->filter(function ($a) use ($desde, $hasta) {
 
                     return $a->estatus?->codigo == 'A'
-                    && \Carbon\Carbon::parse($a->fecha)->month == $this->mes
-                    && \Carbon\Carbon::parse($a->fecha)->year == $this->anio;
+                    && \Carbon\Carbon::parse($a->fecha)
+                    ->between($desde, $hasta);
 
                     })
                     ->count();
-                    $horasExtra = $empleado->horasExtras
-                    ->filter(function ($detalle) {
 
-                    return
-                    $detalle->horaExtra &&
-                    $detalle->horaExtra->estatus &&
-                    $detalle->horaExtra->estatus->nombre == 'AUTORIZADA' &&
-                    \Carbon\Carbon::parse($detalle->horaExtra->fecha)->month == $this->mes &&
-                    \Carbon\Carbon::parse($detalle->horaExtra->fecha)->year == $this->anio;
-                    
+                    $horasExtra = $empleado->horasExtras
+                    ->filter(function ($detalle) use ($desde, $hasta) {
+
+                    return $detalle->horaExtra
+                    && $detalle->horaExtra->estatus
+                    && $detalle->horaExtra->estatus->nombre === 'AUTORIZADA'
+                    && \Carbon\Carbon::parse($detalle->horaExtra->fecha)
+                    ->between($desde, $hasta);
 
                     })
                     ->sum('horas');
@@ -650,24 +705,19 @@ new class extends Component
                                 {{ $onomasticos }}
                             </div>
                         </td>
-
                         <td class="px-5 py-4 text-center">
 
                             @if($horasExtra > 0)
 
                             <div class="inline-flex items-center justify-center min-w-[60px] h-10 rounded-lg bg-green-100 text-green-700 font-bold border border-green-300">
 
-                                {{ $horasExtra }} h
+                                {{ number_format($horasExtra,2) }} h
 
                             </div>
 
                             @else
 
-                            <span class="text-gray-400">
-
-                                —
-
-                            </span>
+                            <span class="text-gray-400">—</span>
 
                             @endif
 

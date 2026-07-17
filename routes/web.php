@@ -10,6 +10,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use App\Http\Controllers\HoraExtraController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExportController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -19,6 +20,11 @@ Route::get(
     [DashboardController::class, 'index']
 )->middleware('auth')
     ->name('dashboard');
+
+    Route::get(
+    '/asistencias/exportar',
+    [ExportController::class,'asistencias']
+)->name('asistencias.exportar');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

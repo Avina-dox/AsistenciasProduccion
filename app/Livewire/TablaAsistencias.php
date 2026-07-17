@@ -14,7 +14,11 @@ class TablaAsistencias extends Component
 {
     public $mes;
     public $anio;
-    public $diasMes;
+    public $desde;
+
+    public $hasta;
+
+    public $modo = 'MES';
 
     public $estatus;
     public $estatusEmpleado = 'ACTIVO';
@@ -29,10 +33,13 @@ class TablaAsistencias extends Component
         $this->mes = now()->month;
         $this->anio = now()->year;
 
-        $this->diasMes = Carbon::create(
-            $this->anio,
-            $this->mes
-        )->daysInMonth;
+        $this->desde = now()
+            ->startOfMonth()
+            ->format('Y-m-d');
+
+        $this->hasta = now()
+            ->endOfMonth()
+            ->format('Y-m-d');
 
         $this->estatus = EstatusAsistencia::all();
 
@@ -69,22 +76,26 @@ class TablaAsistencias extends Component
 
             ->with([
 
-    'departamento',
+                'departamento',
 
-    'turno',
+                'turno',
 
-    'asistencias' => function ($query) {
+                'asistencias' => function ($query) {
 
-        $query->whereMonth('fecha', $this->mes)
-              ->whereYear('fecha', $this->anio);
+                    $query->whereBetween(
+                        'fecha',
+                        [
+                            $this->desde,
+                            $this->hasta
+                        ]
+                    );
+                },
 
-    },
+                'asistencias.estatus',
 
-    'asistencias.estatus',
+                'horasExtras.horaExtra.estatus',
 
-    'horasExtras.horaExtra.estatus',
-
-]);
+            ]);
         if ($this->departamento_id) {
 
             $empleados->where(
@@ -115,40 +126,193 @@ class TablaAsistencias extends Component
             ]
         );
     }
-
-    public function mesAnterior()
+    public function getDiasProperty()
     {
-        $this->mes--;
+        $dias = [];
 
-        if ($this->mes < 1) {
+        $fecha = Carbon::parse($this->desde);
 
-            $this->mes = 12;
+        while ($fecha->lte($this->hasta)) {
 
-            $this->anio--;
+            $dias[] = $fecha->copy();
+
+            $fecha->addDay();
         }
 
-        $this->actualizarDiasMes();
+        return $dias;
+    }
+    private function sincronizarMesAnio()
+{
+    $fecha = Carbon::parse($this->desde);
+
+    $this->mes = $fecha->month;
+
+    $this->anio = $fecha->year;
+}
+
+
+
+    public function semanaActual()
+    {
+        $this->modo = 'SEMANA';
+
+        $this->desde = now()
+            ->startOfWeek()
+            ->format('Y-m-d');
+
+        $this->hasta = now()
+            ->endOfWeek()
+            ->format('Y-m-d');
     }
 
-    public function mesSiguiente()
+    public function mesActual()
     {
-        $this->mes++;
+        $this->modo = 'MES';
 
-        if ($this->mes > 12) {
+        $this->desde = now()
+            ->startOfMonth()
+            ->format('Y-m-d');
 
-            $this->mes = 1;
+        $this->hasta = now()
+            ->endOfMonth()
+            ->format('Y-m-d');
+    }
 
-            $this->anio++;
+    public function quincenaActual()
+{
+    $this->modo = 'QUINCENA';
+
+    $fecha = now();
+
+    if ($fecha->day <= 15) {
+
+        $this->desde = $fecha->copy()
+            ->startOfMonth()
+            ->format('Y-m-d');
+
+        $this->hasta = $fecha->copy()
+            ->startOfMonth()
+            ->addDays(14)
+            ->format('Y-m-d');
+
+    } else {
+
+        $this->desde = $fecha->copy()
+            ->startOfMonth()
+            ->addDays(15)
+            ->format('Y-m-d');
+
+        $this->hasta = $fecha->copy()
+            ->endOfMonth()
+            ->format('Y-m-d');
+    }
+
+    $this->sincronizarMesAnio();
+}
+    public function siguientePeriodo()
+    {
+        switch ($this->modo) {
+
+            case 'MES':
+
+                $fecha = Carbon::parse($this->desde)->addMonth();
+
+                $this->desde = $fecha->copy()
+                    ->startOfMonth()
+                    ->format('Y-m-d');
+
+                $this->hasta = $fecha->copy()
+                    ->endOfMonth()
+                    ->format('Y-m-d');
+
+                break;
+
+            case 'SEMANA':
+
+                $fecha = Carbon::parse($this->desde)->addWeek();
+
+                $this->desde = $fecha->copy()
+                    ->startOfWeek()
+                    ->format('Y-m-d');
+
+                $this->hasta = $fecha->copy()
+                    ->endOfWeek()
+                    ->format('Y-m-d');
+
+                break;
+
+            case 'QUINCENA':
+
+                $this->desde = Carbon::parse($this->desde)
+                    ->addDays(15)
+                    ->format('Y-m-d');
+
+                $this->hasta = Carbon::parse($this->hasta)
+                    ->addDays(15)
+                    ->format('Y-m-d');
+
+                break;
         }
 
-        $this->actualizarDiasMes();
+        $this->sincronizarMesAnio();
     }
 
-    public function actualizarDiasMes()
+    public function periodoAnterior()
     {
-        $this->diasMes = Carbon::create(
-            $this->anio,
-            $this->mes
-        )->daysInMonth;
+        switch ($this->modo) {
+
+            case 'MES':
+
+                $fecha = Carbon::parse($this->desde)->subMonth();
+
+                $this->desde = $fecha->copy()
+                    ->startOfMonth()
+                    ->format('Y-m-d');
+
+                $this->hasta = $fecha->copy()
+                    ->endOfMonth()
+                    ->format('Y-m-d');
+
+                break;
+
+            case 'SEMANA':
+
+                $fecha = Carbon::parse($this->desde)->subWeek();
+
+                $this->desde = $fecha->copy()
+                    ->startOfWeek()
+                    ->format('Y-m-d');
+
+                $this->hasta = $fecha->copy()
+                    ->endOfWeek()
+                    ->format('Y-m-d');
+
+                break;
+
+            case 'QUINCENA':
+
+                $this->desde = Carbon::parse($this->desde)
+                    ->subDays(15)
+                    ->format('Y-m-d');
+
+                $this->hasta = Carbon::parse($this->hasta)
+                    ->subDays(15)
+                    ->format('Y-m-d');
+
+                break;
+        }
+
+        $this->sincronizarMesAnio();
+    }
+    public function actualizarRango()
+    {
+        if (
+            $this->desde &&
+            $this->hasta &&
+            $this->desde > $this->hasta
+        ) {
+
+            $this->hasta = $this->desde;
+        }
     }
 }
