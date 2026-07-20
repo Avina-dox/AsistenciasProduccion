@@ -9,12 +9,14 @@ new class extends Component
 ?>
 
 
-<div class="min-h-screen p-6 space-y-6" style="background-color: #f8fafc;">
+<div class="min-h-screen p-6 space-y-6 bg-gradient-to-br from-[#FBF8F3] to-[#F3EDE3]">
 
 
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Questrial&display=swap');
+
         .modern-font {
-            font-family: 'Inter', system-ui, sans-serif;
+            font-family: 'Century Gothic', CenturyGothic, 'Century Gothic Paneuropean', Questrial, 'Avenir Next', sans-serif;
         }
 
         .mono-font {
@@ -35,11 +37,11 @@ new class extends Component
 
         .clean-panel {
             background: #ffffff;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            border: 1px solid #e5e7eb;
-            border-top: 4px solid #6a2c75;
-            /* Acento morado principal */
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(69, 25, 63, 0.05), 0 2px 4px -1px rgba(69, 25, 63, 0.03);
+            border: 1px solid rgba(43, 32, 48, 0.08);
+            border-top: 3px solid transparent;
+            border-image: linear-gradient(90deg, #B6A644, #6A2C75, #B6A644) 1;
         }
 
         .row-animate {
@@ -71,57 +73,57 @@ new class extends Component
             transition: background 0.2s ease;
         }
 
-        /* Colores personalizados del diseño */
+        /* Colores de estatus — paleta refinada, coherente con el resto del sistema */
         .status-A {
-            background: rgba(0, 255, 120, 0.15);
-            border-color: rgba(0, 255, 120, 0.4);
-            color: #00994a;
+            background: #ECFDF5;
+            border-color: rgba(5, 150, 105, 0.35);
+            color: #059669;
         }
 
         .status-F {
-            background: rgba(255, 50, 80, 0.15);
-            border-color: rgba(255, 50, 80, 0.4);
-            color: #d11f36;
+            background: #FEF2F2;
+            border-color: rgba(220, 38, 38, 0.35);
+            color: #DC2626;
         }
 
         .status-V {
-            background: rgba(0, 180, 255, 0.15);
-            border-color: rgba(0, 180, 255, 0.4);
-            color: #007bb5;
+            background: #EFF8FF;
+            border-color: rgba(2, 132, 199, 0.35);
+            color: #0284C7;
         }
 
         .status-R {
-            background: rgba(255, 180, 0, 0.15);
-            border-color: rgba(255, 180, 0, 0.4);
-            color: #b37e00;
+            background: #FBF6E4;
+            border-color: rgba(182, 166, 68, 0.5);
+            color: #92752F;
         }
 
         .status-O {
-            background: rgba(236, 110, 72, 0.15);
-            border-color: rgba(236, 146, 72, 0.4);
-            color: #be5518;
+            background: #FFF4ED;
+            border-color: rgba(194, 65, 12, 0.35);
+            color: #C2410C;
         }
 
         .status-I {
-            background: rgba(180, 80, 255, 0.15);
-            border-color: rgba(180, 80, 255, 0.4);
-            color: #7a25cc;
+            background: #F5F0FA;
+            border-color: rgba(106, 44, 117, 0.35);
+            color: #6A2C75;
         }
 
         .status-PCG {
-            background: rgba(80, 120, 255, 0.15);
-            border-color: rgba(80, 120, 255, 0.4);
-            color: #3b59bf;
+            background: #EEF2FF;
+            border-color: rgba(67, 56, 202, 0.35);
+            color: #4338CA;
         }
 
         .status-PSG {
-            background: rgba(140, 160, 200, 0.15);
-            border-color: rgba(140, 160, 200, 0.4);
-            color: #52678c;
+            background: #F1F5F9;
+            border-color: rgba(71, 85, 105, 0.35);
+            color: #475569;
         }
 
         .stat-badge {
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 1px 2px rgba(43, 32, 48, 0.06);
         }
 
         .clean-scroll::-webkit-scrollbar {
@@ -129,12 +131,12 @@ new class extends Component
         }
 
         .clean-scroll::-webkit-scrollbar-track {
-            background: #f3f4f6;
+            background: #F3EDE3;
             border-radius: 4px;
         }
 
         .clean-scroll::-webkit-scrollbar-thumb {
-            background: #d1d5db;
+            background: #D9D0C6;
             border-radius: 4px;
         }
 
@@ -146,10 +148,10 @@ new class extends Component
     {{-- ENCABEZADO --}}
     <div class="flex items-center gap-4 mb-2">
         <div class="w-1.5 h-8 rounded-full" style="background-color: #6a2c75;"></div>
-        <h1 class="modern-font text-2xl font-bold tracking-wide uppercase" style="color: #1e293b;">
+        <h1 class="modern-font text-2xl font-bold tracking-wide uppercase" style="color: #2B2030;">
             Control de Asistencia
         </h1>
-        <div class="flex-1 h-px bg-gray-200"></div>
+        <div class="flex-1 h-px bg-[#2B2030]/10"></div>
         <span class="mono-font text-xs font-semibold px-2 py-1 rounded-md" style="background-color: rgba(106, 44, 117, 0.1); color: #6a2c75;">
             ACTIVO
         </span>
@@ -168,12 +170,16 @@ new class extends Component
                 class="
                 px-4
                 py-2
-                rounded-lg
+                rounded-xl
                 bg-white
                 border
+                border-[#2B2030]/10
                 shadow-sm
-                hover:bg-gray-100
-                transition
+                hover:border-[#6A2C75]/40
+                hover:bg-[#6A2C75]/5
+                hover:text-[#6A2C75]
+                transition-all
+                duration-300
             ">
 
                 ←
@@ -184,17 +190,17 @@ new class extends Component
 
             <div class="text-center">
 
-                <h2 class="text-2xl font-bold modern-font text-gray-800">
+                <h2 class="text-2xl font-bold modern-font text-[#2B2030]">
                     Del {{ \Carbon\Carbon::parse($desde)->translatedFormat('d M Y') }}
                     al {{ \Carbon\Carbon::parse($hasta)->translatedFormat('d M Y') }}
                     <div class="flex justify-center gap-2 mt-3">
 
                         <button
                             wire:click="mesActual"
-                            class="px-4 py-2 rounded-lg transition
+                            class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300
             {{ $modo == 'MES'
-                ? 'bg-purple-600 text-white'
-                : 'bg-white border hover:bg-gray-100' }}">
+                ? 'bg-gradient-to-r from-[#6A2C75] to-[#45193F] text-white shadow-md shadow-[#45193F]/20'
+                : 'bg-white border border-[#2B2030]/10 text-[#6E6274] hover:border-[#6A2C75]/30 hover:bg-[#6A2C75]/5' }}">
 
                             Mes
 
@@ -202,10 +208,10 @@ new class extends Component
 
                         <button
                             wire:click="semanaActual"
-                            class="px-4 py-2 rounded-lg transition
+                            class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300
             {{ $modo == 'SEMANA'
-                ? 'bg-purple-600 text-white'
-                : 'bg-white border hover:bg-gray-100' }}">
+                ? 'bg-gradient-to-r from-[#6A2C75] to-[#45193F] text-white shadow-md shadow-[#45193F]/20'
+                : 'bg-white border border-[#2B2030]/10 text-[#6E6274] hover:border-[#6A2C75]/30 hover:bg-[#6A2C75]/5' }}">
 
                             Semana
 
@@ -213,10 +219,10 @@ new class extends Component
 
                         <button
                             wire:click="quincenaActual"
-                            class="px-4 py-2 rounded-lg transition
+                            class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300
             {{ $modo == 'QUINCENA'
-                ? 'bg-purple-600 text-white'
-                : 'bg-white border hover:bg-gray-100' }}">
+                ? 'bg-gradient-to-r from-[#6A2C75] to-[#45193F] text-white shadow-md shadow-[#45193F]/20'
+                : 'bg-white border border-[#2B2030]/10 text-[#6E6274] hover:border-[#6A2C75]/30 hover:bg-[#6A2C75]/5' }}">
 
                             Quincena
 
@@ -235,12 +241,16 @@ new class extends Component
                 class="
                 px-4
                 py-2
-                rounded-lg
+                rounded-xl
                 bg-white
                 border
+                border-[#2B2030]/10
                 shadow-sm
-                hover:bg-gray-100
-                transition
+                hover:border-[#6A2C75]/40
+                hover:bg-[#6A2C75]/5
+                hover:text-[#6A2C75]
+                transition-all
+                duration-300
             ">
 
                 →
@@ -248,11 +258,11 @@ new class extends Component
             </button>
 
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 items-end">
 
             <div class="space-y-2">
 
-                <label class="block text-sm font-semibold text-slate-900 tracking-wide">
+                <label class="block text-sm font-semibold text-[#2B2030] tracking-wide">
 
                     Departamento
 
@@ -260,7 +270,7 @@ new class extends Component
 
                 <select
                     wire:model.live="departamento_id"
-                    class="w-full border border-slate-300 rounded-2xl px-3 py-2 bg-slate-50 shadow-xl focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100 transition">
+                    class="modern-font w-full border border-[#2B2030]/15 rounded-xl px-3 py-2 bg-white shadow-sm hover:shadow-md focus:border-[#6A2C75] focus:outline-none focus:ring-2 focus:ring-[#6A2C75]/15 transition-all duration-300">
 
                     <option value="">Todos</option>
 
@@ -276,7 +286,7 @@ new class extends Component
 
             <div class="space-y-2">
 
-                <label class="block text-sm font-semibold text-slate-900 tracking-wide">
+                <label class="block text-sm font-semibold text-[#2B2030] tracking-wide">
 
                     Turno
 
@@ -284,7 +294,7 @@ new class extends Component
 
                 <select
                     wire:model.live="turno_id"
-                    class="w-full border border-slate-300 rounded-2xl px-3 py-2 bg-slate-50 shadow-xl focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100 transition">
+                    class="modern-font w-full border border-[#2B2030]/15 rounded-xl px-3 py-2 bg-white shadow-sm hover:shadow-md focus:border-[#6A2C75] focus:outline-none focus:ring-2 focus:ring-[#6A2C75]/15 transition-all duration-300">
 
                     <option value="">Todos</option>
 
@@ -300,7 +310,7 @@ new class extends Component
 
             <div class="space-y-2">
 
-                <label class="block text-sm font-semibold text-slate-900 tracking-wide">
+                <label class="block text-sm font-semibold text-[#2B2030] tracking-wide">
 
                     Estado
 
@@ -308,7 +318,7 @@ new class extends Component
 
                 <select
                     wire:model.live="estatusEmpleado"
-                    class="w-full border border-slate-300 rounded-2xl px-3 py-2 bg-slate-50 shadow-xl focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100 transition">
+                    class="modern-font w-full border border-[#2B2030]/15 rounded-xl px-3 py-2 bg-white shadow-sm hover:shadow-md focus:border-[#6A2C75] focus:outline-none focus:ring-2 focus:ring-[#6A2C75]/15 transition-all duration-300">
 
                     <option value="ACTIVO">Activos</option>
                     <option value="INACTIVO">Inactivos</option>
@@ -327,9 +337,9 @@ new class extends Component
         'turno'=>$turno_id,
         'estatus'=>$estatusEmpleado
     ]) }}"
-    class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg">
+    class="modern-font inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
 
-    Exportar Excel
+    📊 Exportar Excel
 
 </a>
 
@@ -339,27 +349,27 @@ new class extends Component
     {{-- TABLA PRINCIPAL --}}
     <div class="clean-panel relative overflow-hidden">
 
-        <div class="flex items-center gap-3 px-5 py-3 border-b bg-gray-50 border-gray-100">
+        <div class="flex items-center gap-3 px-5 py-3 border-b border-[#2B2030]/8" style="background: #FBF8F3;">
             <div class="flex gap-1.5">
                 <div class="w-2.5 h-2.5 rounded-full bg-red-400"></div>
                 <div class="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
                 <div class="w-2.5 h-2.5 rounded-full bg-green-400"></div>
             </div>
-            <span class="modern-font text-sm font-medium text-gray-500">Registro Diario de Empleados</span>
+            <span class="modern-font text-sm font-medium text-[#6E6274]">Registro Diario de Empleados</span>
         </div>
 
         <div class="overflow-x-auto clean-scroll">
-            <table class="min-w-full border-collapse text-sm text-gray-700">
+            <table class="min-w-full border-collapse text-sm text-[#2B2030]">
                 <thead>
-                    <tr class="bg-gray-50">
-                        <th class="sticky left-0 z-10 px-5 py-3.5 text-left whitespace-nowrap bg-gray-50 border-b border-r border-gray-200 shadow-[1px_0_0_0_#e5e7eb]">
-                            <span class="modern-font text-xs font-bold tracking-wider uppercase text-gray-500">
+                    <tr style="background: #FBF8F3;">
+                        <th class="sticky left-0 z-10 px-5 py-3.5 text-left whitespace-nowrap border-b border-r border-[#2B2030]/10 shadow-[1px_0_0_0_rgba(43,32,48,0.08)]" style="background: #FBF8F3;">
+                            <span class="modern-font text-xs font-bold tracking-wider uppercase text-[#6E6274]">
                                 Empleado
                             </span>
                         </th>
                         @foreach($this->dias as $fecha)
 
-                        <th class="px-2 py-3.5 text-center min-w-[52px] border-b border-gray-200">
+                        <th class="px-2 py-3.5 text-center min-w-[52px] border-b border-[#2B2030]/10">
 
                             <span class="mono-font text-xs font-bold" style="color:#6a2c75;">
 
@@ -375,12 +385,12 @@ new class extends Component
 
                 <tbody>
                     @foreach($empleados as $i => $empleado)
-                    <tr wire:key="emp-{{ $empleado->id }}" class="tr-clean row-animate border-b border-gray-100" style="animation-delay: {{ $i * 0.04 }}s;">
+                    <tr wire:key="emp-{{ $empleado->id }}" class="tr-clean row-animate border-b border-[#2B2030]/6" style="animation-delay: {{ $i * 0.04 }}s;">
 
-                        <td class="cell-sticky sticky left-0 z-10 px-5 py-3 whitespace-nowrap bg-white border-r border-gray-200 shadow-[1px_0_0_0_#e5e7eb]">
+                        <td class="cell-sticky sticky left-0 z-10 px-5 py-3 whitespace-nowrap bg-white border-r border-[#2B2030]/10 shadow-[1px_0_0_0_rgba(43,32,48,0.08)]">
                             <div class="flex items-center gap-3">
                                 <div class="w-1 h-5 rounded-full" style="background-color: #6a2c75;"></div>
-                                <span class="modern-font font-semibold text-sm text-gray-800">
+                                <span class="modern-font font-semibold text-sm text-[#2B2030]">
                                     {{ $empleado->nombre }} {{ $empleado->apellido_paterno }}
                                 </span>
                             </div>
@@ -457,7 +467,7 @@ new class extends Component
                                 style="
         min-width: 44px;
         {{ !$statusClass
-            ? 'background: #f8fafc; border-color: #e2e8f0; color: #94a3b8;'
+            ? 'background: #F7F3EE; border-color: #E4DED6; color: #A8A0AC;'
             : ''
         }}
     ">
@@ -517,20 +527,20 @@ new class extends Component
 
     {{-- RESUMEN MENSUAL --}}
     <div class="clean-panel relative overflow-hidden">
-        <div class="flex items-center justify-between px-5 py-3 border-b bg-gray-50 border-gray-100">
+        <div class="flex items-center justify-between px-5 py-3 border-b border-[#2B2030]/8" style="background: #FBF8F3;">
             <div class="flex items-center gap-3">
                 <div class="w-1.5 h-5 rounded-full" style="background-color: #6a2c75;"></div>
-                <span class="modern-font text-lg font-bold text-gray-800">
+                <span class="modern-font text-lg font-bold text-[#2B2030]">
                     Resumen Mensual
                 </span>
             </div>
         </div>
 
         <div class="overflow-x-auto clean-scroll">
-            <table class="w-full text-sm text-gray-700">
+            <table class="w-full text-sm text-[#2B2030]">
                 <thead>
-                    <tr class="bg-gray-50 border-b border-gray-200">
-                        <th class="px-5 py-3.5 text-left"><span class="modern-font text-xs font-bold tracking-wider uppercase text-gray-500">Empleado</span></th>
+                    <tr class="border-b border-[#2B2030]/10" style="background: #FBF8F3;">
+                        <th class="px-5 py-3.5 text-left"><span class="modern-font text-xs font-bold tracking-wider uppercase text-[#6E6274]">Empleado</span></th>
                         <th class="px-5 py-3.5 text-center"><span class="modern-font text-xs font-bold tracking-wider uppercase status-A px-2 py-1 rounded-md border bg-white">Asistencias</span></th>
                         <th class="px-5 py-3.5 text-center"><span class="modern-font text-xs font-bold tracking-wider uppercase status-F px-2 py-1 rounded-md border bg-white">Faltas</span></th>
                         <th class="px-5 py-3.5 text-center"><span class="modern-font text-xs font-bold tracking-wider uppercase status-V px-2 py-1 rounded-md border bg-white">Vacaciones</span></th>
@@ -540,7 +550,7 @@ new class extends Component
                         <th class="px-5 py-3.5 text-center"><span class="modern-font text-xs font-bold tracking-wider uppercase status-PSG px-2 py-1 rounded-md border bg-white">PSG</span></th>
                         <th class="px-5 py-3.5 text-center"><span class="modern-font text-xs font-bold tracking-wider uppercase status-O px-2 py-1 rounded-md border bg-white">Onomásticos</span></th>
                         <th class="px-5 py-3.5 text-center">
-                            <span class="modern-font text-xs font-bold tracking-wider uppercase rounded-md border bg-green-100 text-green-700 px-2 py-1">
+                            <span class="modern-font text-xs font-bold tracking-wider uppercase rounded-md border border-emerald-200 bg-emerald-50 text-emerald-700 px-2 py-1">
                                 Horas Extra
                             </span>
                         </th>
@@ -650,58 +660,58 @@ new class extends Component
 
                     @endphp
 
-                    <tr wire:key="sum-{{ $empleado->id }}" class="tr-clean row-animate border-b border-gray-100 bg-white" style="animation-delay: {{ $i * 0.05 }}s;">
+                    <tr wire:key="sum-{{ $empleado->id }}" class="tr-clean row-animate border-b border-[#2B2030]/6 bg-white" style="animation-delay: {{ $i * 0.05 }}s;">
                         <td class="px-5 py-4">
                             <div class="flex items-center gap-3">
-                                <span class="mono-font text-xs font-semibold text-gray-400">{{ str_pad($i+1, 2, '0', STR_PAD_LEFT) }}</span>
-                                <span class="modern-font font-semibold text-gray-800">
+                                <span class="mono-font text-xs font-semibold text-[#A8A0AC]">{{ str_pad($i+1, 2, '0', STR_PAD_LEFT) }}</span>
+                                <span class="modern-font font-semibold text-[#2B2030]">
                                     {{ $empleado->nombre }} {{ $empleado->apellido_paterno }}
                                 </span>
                             </div>
                         </td>
                         <td class="px-5 py-4 text-center">
-                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg border status-A modern-font text-base font-bold bg-white stat-badge">
+                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-xl border status-A modern-font text-base font-bold bg-white stat-badge">
                                 {{ $asistenciasTotal }}
                             </div>
                         </td>
 
                         <td class="px-5 py-4 text-center">
-                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg border status-F modern-font text-base font-bold bg-white stat-badge">
+                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-xl border status-F modern-font text-base font-bold bg-white stat-badge">
                                 {{ $faltas }}
                             </div>
                         </td>
 
                         <td class="px-5 py-4 text-center">
-                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg border status-V modern-font text-base font-bold bg-white stat-badge">
+                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-xl border status-V modern-font text-base font-bold bg-white stat-badge">
                                 {{ $vacaciones }}
                             </div>
                         </td>
 
                         <td class="px-5 py-4 text-center">
-                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg border status-R modern-font text-base font-bold bg-white stat-badge">
+                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-xl border status-R modern-font text-base font-bold bg-white stat-badge">
                                 {{ $retardos }}
                             </div>
                         </td>
 
                         <td class="px-5 py-4 text-center">
-                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg border status-I modern-font text-base font-bold bg-white stat-badge">
+                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-xl border status-I modern-font text-base font-bold bg-white stat-badge">
                                 {{ $incapacidades }}
                             </div>
                         </td>
 
                         <td class="px-5 py-4 text-center">
-                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg border status-PCG modern-font text-base font-bold bg-white stat-badge">
+                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-xl border status-PCG modern-font text-base font-bold bg-white stat-badge">
                                 {{ $pcg }}
                             </div>
                         </td>
 
                         <td class="px-5 py-4 text-center">
-                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg border status-PSG modern-font text-base font-bold bg-white stat-badge">
+                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-xl border status-PSG modern-font text-base font-bold bg-white stat-badge">
                                 {{ $psg }}
                             </div>
                         </td>
                         <td class="px-5 py-4 text-center">
-                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg border status-O modern-font text-base font-bold bg-white stat-badge">
+                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-xl border status-O modern-font text-base font-bold bg-white stat-badge">
                                 {{ $onomasticos }}
                             </div>
                         </td>
@@ -709,7 +719,7 @@ new class extends Component
 
                             @if($horasExtra > 0)
 
-                            <div class="inline-flex items-center justify-center min-w-[60px] h-10 rounded-lg bg-green-100 text-green-700 font-bold border border-green-300">
+                            <div class="inline-flex items-center justify-center min-w-[60px] h-10 rounded-xl bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
 
                                 {{ number_format($horasExtra,2) }} h
 
@@ -717,7 +727,7 @@ new class extends Component
 
                             @else
 
-                            <span class="text-gray-400">—</span>
+                            <span class="text-[#A8A0AC]">—</span>
 
                             @endif
 

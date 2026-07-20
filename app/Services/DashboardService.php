@@ -14,6 +14,23 @@ class DashboardService
     public function obtenerDashboard(): array
     {
         $hoy = Carbon::today();
+        $totalActivos = Empleado::where('estatus', 'ACTIVO')->count();
+
+        $presentes = Asistencia::whereDate('fecha', $hoy)
+            ->whereHas('estatus', fn($q) => $q->where('codigo', 'A'))
+            ->count();
+
+        $faltas = Asistencia::whereDate('fecha', $hoy)
+            ->whereHas('estatus', fn($q) => $q->where('codigo', 'F'))
+            ->count();
+
+        $porcentajeAsistencia = $totalActivos > 0
+            ? round(($presentes / $totalActivos) * 100, 1)
+            : 0;
+
+        $porcentajeAusentismo = $totalActivos > 0
+            ? round(($faltas / $totalActivos) * 100, 1)
+            : 0;
 
         return [
 
@@ -22,15 +39,15 @@ class DashboardService
             | KPIs
             |--------------------------------------------------------------------------
             */
-
             'empleados' => Empleado::count(),
 
             'usuarios' => User::count(),
 
-            'empleados_activos' => Empleado::where(
-                'estatus',
-                'ACTIVO'
-            )->count(),
+            'empleados_activos' => $totalActivos,
+
+            'asistencia_porcentaje' => $porcentajeAsistencia,
+
+            'ausentismo_porcentaje' => $porcentajeAusentismo,
 
             /*
             |--------------------------------------------------------------------------
@@ -38,60 +55,42 @@ class DashboardService
             |--------------------------------------------------------------------------
             */
 
-            'presentes' => Asistencia::whereDate(
-                'fecha',
-                $hoy
-            )
-            ->whereHas('estatus', function ($q) {
+            'presentes' => $presentes,
 
-                $q->where('codigo', 'A');
+'faltas' => $faltas,
 
-            })
-            ->count(),
+'retardos' => Asistencia::whereDate(
+    'fecha',
+    $hoy
+)
+->whereHas('estatus', function ($q) {
 
-            'faltas' => Asistencia::whereDate(
-                'fecha',
-                $hoy
-            )
-            ->whereHas('estatus', function ($q) {
+    $q->where('codigo', 'R');
 
-                $q->where('codigo', 'F');
+})
+->count(),
 
-            })
-            ->count(),
+'vacaciones' => Asistencia::whereDate(
+    'fecha',
+    $hoy
+)
+->whereHas('estatus', function ($q) {
 
-            'retardos' => Asistencia::whereDate(
-                'fecha',
-                $hoy
-            )
-            ->whereHas('estatus', function ($q) {
+    $q->where('codigo', 'V');
 
-                $q->where('codigo', 'R');
+})
+->count(),
 
-            })
-            ->count(),
+'incapacidades' => Asistencia::whereDate(
+    'fecha',
+    $hoy
+)
+->whereHas('estatus', function ($q) {
 
-            'vacaciones' => Asistencia::whereDate(
-                'fecha',
-                $hoy
-            )
-            ->whereHas('estatus', function ($q) {
+    $q->where('codigo', 'I');
 
-                $q->where('codigo', 'V');
-
-            })
-            ->count(),
-
-            'incapacidades' => Asistencia::whereDate(
-                'fecha',
-                $hoy
-            )
-            ->whereHas('estatus', function ($q) {
-
-                $q->where('codigo', 'I');
-
-            })
-            ->count(),
+})
+->count(),
 
             /*
             |--------------------------------------------------------------------------
@@ -121,11 +120,11 @@ class DashboardService
             */
 
             //'permisos_pendientes' => Permiso::where(
-          //      'estatus',
+            //      'estatus',
             //    'PENDIENTE'
-           // )->count(),
-           
-           'permisos_pendientes' => Permiso::count(),
+            // )->count(),
+
+            'permisos_pendientes' => Permiso::count(),
 
             /*
             |--------------------------------------------------------------------------
@@ -136,9 +135,9 @@ class DashboardService
             'cumpleaneros' => Empleado::whereNotNull(
                 'onomastico'
             )
-            ->orderBy('onomastico')
-            ->take(5)
-            ->get(),
+                ->orderBy('onomastico')
+                ->take(5)
+                ->get(),
 
             /*
             |--------------------------------------------------------------------------
@@ -151,9 +150,9 @@ class DashboardService
                 'supervisor',
                 'estatus'
             ])
-            ->latest()
-            ->take(5)
-            ->get(),
+                ->latest()
+                ->take(5)
+                ->get(),
 
             /*
             |--------------------------------------------------------------------------
