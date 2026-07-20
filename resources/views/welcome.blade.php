@@ -13,6 +13,27 @@
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @endif
 
+        <!-- Tailwind (utility layer for layout/spacing/typography) -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            plum: { DEFAULT: '#6A2C75', deep: '#45193F', soft: '#8A4C96' },
+                            gold: { DEFAULT: '#B6A644', light: '#C9BA5A' },
+                            ivory: { DEFAULT: '#FBF8F3', deep: '#F4EFE6' },
+                            ink: { DEFAULT: '#2B2030', soft: '#5A4E60' },
+                        },
+                        fontFamily: {
+                            display: ['Century Gothic', 'AppleGothic', 'sans-serif'],
+                            serif: ['Cormorant Garamond', 'Georgia', 'serif'],
+                        },
+                    }
+                }
+            }
+        </script>
+
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
@@ -21,140 +42,73 @@
             :root {
                 --plum: #6A2C75;
                 --plum-deep: #45193F;
-                --plum-soft: #8A4C96;
                 --gold: #B6A644;
-                --gold-light: #C9BA5A;
-                --ivory: #FBF8F3;
-                --ivory-deep: #F4EFE6;
-                --ink: #2B2030;
-                --ink-soft: #5A4E60;
             }
 
-            * { box-sizing: border-box; }
-
-            html, body {
-                margin: 0;
-                padding: 0;
-                min-height: 100vh;
-                /* Century Gothic con fallbacks limpios */
+            body {
                 font-family: 'Century Gothic', 'AppleGothic', 'CentGothic', sans-serif;
-                color: var(--ink);
-                background-color: var(--ivory);
-                background-image: 
-                    radial-gradient(circle at 15% 15%, rgba(106,44,117,0.06) 0%, transparent 45%),
-                    radial-gradient(circle at 85% 85%, rgba(182,166,68,0.08) 0%, transparent 50%),
-                    linear-gradient(180deg, #FDFBF7 0%, var(--ivory) 100%);
-                overflow-x: hidden;
             }
 
-            /* ---------- layout shell ---------- */
-            .page {
-                min-height: 100vh;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                padding: 2.5rem 1.5rem 4rem;
+            /* ---------- ambient orbs ---------- */
+            .orb-field {
+                position: fixed;
+                inset: 0;
+                overflow: hidden;
+                z-index: 0;
+                pointer-events: none;
             }
-
-            header.top-nav {
-                width: 100%;
-                max-width: 80rem;
-                display: flex;
-                justify-content: flex-end;
-                gap: 1rem;
-                margin-bottom: 5rem;
-                opacity: 0;
-                animation: fadeDown 0.8s ease forwards;
-            }
-
-            .btn {
-                display: inline-block;
-                padding: 0.85rem 2.2rem;
-                border-radius: 4px;
-                font-size: 0.8rem;
-                letter-spacing: 0.15em;
-                text-transform: uppercase;
-                text-decoration: none;
-                font-weight: bold;
-                transition: all 0.4s cubic-bezier(.4,0,.2,1);
-            }
-            .btn-ghost {
-                color: var(--plum);
-                border: 1px solid rgba(106,44,117,0.3);
-                background: transparent;
-            }
-            .btn-ghost:hover {
-                background: rgba(106,44,117,0.05);
-                border-color: var(--plum);
-                transform: translateY(-1px);
-            }
-            .btn-solid {
-                color: var(--ivory);
-                background: linear-gradient(135deg, var(--plum) 0%, var(--plum-deep) 100%);
-                box-shadow: 0 10px 25px -8px rgba(106,44,117,0.35);
-            }
-            .btn-solid:hover {
-                box-shadow: 0 15px 30px -5px rgba(106,44,117,0.45);
-                transform: translateY(-3px);
-            }
-
-            /* ---------- hero ---------- */
-            main {
-                width: 100%;
-                max-width: 64rem;
-                text-align: center;
-                margin-top: 1rem;
-            }
-
-            .crest {
-                width: 76px;
-                height: 76px;
-                margin: 0 auto 2.25rem;
-                border: 1px solid var(--gold);
+            .orb {
+                position: absolute;
                 border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-family: 'Cormorant Garamond', serif;
-                font-style: italic;
-                font-size: 1.9rem;
-                color: var(--plum);
-                position: relative;
+                border: 1px solid rgba(182,166,68,0.35);
+                background: transparent;
+                filter: blur(0.3px);
                 opacity: 0;
-                animation: popIn 0.9s 0.15s cubic-bezier(.2,.8,.2,1) forwards;
-                background: white;
-                box-shadow: 0 8px 20px rgba(43,32,48,0.04);
+                animation: orb-in 1.4s ease forwards, orb-drift 22s ease-in-out infinite;
             }
-            .crest::before {
+            .orb::after {
                 content: '';
                 position: absolute;
-                inset: -8px;
-                border: 1px solid rgba(182,166,68,0.3);
+                inset: 0;
                 border-radius: 50%;
+                background: radial-gradient(circle at 35% 30%, rgba(106,44,117,0.10), transparent 70%);
+            }
+            .orb-1 { width: 420px; height: 420px; top: -8%; left: -10%;  border-color: rgba(106,44,117,0.28); animation-delay: 0s, 0s; }
+            .orb-2 { width: 260px; height: 260px; top: 55%; left: 78%;  border-color: rgba(182,166,68,0.4);  animation-delay: 0.2s, 2s; }
+            .orb-3 { width: 340px; height: 340px; top: 68%; left: -6%;  border-color: rgba(106,44,117,0.22); animation-delay: 0.4s, 4s; }
+            .orb-4 { width: 180px; height: 180px; top: 6%;  left: 82%;  border-color: rgba(182,166,68,0.35); animation-delay: 0.6s, 1s; }
+            .orb-5 { width: 130px; height: 130px; top: 38%; left: 46%;  border-color: rgba(106,44,117,0.18); animation-delay: 0.8s, 3s; }
+
+            @keyframes orb-in {
+                to { opacity: 1; }
+            }
+            @keyframes orb-drift {
+                0%, 100% { transform: translate(0, 0) scale(1); }
+                33%      { transform: translate(18px, -24px) scale(1.04); }
+                66%      { transform: translate(-16px, 14px) scale(0.97); }
             }
 
-            .eyebrow {
-                text-transform: uppercase;
-                letter-spacing: 0.5em;
-                font-size: 0.75rem;
-                color: var(--ink-soft);
-                margin-bottom: 1.5rem;
-                font-weight: bold;
+            /* ---------- entrance choreography ---------- */
+            .fade-up {
                 opacity: 0;
-                animation: fadeUp 0.8s 0.3s ease forwards;
+                transform: translateY(20px);
+                animation: fadeUp 0.8s ease forwards;
             }
+            .fade-down {
+                opacity: 0;
+                transform: translateY(-15px);
+                animation: fadeDown 0.8s ease forwards;
+            }
+            .pop-in {
+                opacity: 0;
+                transform: scale(0.7);
+                animation: popIn 0.9s cubic-bezier(.2,.8,.2,1) forwards;
+            }
+            @keyframes fadeUp   { to { opacity: 1; transform: translateY(0); } }
+            @keyframes fadeDown { to { opacity: 1; transform: translateY(0); } }
+            @keyframes popIn    { to { opacity: 1; transform: scale(1); } }
 
-            h1.headline {
-                font-size: clamp(3rem, 6.5vw, 4.8rem);
-                font-weight: normal; /* Century Gothic luce mejor sin exceso de peso */
-                line-height: 1.1;
-                margin: 0 0 1.5rem;
-                color: var(--plum-deep);
-                opacity: 0;
-                animation: fadeUp 0.9s 0.45s ease forwards;
-                letter-spacing: -0.02em;
-            }
-            h1.headline em {
+            .headline em {
                 font-family: 'Cormorant Garamond', Georgia, serif;
                 font-style: italic;
                 font-weight: 500;
@@ -166,16 +120,8 @@
                 animation: shimmer 6s linear infinite;
                 padding-right: 4px;
             }
+            @keyframes shimmer { to { background-position: -220% center; } }
 
-            .divider {
-                width: 140px;
-                height: 1px;
-                margin: 2rem auto;
-                background: linear-gradient(90deg, transparent, var(--gold), transparent);
-                position: relative;
-                opacity: 0;
-                animation: fadeUp 0.8s 0.6s ease forwards;
-            }
             .divider::before {
                 content: '◆';
                 position: absolute;
@@ -184,60 +130,10 @@
                 transform: translate(-50%, -50%);
                 font-size: 0.6rem;
                 color: var(--gold);
-                background: #FDFBF7; /* Combina con el gradiente superior */
+                background: #FDFBF7;
                 padding: 0 12px;
             }
 
-            p.subhead {
-                font-size: 1.25rem;
-                color: var(--ink-soft);
-                font-weight: normal;
-                letter-spacing: 0.02em;
-                margin-bottom: 5rem;
-                opacity: 0;
-                animation: fadeUp 0.8s 0.7s ease forwards;
-                max-width: 42rem;
-                margin-left: auto;
-                margin-right: auto;
-                line-height: 1.6;
-            }
-
-            /* ---------- feature cards ---------- */
-            .cards {
-                display: grid;
-                grid-template-columns: repeat(1, 1fr);
-                gap: 2rem;
-                margin-top: 1.5rem;
-                padding: 1.75rem;
-                background: rgba(255, 255, 255, 0.4);
-                border: 1px solid rgba(182,166,68,0.18);
-                border-radius: 24px;
-                box-shadow: 0 30px 70px rgba(43,32,48,0.05);
-                backdrop-filter: blur(20px);
-            }
-            @media (min-width: 768px) {
-                .cards { grid-template-columns: repeat(3, 1fr); }
-            }
-
-            .card {
-                position: relative;
-                padding: 2.5rem 2rem;
-                background: rgba(255, 255, 255, 0.85);
-                border: 1px solid rgba(106,44,117,0.08);
-                border-radius: 16px;
-                text-align: left;
-                overflow: hidden;
-                min-height: 250px;
-                opacity: 0;
-                transform: translateY(20px);
-                animation: fadeUp 0.8s ease forwards;
-                transition: all 0.5s cubic-bezier(.2,.8,.2,1);
-            }
-            .card:nth-child(1) { animation-delay: 0.85s; }
-            .card:nth-child(2) { animation-delay: 1.0s; }
-            .card:nth-child(3) { animation-delay: 1.15s; }
-
-            /* Borde interno metalizado y sutil */
             .card::after {
                 content: '';
                 position: absolute;
@@ -252,59 +148,7 @@
                 opacity: 0.3;
                 transition: opacity 0.5s ease;
             }
-
-            .card:hover {
-                box-shadow: 0 25px 50px rgba(43,32,48,0.08);
-                transform: translateY(-8px);
-                border-color: rgba(106,44,117,0.18);
-                background: #FFFFFF;
-            }
-            .card:hover::after {
-                opacity: 1;
-            }
-
-            .card .num {
-                font-family: 'Cormorant Garamond', serif;
-                font-style: italic;
-                font-size: 1.1rem;
-                color: var(--gold);
-                letter-spacing: 0.1em;
-                margin-bottom: 1.25rem;
-                display: block;
-                font-weight: 600;
-            }
-            .card h3 {
-                font-size: 1.5rem;
-                font-weight: normal;
-                color: var(--plum-deep);
-                margin: 0 0 1rem;
-                letter-spacing: -0.01em;
-            }
-            .card p {
-                font-size: 0.95rem;
-                color: var(--ink-soft);
-                line-height: 1.7;
-                margin: 0;
-            }
-
-            footer.spacer { height: 5rem; }
-
-            /* ---------- keyframes ---------- */
-            @keyframes fadeUp {
-                from { opacity: 0; transform: translateY(20px); }
-                to   { opacity: 1; transform: translateY(0); }
-            }
-            @keyframes fadeDown {
-                from { opacity: 0; transform: translateY(-15px); }
-                to   { opacity: 1; transform: translateY(0); }
-            }
-            @keyframes popIn {
-                from { opacity: 0; transform: scale(0.7); }
-                to   { opacity: 1; transform: scale(1); }
-            }
-            @keyframes shimmer {
-                to { background-position: -220% center; }
-            }
+            .card:hover::after { opacity: 1; }
 
             @media (prefers-reduced-motion: reduce) {
                 *, *::before, *::after {
@@ -315,45 +159,87 @@
             }
         </style>
     </head>
-    <body>
-        <div class="page">
+    <body class="min-h-screen relative text-ink"
+          style="background-color:#FBF8F3; background-image: radial-gradient(circle at 15% 15%, rgba(106,44,117,0.06) 0%, transparent 45%), radial-gradient(circle at 85% 85%, rgba(182,166,68,0.08) 0%, transparent 50%), linear-gradient(180deg, #FDFBF7 0%, #FBF8F3 100%);">
+
+        <!-- Orbes animados de fondo -->
+        <div class="orb-field">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
+            <div class="orb orb-4"></div>
+            <div class="orb orb-5"></div>
+        </div>
+
+        <div class="relative z-10 min-h-screen flex flex-col items-center px-6 pt-10 pb-16">
             @if (Route::has('login'))
-                <header class="top-nav">
+                <header class="fade-down w-full max-w-5xl flex justify-end gap-4 mb-20">
                     @auth
-                        <a href="{{ url('/dashboard') }}" class="btn btn-solid">Dashboard</a>
+                        <a href="{{ url('/dashboard') }}"
+                           class="inline-block px-9 py-3.5 rounded text-xs tracking-[0.15em] uppercase font-bold text-ivory transition-all duration-300 hover:-translate-y-0.5"
+                           style="background: linear-gradient(135deg, var(--plum) 0%, var(--plum-deep) 100%); box-shadow: 0 10px 25px -8px rgba(106,44,117,0.35);">
+                            Dashboard
+                        </a>
                     @else
-                        <a href="{{ route('login') }}" class="btn btn-ghost">Iniciar sesión</a>
+                        <a href="{{ route('login') }}"
+                           class="inline-block px-9 py-3.5 rounded text-xs tracking-[0.15em] uppercase font-bold border transition-all duration-300 hover:-translate-y-0.5"
+                           style="color: var(--plum); border-color: rgba(106,44,117,0.3);">
+                            Iniciar sesión
+                        </a>
                     @endauth
                 </header>
             @endif
 
-            <main>
-                <img src="{{ asset('images/logo.png') }}" alt="Logo" class="crest" style="width: 130px; height: auto;">
-                <p class="eyebrow">Sistema de asistencias</p>
-                <h1 class="headline"><em>Bienvenido</em></h1>
-                <div class="divider"></div>
-                <p class="subhead">Precisión, elegancia y control absoluto sobre el registro de tu equipo.</p>
+            <main class="w-full max-w-3xl text-center mt-4">
+                <img src="{{ asset('images/logo.png') }}" alt="Logo"
+                     class="pop-in mx-auto mb-9 rounded-full bg-white shadow-lg"
+                     style="width: 130px; height: auto; animation-delay: 0.15s; box-shadow: 0 8px 20px rgba(43,32,48,0.04);">
 
-                <div class="cards">
-                    <div class="card">
-                        <span class="num">I.</span>
-                        <h3>Reportes</h3>
-                        <p>Analiza en tiempo real tus datos de asistencia con paneles claros y detallados.</p>
+                <p class="fade-up font-bold uppercase tracking-[0.5em] text-xs text-ink-soft mb-6"
+                   style="animation-delay: 0.3s;">
+                    Sistema de asistencias
+                </p>
+
+                <h1 class="headline fade-up text-[clamp(3rem,6.5vw,4.8rem)] leading-[1.1] mb-6 font-normal"
+                    style="color: var(--plum-deep); letter-spacing: -0.02em; animation-delay: 0.45s;">
+                    <em>Bienvenido</em>
+                </h1>
+
+                <div class="divider fade-up relative w-[140px] h-px mx-auto my-8"
+                     style="background: linear-gradient(90deg, transparent, var(--gold), transparent); animation-delay: 0.6s;"></div>
+
+                <p class="fade-up text-xl text-ink-soft mb-20 max-w-xl mx-auto leading-relaxed"
+                   style="animation-delay: 0.7s;">
+                    Precisión, elegancia y control absoluto sobre el registro de tu equipo.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 p-7 rounded-3xl backdrop-blur-xl"
+                     style="background: rgba(255,255,255,0.4); border: 1px solid rgba(182,166,68,0.18); box-shadow: 0 30px 70px rgba(43,32,48,0.05);">
+
+                    <div class="card fade-up relative text-left p-10 rounded-2xl min-h-[250px] transition-all duration-500 hover:-translate-y-2"
+                         style="background: rgba(255,255,255,0.85); border: 1px solid rgba(106,44,117,0.08); animation-delay: 0.85s;">
+                        <span class="block mb-5 font-serif italic text-lg font-semibold" style="color: var(--gold);">I.</span>
+                        <h3 class="text-2xl font-normal mb-4" style="color: var(--plum-deep);">Reportes</h3>
+                        <p class="text-sm text-ink-soft leading-relaxed">Analiza en tiempo real tus datos de asistencia con paneles claros y detallados.</p>
                     </div>
-                    <div class="card">
-                        <span class="num">II.</span>
-                        <h3>Seguro</h3>
-                        <p>Protege tu información con encriptación avanzada y control de acceso riguroso.</p>
+
+                    <div class="card fade-up relative text-left p-10 rounded-2xl min-h-[250px] transition-all duration-500 hover:-translate-y-2"
+                         style="background: rgba(255,255,255,0.85); border: 1px solid rgba(106,44,117,0.08); animation-delay: 1.0s;">
+                        <span class="block mb-5 font-serif italic text-lg font-semibold" style="color: var(--gold);">II.</span>
+                        <h3 class="text-2xl font-normal mb-4" style="color: var(--plum-deep);">Seguro</h3>
+                        <p class="text-sm text-ink-soft leading-relaxed">Protege tu información con encriptación avanzada y control de acceso riguroso.</p>
                     </div>
-                    <div class="card">
-                        <span class="num">III.</span>
-                        <h3>Rápido</h3>
-                        <p>Acceso instantáneo a tu información, donde y cuando lo necesites.</p>
+
+                    <div class="card fade-up relative text-left p-10 rounded-2xl min-h-[250px] transition-all duration-500 hover:-translate-y-2"
+                         style="background: rgba(255,255,255,0.85); border: 1px solid rgba(106,44,117,0.08); animation-delay: 1.15s;">
+                        <span class="block mb-5 font-serif italic text-lg font-semibold" style="color: var(--gold);">III.</span>
+                        <h3 class="text-2xl font-normal mb-4" style="color: var(--plum-deep);">Rápido</h3>
+                        <p class="text-sm text-ink-soft leading-relaxed">Acceso instantáneo a tu información, donde y cuando lo necesites.</p>
                     </div>
                 </div>
             </main>
 
-            <footer class="spacer"></footer>
+            <footer class="h-20"></footer>
         </div>
     </body>
 </html>
