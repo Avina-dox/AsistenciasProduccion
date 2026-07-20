@@ -330,7 +330,7 @@
             <main>
                 <img src="{{ asset('images/logo.png') }}" alt="Logo" class="crest" style="width: 130px; height: auto;">
                 <p class="eyebrow">Sistema de asistencias</p>
-                <h1 class="headline">Bien<em>venido</em></h1>
+                <h1 class="headline"><em>Bienvenido</em></h1>
                 <div class="divider"></div>
                 <p class="subhead">Precisión, elegancia y control absoluto sobre el registro de tu equipo.</p>
 
