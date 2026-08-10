@@ -7,20 +7,40 @@ use Illuminate\Http\Request;
 use App\Models\Empleado;
 use App\Models\Departamento;
 use App\Models\Turno;
+use App\Models\Horario;
+
 
 class EmpleadoController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        $empleados = Empleado::with('departamento', 'turno')
-            ->latest()
-            ->paginate(10);
+  public function index()
+{
+    $empleados = Empleado::with([
+        'departamento',
+        'turno'
+    ])
+        ->latest()
+        ->paginate(10);
 
-        return view('empleados.index', compact('empleados'));
-    }
+    $horarios = Horario::all()
+        ->keyBy(function ($horario) {
+
+            return $horario->turno_id
+                . '-' .
+                $horario->departamento_id;
+
+        });
+
+    return view(
+        'empleados.index',
+        compact(
+            'empleados',
+            'horarios'
+        )
+    );
+}
 
     /**
      * Show the form for creating a new resource.

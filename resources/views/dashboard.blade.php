@@ -3,15 +3,15 @@
 @section('content')
 
 @php
-    // Círculo de progreso para las tarjetas de porcentaje (Asistencia / Ausentismo)
-    $radius = 42;
-    $circumference = 2 * M_PI * $radius;
+// Círculo de progreso para las tarjetas de porcentaje (Asistencia / Ausentismo)
+$radius = 42;
+$circumference = 2 * M_PI * $radius;
 
-    $asistenciaVal = min(max($data['asistencia_porcentaje'], 0), 100);
-    $asistenciaOffset = $circumference - ($asistenciaVal / 100) * $circumference;
+$asistenciaVal = min(max($data['asistencia_porcentaje'], 0), 100);
+$asistenciaOffset = $circumference - ($asistenciaVal / 100) * $circumference;
 
-    $ausentismoVal = min(max($data['ausentismo_porcentaje'], 0), 100);
-    $ausentismoOffset = $circumference - ($ausentismoVal / 100) * $circumference;
+$ausentismoVal = min(max($data['ausentismo_porcentaje'], 0), 100);
+$ausentismoOffset = $circumference - ($ausentismoVal / 100) * $circumference;
 @endphp
 
 <style>
@@ -21,43 +21,184 @@
        (geométrica libre, la más parecida) y luego a un sans-serif del sistema. */
     .font-century {
         font-family: 'Century Gothic', CenturyGothic, 'Century Gothic Paneuropean',
-                     Questrial, 'Avenir Next', sans-serif;
+            Questrial, 'Avenir Next', sans-serif;
     }
 
     @keyframes fadeUp {
-        from { opacity: 0; transform: translateY(16px); }
-        to   { opacity: 1; transform: translateY(0); }
+        from {
+            opacity: 0;
+            transform: translateY(16px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
+
     @keyframes shimmer {
-        to { background-position: -220% center; }
+        to {
+            background-position: -220% center;
+        }
     }
 
     .kpi-card {
         position: relative;
         overflow: hidden;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.08), 0 8px 20px rgba(0,0,0,0.04);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08), 0 8px 20px rgba(0, 0, 0, 0.04);
         transition: box-shadow .3s ease;
     }
+
     .kpi-card:hover {
-        box-shadow: 0 28px 70px rgba(0,0,0,0.12), 0 12px 30px rgba(0,0,0,0.06);
+        box-shadow: 0 28px 70px rgba(0, 0, 0, 0.12), 0 12px 30px rgba(0, 0, 0, 0.06);
     }
+
     .kpi-card .accent-bar {
-        position: absolute; top: 0; left: 0; right: 0; height: 3px;
-        transform: scaleX(0); transform-origin: left;
-        transition: transform .5s cubic-bezier(.4,0,.2,1);
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform .5s cubic-bezier(.4, 0, .2, 1);
     }
-    .kpi-card:hover .accent-bar { transform: scaleX(1); }
+
+    .kpi-card:hover .accent-bar {
+        transform: scaleX(1);
+    }
+
     .kpi-card .glow {
-        position: absolute; right: -1.5rem; bottom: -1.5rem;
-        width: 7rem; height: 7rem; border-radius: 9999px;
-        opacity: 0; filter: blur(28px); transition: opacity .5s ease;
+        position: absolute;
+        right: -1.5rem;
+        bottom: -1.5rem;
+        width: 7rem;
+        height: 7rem;
+        border-radius: 9999px;
+        opacity: 0;
+        filter: blur(28px);
+        transition: opacity .5s ease;
         pointer-events: none;
     }
-    .kpi-card:hover .glow { opacity: .35; }
-    .kpi-card:hover .icon-box { transform: scale(1.1) rotate(-6deg); }
-    .icon-box { transition: transform .3s ease; }
-    .ring-progress { transition: stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1); }
+
+    .kpi-card:hover .glow {
+        opacity: .35;
+    }
+
+    .kpi-card:hover .icon-box {
+        transform: scale(1.1) rotate(-6deg);
+    }
+
+    .icon-box {
+        transition: transform .3s ease;
+    }
+
+    .ring-progress {
+        transition: stroke-dashoffset 1.2s cubic-bezier(.4, 0, .2, 1);
+    }
 </style>
+@push('scripts')
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        const elemento = document.getElementById('graficaAsistencia');
+
+        if (!elemento) {
+            return;
+        }
+
+        const datos = @json($data['grafica_asistencia'] ?? []);
+
+        new Chart(elemento, {
+
+            type: 'bar',
+
+            data: {
+                labels: datos.map(item => item.dia),
+
+                datasets: [{
+                        label: 'Asistencia',
+                        data: datos.map(item => item.asistencia),
+                        backgroundColor: '#10B981',
+                    },
+                    {
+                        label: 'Faltas',
+                        data: datos.map(item => item.faltas),
+                        backgroundColor: '#EF4444',
+                    },
+                    {
+                        label: 'Retardos',
+                        data: datos.map(item => item.retardos),
+                        backgroundColor: '#F59E0B',
+                    },
+                    {
+                        label: 'PCG',
+                        data: datos.map(item => item.pcg),
+                        backgroundColor: '#3B82F6',
+                    },
+                    {
+                        label: 'PSG',
+                        data: datos.map(item => item.psg),
+                        backgroundColor: '#8B5CF6',
+                    },
+                    {
+                        label: 'Onomástico',
+                        data: datos.map(item => item.onomastico),
+                        backgroundColor: '#EC4899',
+                    },
+                    {
+                        label: 'Vacaciones',
+                        data: datos.map(item => item.vacaciones),
+                        backgroundColor: '#06B6D4',
+                    },
+                    {
+                        label: 'Incapacidad',
+                        data: datos.map(item => item.incapacidad),
+                        backgroundColor: '#64748B',
+                    }
+                ]
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+
+                scales: {
+                    x: {
+                        stacked: true,
+                        grid: {
+                            display: false
+                        }
+                    },
+
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+
+        });
+
+    });
+</script>
+
+@endpush
 
 <div class="font-century min-h-screen bg-gradient-to-br from-[#FBF8F3] to-[#F3EDE3]">
 
@@ -70,7 +211,7 @@
             {{-- decorative blob --}}
             <div class="absolute right-0 top-0 opacity-[0.08]">
                 <svg class="w-96 h-96" fill="currentColor" viewBox="0 0 200 200">
-                    <path class="text-[#E4D9A0]" d="M46,-73.5C59.2,-66.7,69.5,-53.8,76.5,-39.4C83.5,-25,87.3,-9.2,84.7,5.8C82.1,20.8,73.2,35.1,62.3,47.3C51.5,59.5,38.7,69.5,24.2,75.3C9.8,81,-6.3,82.5,-21.4,78.6C-36.5,74.7,-50.5,65.5,-60.6,53.4C-70.8,41.2,-77,26.1,-79.1,10.3C-81.3,-5.5,-79.4,-21.9,-72.7,-35.7C-66,-49.5,-54.5,-60.8,-41.1,-67.6C-27.8,-74.4,-13.9,-76.7,1.3,-78.8C16.4,-80.8,32.8,-82.4,46,-73.5Z"/>
+                    <path class="text-[#E4D9A0]" d="M46,-73.5C59.2,-66.7,69.5,-53.8,76.5,-39.4C83.5,-25,87.3,-9.2,84.7,5.8C82.1,20.8,73.2,35.1,62.3,47.3C51.5,59.5,38.7,69.5,24.2,75.3C9.8,81,-6.3,82.5,-21.4,78.6C-36.5,74.7,-50.5,65.5,-60.6,53.4C-70.8,41.2,-77,26.1,-79.1,10.3C-81.3,-5.5,-79.4,-21.9,-72.7,-35.7C-66,-49.5,-54.5,-60.8,-41.1,-67.6C-27.8,-74.4,-13.9,-76.7,1.3,-78.8C16.4,-80.8,32.8,-82.4,46,-73.5Z" />
                 </svg>
             </div>
 
@@ -193,8 +334,7 @@
                             cx="48" cy="48" r="{{ $radius }}" fill="none"
                             stroke="#059669" stroke-width="8" stroke-linecap="round"
                             stroke-dasharray="{{ $circumference }}"
-                            stroke-dashoffset="{{ $asistenciaOffset }}"
-                        />
+                            stroke-dashoffset="{{ $asistenciaOffset }}" />
                     </svg>
                     <div class="absolute inset-0 flex items-center justify-center">
                         <span class="text-xl font-bold tabular-nums text-emerald-600">{{ $data['asistencia_porcentaje'] }}%</span>
@@ -238,8 +378,7 @@
                             cx="48" cy="48" r="{{ $radius }}" fill="none"
                             stroke="#DC2626" stroke-width="8" stroke-linecap="round"
                             stroke-dasharray="{{ $circumference }}"
-                            stroke-dashoffset="{{ $ausentismoOffset }}"
-                        />
+                            stroke-dashoffset="{{ $ausentismoOffset }}" />
                     </svg>
                     <div class="absolute inset-0 flex items-center justify-center">
                         <span class="text-xl font-bold tabular-nums text-red-600">{{ $data['ausentismo_porcentaje'] }}%</span>
@@ -291,65 +430,90 @@
     </div>
     {{-- KPIs Operativos --}}
 
-<div class="mt-10">
+    <div class="mt-10 flex justify-center">
 
-    <div class="flex items-center justify-between mb-6">
+        <section class="w-full max-w-6xl rounded-[2rem] border border-slate-100 bg-white/90 p-8 shadow-xl shadow-slate-200/50 backdrop-blur-sm">
 
-        <div>
+            <div class="mb-8 flex flex-col items-center text-center">
 
-            <h2 class="text-2xl font-bold text-slate-800">
-                Indicadores Operativos
-            </h2>
+                <span class="mb-3 inline-flex items-center gap-2 rounded-full bg-violet-50 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.22em] text-violet-700">
+                    <span class="h-2 w-2 rounded-full bg-violet-500"></span>
+                    Operación
+                </span>
 
-            <p class="text-slate-500">
-                Estado general de asistencia del día.
-            </p>
+                <h2 class="text-2xl font-bold text-slate-800">
+                    Indicadores Operativos
+                </h2>
 
-        </div>
+                <p class="mt-2 text-slate-500">
+                    Estado general de asistencia del día.
+                </p>
+
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 justify-items-center">
+
+                {{-- Retardos --}}
+                <x-dashboard.kpi
+                    titulo="Retardos"
+                    valor="{{ $data['retardos'] }}"
+                    icono="⌛"
+                    color="amber" />
+
+                {{-- Horas Extra --}}
+                <x-dashboard.kpi
+                    titulo="Horas Extra"
+                    valor="{{ $data['horas_extra_autorizadas'] }}"
+                    icono="⏰"
+                    color="violet" />
+
+                {{-- Turno Matutino --}}
+                <x-dashboard.kpi
+                    titulo="Cobertura Matutina"
+                    :valor="$data['cobertura']['matutino']['porcentaje'] . '%'"
+                    icono="🌞"
+                    color="sky"
+                    :descripcion="$data['cobertura']['matutino']['personal'] . ' / ' . $data['cobertura']['matutino']['objetivo'] . ' personas'" />
+
+                {{-- Turno Nocturno --}}
+                <x-dashboard.kpi
+                    titulo="Cobertura Nocturna"
+                    :valor="$data['cobertura']['nocturno']['porcentaje'] . '%'"
+                    icono="🌙"
+                    color="indigo"
+                    :descripcion="$data['cobertura']['nocturno']['personal'] . ' / ' . $data['cobertura']['nocturno']['objetivo'] . ' personas'" />
+            </div>
+            {{-- ============================================================
+     GRÁFICO DE ASISTENCIA
+     ============================================================ --}}
+
+            <div class="mt-8 bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+
+                <div class="mb-6">
+
+                    <h2 class="text-xl font-bold text-slate-800">
+                        Distribución de Asistencia
+                    </h2>
+
+                    <p class="text-sm text-slate-500 mt-1">
+                        Comportamiento diario de los diferentes estatus de asistencia.
+                    </p>
+
+                </div>
+
+                <div class="relative h-[420px]">
+
+                    <canvas id="graficaAsistencia"></canvas>
+
+                </div>
+
+            </div>
+
+
+
+        </section>
 
     </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-
-        
-
-        
-
-        {{-- Retardos --}}
-        <x-dashboard.kpi
-            titulo="Retardos"
-            valor="{{ $data['retardos'] }}"
-            icono="⌛"
-            color="amber"
-        />
-
-        {{-- Horas Extra --}}
-        <x-dashboard.kpi
-            titulo="Horas Extra"
-            valor="{{ $data['horas_extra_autorizadas'] }}"
-            icono="⏰"
-            color="violet"
-        />
-
-        {{-- Turno Matutino --}}
-        <x-dashboard.kpi
-            titulo="Cobertura Matutina"
-            valor="90%"
-            icono="🌞"
-            color="sky"
-        />
-
-        {{-- Turno Nocturno --}}
-        <x-dashboard.kpi
-            titulo="Cobertura Nocturna"
-            valor="72%"
-            icono="🌙"
-            color="indigo"
-        />
-
-    </div>
-
-</div>
 
 </div>
 

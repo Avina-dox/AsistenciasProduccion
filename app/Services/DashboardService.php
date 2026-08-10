@@ -31,6 +31,101 @@ class DashboardService
         $porcentajeAusentismo = $totalActivos > 0
             ? round(($faltas / $totalActivos) * 100, 1)
             : 0;
+        $personalMatutino = Empleado::where('estatus', 'ACTIVO')
+            ->whereHas('turno', function ($q) {
+                $q->where('nombre', 'MATUTINO');
+            })
+            ->count();
+
+        $personalNocturno = Empleado::where('estatus', 'ACTIVO')
+            ->whereHas('turno', function ($q) {
+                $q->where('nombre', 'NOCTURNO');
+            })
+            ->count();
+
+        $coberturaMatutina = round(
+            ($personalMatutino / 91) * 100,
+            1
+        );
+
+        $coberturaNocturna = round(
+            ($personalNocturno / 72) * 100,
+            1
+        );
+
+        /*
+|--------------------------------------------------------------------------
+| Gráfico de asistencia
+|--------------------------------------------------------------------------
+*/
+
+        $inicioMes = $hoy->copy()->startOfMonth();
+        $finMes = $hoy->copy()->endOfMonth();
+
+        $registrosGrafica = Asistencia::with('estatus')
+            ->whereBetween('fecha', [
+                $inicioMes,
+                $finMes
+            ])
+            ->get()
+            ->groupBy(function ($asistencia) {
+                return Carbon::parse($asistencia->fecha)
+                    ->format('Y-m-d');
+            });
+        $graficaAsistencia = [];
+
+        $periodo = $inicioMes->copy();
+
+        while ($periodo->lte($finMes)) {
+
+            $fecha = $periodo->format('Y-m-d');
+
+            $registros = $registrosGrafica->get(
+                $fecha,
+                collect()
+            );
+
+            $graficaAsistencia[] = [
+
+                'dia' => $periodo->format('d'),
+
+                'asistencia' => $registros
+                    ->where('estatus.codigo', 'A')
+                    ->count(),
+
+                'faltas' => $registros
+                    ->where('estatus.codigo', 'F')
+                    ->count(),
+
+                'retardos' => $registros
+                    ->where('estatus.codigo', 'R')
+                    ->count(),
+
+                'pcg' => $registros
+                    ->where('estatus.codigo', 'PCG')
+                    ->count(),
+
+                'psg' => $registros
+                    ->where('estatus.codigo', 'PSG')
+                    ->count(),
+
+                'onomastico' => $registros
+                    ->where('estatus.codigo', 'O')
+                    ->count(),
+
+                'vacaciones' => $registros
+                    ->where('estatus.codigo', 'V')
+                    ->count(),
+
+                'incapacidad' => $registros
+                    ->where('estatus.codigo', 'I')
+                    ->count(),
+
+            ];
+
+            $periodo->addDay();
+        }
+
 
         return [
 
@@ -48,6 +143,24 @@ class DashboardService
             'asistencia_porcentaje' => $porcentajeAsistencia,
 
             'ausentismo_porcentaje' => $porcentajeAusentismo,
+            'cobertura' => [
+
+                'matutino' => [
+                    'personal' => $personalMatutino,
+                    'objetivo' => 91,
+                    'porcentaje' => $coberturaMatutina,
+                ],
+
+                'nocturno' => [
+                    'personal' => $personalNocturno,
+                    'objetivo' => 72,
+                    'porcentaje' => $coberturaNocturna,
+                ],
+
+            ],
+            'grafica_asistencia' => $graficaAsistencia,
+
+
 
             /*
             |--------------------------------------------------------------------------
@@ -57,40 +170,37 @@ class DashboardService
 
             'presentes' => $presentes,
 
-'faltas' => $faltas,
+            'faltas' => $faltas,
 
-'retardos' => Asistencia::whereDate(
-    'fecha',
-    $hoy
-)
-->whereHas('estatus', function ($q) {
+            'retardos' => Asistencia::whereDate(
+                'fecha',
+                $hoy
+            )
+                ->whereHas('estatus', function ($q) {
 
-    $q->where('codigo', 'R');
+                    $q->where('codigo', 'R');
+                })
+                ->count(),
 
-})
-->count(),
+            'vacaciones' => Asistencia::whereDate(
+                'fecha',
+                $hoy
+            )
+                ->whereHas('estatus', function ($q) {
 
-'vacaciones' => Asistencia::whereDate(
-    'fecha',
-    $hoy
-)
-->whereHas('estatus', function ($q) {
+                    $q->where('codigo', 'V');
+                })
+                ->count(),
 
-    $q->where('codigo', 'V');
+            'incapacidades' => Asistencia::whereDate(
+                'fecha',
+                $hoy
+            )
+                ->whereHas('estatus', function ($q) {
 
-})
-->count(),
-
-'incapacidades' => Asistencia::whereDate(
-    'fecha',
-    $hoy
-)
-->whereHas('estatus', function ($q) {
-
-    $q->where('codigo', 'I');
-
-})
-->count(),
+                    $q->where('codigo', 'I');
+                })
+                ->count(),
 
             /*
             |--------------------------------------------------------------------------

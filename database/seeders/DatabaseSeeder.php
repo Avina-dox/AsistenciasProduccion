@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             DepartamentoSeeder::class,
             TurnoSeeder::class,
             RoleSeeder::class,
+            HorarioSeeder::class,
         ]);
     }
 }

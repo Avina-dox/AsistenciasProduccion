@@ -5,14 +5,25 @@
 
         .font-century {
             font-family: 'Century Gothic', CenturyGothic, 'Century Gothic Paneuropean',
-                         Questrial, 'Avenir Next', sans-serif;
+                Questrial, 'Avenir Next', sans-serif;
         }
 
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(14px); }
-            to   { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        .row-fade { opacity: 0; animation: fadeUp .5s ease forwards; }
+
+        .row-fade {
+            opacity: 0;
+            animation: fadeUp .5s ease forwards;
+        }
 
         .estatus-select {
             appearance: none;
@@ -26,15 +37,15 @@
     </style>
 
     @php
-        $estatusColor = function ($estatus) {
-            return match ($estatus) {
-                'ACTIVO'     => ['bg' => '#ECFDF5', 'fg' => '#059669'],
-                'INACTIVO'   => ['bg' => '#F1F0EF', 'fg' => '#6E6274'],
-                'VACACIONES' => ['bg' => '#F7F2DE', 'fg' => '#B6A644'],
-                'BAJA'       => ['bg' => '#FEF2F2', 'fg' => '#DC2626'],
-                default      => ['bg' => '#F3EAF5', 'fg' => '#6A2C75'],
-            };
-        };
+    $estatusColor = function ($estatus) {
+    return match ($estatus) {
+    'ACTIVO' => ['bg' => '#ECFDF5', 'fg' => '#059669'],
+    'INACTIVO' => ['bg' => '#F1F0EF', 'fg' => '#6E6274'],
+    'VACACIONES' => ['bg' => '#F7F2DE', 'fg' => '#B6A644'],
+    'BAJA' => ['bg' => '#FEF2F2', 'fg' => '#DC2626'],
+    default => ['bg' => '#F3EAF5', 'fg' => '#6A2C75'],
+    };
+    };
     @endphp
 
     <div class="font-century min-h-screen bg-gradient-to-br from-[#FBF8F3] to-[#F3EDE3] p-6">
@@ -81,44 +92,159 @@
                     <tbody class="divide-y divide-[#2B2030]/5">
 
                         @forelse($empleados as $i => $empleado)
-                        @php $c = $estatusColor($empleado->estatus); @endphp
-                        <tr class="row-fade transition-colors duration-200 hover:bg-[#6A2C75]/[0.03]" style="animation-delay: {{ $i * 0.04 }}s;">
 
-                            <td class="px-5 py-4 text-sm text-[#6E6274]">{{ $empleado->codigo_empleado }}</td>
+                        @php
 
-                            <td class="px-5 py-4 text-sm">
-                                <div class="font-semibold text-[#2B2030]">{{ $empleado->nombre }} {{ $empleado->apellido_paterno }}</div>
+                        $c = $estatusColor($empleado->estatus);
+
+                        $claveHorario =
+                        $empleado->turno_id .
+                        '-' .
+                        $empleado->departamento_id;
+
+                        $horario = $horarios->get($claveHorario);
+
+                        @endphp
+
+                        <tr
+                            class="row-fade transition-colors duration-200 hover:bg-[#6A2C75]/[0.03]"
+                            style="animation-delay: {{ $i * 0.04 }}s;">
+
+                            {{-- Código --}}
+                            <td class="px-5 py-4 text-sm text-[#6E6274]">
+
+                                {{ $empleado->codigo_empleado }}
+
                             </td>
 
-                            <td class="px-5 py-4 text-sm text-[#2B2030]">{{ $empleado->departamento->nombre ?? 'Sin departamento' }}</td>
 
-                            <td class="px-5 py-4 text-sm text-[#2B2030]">{{ $empleado->turno->nombre ?? 'Sin turno' }}</td>
-
-                            <td class="px-5 py-4 text-sm text-[#6E6274]">{{ $empleado->turno->hora_entrada ?? 'Sin horario' }} - {{ $empleado->turno->hora_salida ?? 'Sin horario' }}</td>
-
+                            {{-- Nombre --}}
                             <td class="px-5 py-4 text-sm">
 
-                                <form action="{{ route('empleados.update', $empleado) }}" method="POST">
+                                <div class="font-semibold text-[#2B2030]">
+
+                                    {{ $empleado->nombre }}
+                                    {{ $empleado->apellido_paterno }}
+
+                                </div>
+
+                            </td>
+
+
+                            {{-- Departamento --}}
+                            <td class="px-5 py-4 text-sm text-[#2B2030]">
+
+                                {{ $empleado->departamento->nombre ?? 'Sin departamento' }}
+
+                            </td>
+
+
+                            {{-- Turno --}}
+                            <td class="px-5 py-4 text-sm text-[#2B2030]">
+
+                                {{ $empleado->turno->nombre ?? 'Sin turno' }}
+
+                            </td>
+
+
+                            {{-- Horario --}}
+                            <td class="px-5 py-4 text-sm text-[#6E6274]">
+
+                                @if($horario)
+
+                                <span class="font-medium text-[#2B2030]">
+
+                                    {{ \Carbon\Carbon::parse($horario->hora_entrada)->format('H:i') }}
+
+                                    -
+
+                                    {{ \Carbon\Carbon::parse($horario->hora_salida)->format('H:i') }}
+
+                                </span>
+
+                                @else
+
+                                <span class="text-gray-400">
+
+                                    Sin horario
+
+                                </span>
+
+                                @endif
+
+                            </td>
+
+
+                            {{-- Estatus --}}
+                            <td class="px-5 py-4 text-sm">
+
+                                <form
+                                    action="{{ route('empleados.update', $empleado) }}"
+                                    method="POST">
 
                                     @csrf
+
                                     @method('PUT')
 
-                                    <input type="hidden" name="codigo_empleado" value="{{ $empleado->codigo_empleado }}">
-                                    <input type="hidden" name="nombre" value="{{ $empleado->nombre }}">
-                                    <input type="hidden" name="apellido_paterno" value="{{ $empleado->apellido_paterno }}">
-                                    <input type="hidden" name="departamento_id" value="{{ $empleado->departamento_id }}">
-                                    <input type="hidden" name="turno_id" value="{{ $empleado->turno_id }}">
+
+                                    <input
+                                        type="hidden"
+                                        name="codigo_empleado"
+                                        value="{{ $empleado->codigo_empleado }}">
+
+                                    <input
+                                        type="hidden"
+                                        name="nombre"
+                                        value="{{ $empleado->nombre }}">
+
+                                    <input
+                                        type="hidden"
+                                        name="apellido_paterno"
+                                        value="{{ $empleado->apellido_paterno }}">
+
+                                    <input
+                                        type="hidden"
+                                        name="departamento_id"
+                                        value="{{ $empleado->departamento_id }}">
+
+                                    <input
+                                        type="hidden"
+                                        name="turno_id"
+                                        value="{{ $empleado->turno_id }}">
+
 
                                     <select
                                         name="estatus"
                                         onchange="this.form.submit()"
                                         class="estatus-select rounded-full border-0 px-3 py-1.5 text-xs font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#6A2C75]/30"
-                                        style="background-color: {{ $c['bg'] }}; color: {{ $c['fg'] }};">
+                                        style="
+                            background-color: {{ $c['bg'] }};
+                            color: {{ $c['fg'] }};
+                        ">
 
-                                        <option value="ACTIVO" {{ $empleado->estatus == 'ACTIVO' ? 'selected' : '' }}>ACTIVO</option>
-                                        <option value="INACTIVO" {{ $empleado->estatus == 'INACTIVO' ? 'selected' : '' }}>INACTIVO</option>
-                                        <option value="VACACIONES" {{ $empleado->estatus == 'VACACIONES' ? 'selected' : '' }}>VACACIONES</option>
-                                        <option value="BAJA" {{ $empleado->estatus == 'BAJA' ? 'selected' : '' }}>BAJA</option>
+                                        <option
+                                            value="ACTIVO"
+                                            {{ $empleado->estatus == 'ACTIVO' ? 'selected' : '' }}>
+                                            ACTIVO
+                                        </option>
+
+                                        <option
+                                            value="INACTIVO"
+                                            {{ $empleado->estatus == 'INACTIVO' ? 'selected' : '' }}>
+                                            INACTIVO
+                                        </option>
+
+                                        <option
+                                            value="VACACIONES"
+                                            {{ $empleado->estatus == 'VACACIONES' ? 'selected' : '' }}>
+                                            VACACIONES
+                                        </option>
+
+                                        <option
+                                            value="BAJA"
+                                            {{ $empleado->estatus == 'BAJA' ? 'selected' : '' }}>
+                                            BAJA
+                                        </option>
 
                                     </select>
 
@@ -126,33 +252,66 @@
 
                             </td>
 
+
+                            {{-- Acciones --}}
                             <td class="px-5 py-4 text-sm">
+
                                 <div class="flex flex-wrap gap-2">
-                                    <a href="{{ route('empleados.edit', $empleado) }}"
+
+                                    <a
+                                        href="{{ route('empleados.edit', $empleado) }}"
                                         class="inline-flex items-center rounded-xl bg-gradient-to-r from-[#E4D9A0] to-[#B6A644] px-4 py-2 text-sm font-semibold text-[#45193F] shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
                                         Editar
                                     </a>
-                                    <form method="POST" action="{{ route('empleados.destroy', $empleado) }}" onsubmit="return confirm('¿Eliminar este empleado?');">
+
+
+                                    <form
+                                        method="POST"
+                                        action="{{ route('empleados.destroy', $empleado) }}"
+                                        onsubmit="return confirm('¿Eliminar este empleado?');">
+
                                         @csrf
+
                                         @method('DELETE')
-                                        <button type="submit"
+
+                                        <button
+                                            type="submit"
                                             class="inline-flex items-center rounded-xl bg-red-50 px-4 py-2 text-sm font-semibold text-red-600 transition-all duration-300 hover:-translate-y-0.5 hover:bg-red-600 hover:text-white hover:shadow-md">
                                             Eliminar
                                         </button>
+
                                     </form>
+
                                 </div>
+
                             </td>
 
                         </tr>
+
                         @empty
+
                         <tr>
-                            <td colspan="7" class="text-center p-12">
+
+                            <td
+                                colspan="7"
+                                class="text-center p-12">
+
                                 <div class="flex flex-col items-center gap-2 text-[#6E6274]">
-                                    <span class="text-3xl">🗂️</span>
-                                    <p class="font-medium">No hay empleados registrados.</p>
+
+                                    <span class="text-3xl">
+                                        🗂️
+                                    </span>
+
+                                    <p class="font-medium">
+                                        No hay empleados registrados.
+                                    </p>
+
                                 </div>
+
                             </td>
+
                         </tr>
+
                         @endforelse
 
                     </tbody>

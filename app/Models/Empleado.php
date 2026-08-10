@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
 use App\Models\HoraExtraDetalle;
 use App\Models\User;
 
@@ -27,41 +26,55 @@ class Empleado extends Model
         'estatus',
         'turno_id',
         'onomastico',
-
     ];
 
-    // RELACIONES
+    /*
+    |--------------------------------------------------------------------------
+    | Relaciones
+    |--------------------------------------------------------------------------
+    */
 
     public function departamento()
     {
-        return $this->belongsTo(Departamento::class);
+        return $this->belongsTo(
+            Departamento::class
+        );
+    }
+
+    public function turno()
+    {
+        return $this->belongsTo(
+            Turno::class
+        );
     }
 
     public function asistencias()
     {
-        return $this->hasMany(Asistencia::class);
+        return $this->hasMany(
+            Asistencia::class
+        );
     }
 
     public function permisos()
     {
-        return $this->hasMany(Permiso::class);
+        return $this->hasMany(
+            Permiso::class
+        );
     }
 
-   public function horasExtras()
-{
-    return $this->hasMany(
-        HoraExtraDetalle::class,
-        'empleado_id',
-        'id'
-    );
-}
-
-    public function turno()
+    public function horasExtras()
     {
-        return $this->belongsTo(Turno::class);
+        return $this->hasMany(
+            HoraExtraDetalle::class,
+            'empleado_id',
+            'id'
+        );
     }
+
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(
+            User::class
+        );
     }
 }
