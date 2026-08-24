@@ -12,6 +12,7 @@ use App\Http\Controllers\HoraExtraController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExportController;
 
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -25,6 +26,11 @@ Route::get(
     '/asistencias/exportar',
     [ExportController::class,'asistencias']
 )->name('asistencias.exportar');
+Route::get(
+    '/asistencias/pdf',
+    [ExportController::class, 'pdf']
+)->middleware('auth')
+  ->name('asistencias.pdf');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -81,3 +87,11 @@ Route::patch(
     [HoraExtraController::class, 'rechazar']
 )->name('hora-extras.rechazar');
 require __DIR__ . '/auth.php';
+
+Route::post(
+    '/asistencias/enviar-pdf',
+    [ExportController::class, 'enviarPdf']
+)->middleware('auth')
+  ->name('asistencias.enviarPdf');
+
+

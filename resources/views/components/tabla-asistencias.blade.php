@@ -161,103 +161,100 @@ new class extends Component
 
     <div class="flex items-center justify-between mb-6">
 
-        <div class="flex items-center gap-4">
+        <div class="clean-panel p-5 mb-6">
 
-            {{-- BOTÓN ATRÁS --}}
+    <div class="flex flex-col lg:flex-row lg:items-end gap-5">
 
-            <button
-                wire:click="periodoAnterior"
-                class="
-                px-4
-                py-2
-                rounded-xl
-                bg-white
-                border
-                border-[#2B2030]/10
-                shadow-sm
-                hover:border-[#6A2C75]/40
-                hover:bg-[#6A2C75]/5
-                hover:text-[#6A2C75]
-                transition-all
-                duration-300
-            ">
+        {{-- TÍTULO --}}
 
-                ←
+        <div class="flex-1">
 
-            </button>
+            <div class="flex items-center gap-3 mb-2">
 
-            {{-- MES ACTUAL --}}
+                <div
+                    class="w-1.5 h-6 rounded-full"
+                    style="background-color:#6a2c75;"
+                ></div>
 
-            <div class="text-center">
-
-                <h2 class="text-2xl font-bold modern-font text-[#2B2030]">
-                    Del {{ \Carbon\Carbon::parse($desde)->translatedFormat('d M Y') }}
-                    al {{ \Carbon\Carbon::parse($hasta)->translatedFormat('d M Y') }}
-                    <div class="flex justify-center gap-2 mt-3">
-
-                        <button
-                            wire:click="mesActual"
-                            class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300
-            {{ $modo == 'MES'
-                ? 'bg-gradient-to-r from-[#6A2C75] to-[#45193F] text-white shadow-md shadow-[#45193F]/20'
-                : 'bg-white border border-[#2B2030]/10 text-[#6E6274] hover:border-[#6A2C75]/30 hover:bg-[#6A2C75]/5' }}">
-
-                            Mes
-
-                        </button>
-
-                        <button
-                            wire:click="semanaActual"
-                            class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300
-            {{ $modo == 'SEMANA'
-                ? 'bg-gradient-to-r from-[#6A2C75] to-[#45193F] text-white shadow-md shadow-[#45193F]/20'
-                : 'bg-white border border-[#2B2030]/10 text-[#6E6274] hover:border-[#6A2C75]/30 hover:bg-[#6A2C75]/5' }}">
-
-                            Semana
-
-                        </button>
-
-                        <button
-                            wire:click="quincenaActual"
-                            class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300
-            {{ $modo == 'QUINCENA'
-                ? 'bg-gradient-to-r from-[#6A2C75] to-[#45193F] text-white shadow-md shadow-[#45193F]/20'
-                : 'bg-white border border-[#2B2030]/10 text-[#6E6274] hover:border-[#6A2C75]/30 hover:bg-[#6A2C75]/5' }}">
-
-                            Quincena
-
-                        </button>
-
-                    </div>
-
+                <h2 class="modern-font text-lg font-bold text-[#2B2030]">
+                    Periodo de asistencia
                 </h2>
 
             </div>
 
-            {{-- BOTÓN SIGUIENTE --}}
-
-            <button
-                wire:click="siguientePeriodo"
-                class="
-                px-4
-                py-2
-                rounded-xl
-                bg-white
-                border
-                border-[#2B2030]/10
-                shadow-sm
-                hover:border-[#6A2C75]/40
-                hover:bg-[#6A2C75]/5
-                hover:text-[#6A2C75]
-                transition-all
-                duration-300
-            ">
-
-                →
-
-            </button>
+            <p class="text-sm text-[#6E6274]">
+                Selecciona el periodo que deseas consultar.
+            </p>
 
         </div>
+
+
+        {{-- DESDE --}}
+
+        <div class="w-full lg:w-56">
+
+            <label
+                for="desde"
+                class="block text-sm font-semibold text-[#2B2030] mb-2"
+            >
+                Desde
+            </label>
+
+            <input
+                id="desde"
+                type="date"
+                wire:model.live="desde"
+                class="modern-font w-full border border-[#2B2030]/15 rounded-xl px-3 py-2.5 bg-white shadow-sm focus:border-[#6A2C75] focus:outline-none focus:ring-2 focus:ring-[#6A2C75]/15"
+            >
+
+        </div>
+
+
+        {{-- HASTA --}}
+
+        <div class="w-full lg:w-56">
+
+            <label
+                for="hasta"
+                class="block text-sm font-semibold text-[#2B2030] mb-2"
+            >
+                Hasta
+            </label>
+
+            <input
+                id="hasta"
+                type="date"
+                wire:model.live="hasta"
+                min="{{ $desde }}"
+                class="modern-font w-full border border-[#2B2030]/15 rounded-xl px-3 py-2.5 bg-white shadow-sm focus:border-[#6A2C75] focus:outline-none focus:ring-2 focus:ring-[#6A2C75]/15"
+            >
+
+        </div>
+
+    </div>
+
+
+    {{-- PERIODO SELECCIONADO --}}
+
+    <div class="mt-4 flex items-center gap-2 text-sm text-[#6A2C75]">
+
+        <span>📅</span>
+
+        <span class="font-semibold">
+            Periodo:
+        </span>
+
+        <span>
+            {{ \Carbon\Carbon::parse($desde)->translatedFormat('d M Y') }}
+            →
+            {{ \Carbon\Carbon::parse($hasta)->translatedFormat('d M Y') }}
+        </span>
+
+    </div>
+
+</div>
+
+        
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 items-end">
 
             <div class="space-y-2">
@@ -342,6 +339,64 @@ new class extends Component
     📊 Exportar Excel
 
 </a>
+<a
+    href="{{ route('asistencias.pdf', [
+        'desde' => $desde,
+        'hasta' => $hasta,
+        'departamento' => $departamento_id,
+        'turno' => $turno_id,
+        'estatus' => $estatusEmpleado
+    ]) }}"
+    class="modern-font inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300"
+>
+    📄 Generar PDF
+</a>
+
+<form
+    action="{{ route('asistencias.enviarPdf') }}"
+    method="POST"
+    class="inline"
+>
+    @csrf
+
+    <input
+        type="hidden"
+        name="desde"
+        value="{{ $desde }}"
+    >
+
+    <input
+        type="hidden"
+        name="hasta"
+        value="{{ $hasta }}"
+    >
+
+    <input
+        type="hidden"
+        name="departamento"
+        value="{{ $departamento_id }}"
+    >
+
+    <input
+        type="hidden"
+        name="turno"
+        value="{{ $turno_id }}"
+    >
+
+    <input
+        type="hidden"
+        name="estatus"
+        value="{{ $estatusEmpleado }}"
+    >
+
+    <button
+        type="submit"
+        class="modern-font inline-flex items-center justify-center gap-2 bg-[#6A2C75] hover:bg-[#45193F] text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300"
+    >
+        📧 Enviar PDF a RH
+    </button>
+</form>
+
 
         </div>
 
@@ -485,7 +540,7 @@ new class extends Component
                                     == $item->id
                                     )>
 
-                                    {{ $item->codigo }}
+                                    {{ $item->codigo === 'I' ? 'INC' : $item->codigo }}
 
                                 </option>
 

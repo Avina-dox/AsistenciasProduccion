@@ -12,7 +12,7 @@
                 <form action="{{ route('empleados.update', $empleado) }}" method="POST">
 
                     @csrf
-                    @method('PUT')
+                    @method('PATCH')
 
                     @include('empleados.form')
 

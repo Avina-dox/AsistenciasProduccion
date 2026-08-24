@@ -91,7 +91,15 @@
 
                     <tbody class="divide-y divide-[#2B2030]/5">
 
-                        @forelse($empleados as $i => $empleado)
+                        @php
+                            $empleadosOrdenados = $empleados->sortBy([
+                                ['nombre', 'desc'],
+                                ['apellido_paterno', 'desc'],
+                                ['apellido_materno', 'desc'],
+                            ]);
+                        @endphp
+
+                        @forelse($empleadosOrdenados as $i => $empleado)
 
                         @php
 
@@ -123,8 +131,9 @@
 
                                 <div class="font-semibold text-[#2B2030]">
 
-                                    {{ $empleado->nombre }}
                                     {{ $empleado->apellido_paterno }}
+                                    {{ $empleado->apellido_materno }}
+                                    {{ $empleado->nombre }}
 
                                 </div>
 

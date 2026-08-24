@@ -21,6 +21,9 @@ return [
     'resend' => [
         'key' => env('RESEND_API_KEY'),
     ],
+    'zkteco' => [
+    'token' => env('ZKTECO_API_TOKEN'),
+],
 
     'ses' => [
         'key' => env('AWS_ACCESS_KEY_ID'),
@@ -34,5 +37,17 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+
+    'microsoft' => [
+
+    'tenant_id' => env('MICROSOFT_TENANT_ID'),
+
+    'client_id' => env('MICROSOFT_CLIENT_ID'),
+
+    'client_secret' => env('MICROSOFT_CLIENT_SECRET'),
+
+    'mail_from' => env('MICROSOFT_MAIL_FROM'),
+
+],
 
 ];

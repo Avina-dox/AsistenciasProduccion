@@ -61,148 +61,148 @@
             </th>
             @foreach($dias as $fecha)
 
-<th
-    style="
+            <th
+                style="
         background:#DDD6FE;
         text-align:center;
         font-weight:bold;
     ">
 
-    {{ $fecha->format('d') }}
+                {{ $fecha->format('d') }}
 
-</th>
+            </th>
 
-@endforeach
-<th style="background:#BBF7D0">A</th>
+            @endforeach
+            <th style="background:#BBF7D0">A</th>
 
-<th style="background:#FECACA">F</th>
+            <th style="background:#FECACA">F</th>
 
-<th style="background:#FEF3C7">R</th>
+            <th style="background:#FEF3C7">R</th>
 
-<th style="background:#DBEAFE">V</th>
+            <th style="background:#DBEAFE">V</th>
 
-<th style="background:#E9D5FF">I</th>
+            <th style="background:#E9D5FF">I</th>
 
-<th style="background:#CFFAFE">PCG</th>
+            <th style="background:#CFFAFE">PCG</th>
 
-<th style="background:#E5E7EB">PSG</th>
+            <th style="background:#E5E7EB">PSG</th>
 
-<th style="background:#FBCFE8">O</th>
+            <th style="background:#FBCFE8">O</th>
 
-<th style="background:#DCFCE7">HE</th>
+            <th style="background:#DCFCE7">HE</th>
 
-</tr>
+        </tr>
 
-</thead>
+    </thead>
 
-<tbody>
-    @foreach($empleados as $empleado)
+    <tbody>
+        @foreach($empleados as $empleado)
 
-    @php
+        @php
 
         $totales = app(App\Services\AsistenciaService::class)
-            ->obtenerTotalesEmpleado(
-                $empleado,
-                $desde,
-                $hasta
-            );
+        ->obtenerTotalesEmpleado(
+        $empleado,
+        $desde,
+        $hasta
+        );
 
-    @endphp
+        @endphp
 
-    <tr>
+        <tr>
 
-        <td>
+            <td>
 
-            {{ $empleado->codigo_empleado }}
+                {{ $empleado->codigo_empleado }}
 
-        </td>
+            </td>
 
-        <td>
+            <td>
 
-            {{ $empleado->nombre }}
+                {{ $empleado->nombre }}
 
-        </td>
+            </td>
 
-        @foreach($dias as $fecha)
+            @foreach($dias as $fecha)
 
             @php
 
-                $asistencia = $empleado->asistencias
+            $asistencia = $empleado->asistencias
 
-                    ->where(
-                        'fecha',
-                        $fecha->format('Y-m-d')
-                    )
+            ->where(
+            'fecha',
+            $fecha->format('Y-m-d')
+            )
 
-                    ->first();
+            ->first();
 
             @endphp
 
             <td style="text-align:center;">
+                {{ ($asistencia?->estatus?->codigo ?? '') === 'I'
+        ? 'INC'
+        : ($asistencia?->estatus?->codigo ?? '') }}
+            </td>
 
-                {{ $asistencia?->estatus?->codigo ?? '' }}
+            @endforeach
+
+            <td>
+
+                {{ $totales['A'] }}
 
             </td>
 
-        @endforeach
+            <td>
 
-        <td>
+                {{ $totales['F'] }}
 
-            {{ $totales['A'] }}
+            </td>
 
-        </td>
+            <td>
 
-        <td>
+                {{ $totales['R'] }}
 
-            {{ $totales['F'] }}
+            </td>
 
-        </td>
+            <td>
 
-        <td>
+                {{ $totales['V'] }}
 
-            {{ $totales['R'] }}
+            </td>
 
-        </td>
+            <td>
 
-        <td>
+                {{ $totales['I'] }}
 
-            {{ $totales['V'] }}
+            </td>
 
-        </td>
+            <td>
 
-        <td>
+                {{ $totales['PCG'] }}
 
-            {{ $totales['I'] }}
+            </td>
 
-        </td>
+            <td>
 
-        <td>
+                {{ $totales['PSG'] }}
 
-            {{ $totales['PCG'] }}
+            </td>
 
-        </td>
+            <td>
 
-        <td>
+                {{ $totales['O'] }}
 
-            {{ $totales['PSG'] }}
+            </td>
 
-        </td>
+            <td>
 
-        <td>
-
-            {{ $totales['O'] }}
-
-        </td>
-
-        <td>
-
-            {{ number_format(
+                {{ number_format(
                 $totales['HE'],
                 2
             ) }}
 
-        </td>
+            </td>
 
-    </tr>
+        </tr>
 
-@endforeach
+        @endforeach
