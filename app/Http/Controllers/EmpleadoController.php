@@ -69,32 +69,10 @@ class EmpleadoController extends Controller
 
         $remitente = auth()->user()?->email;
 
-        $html = "
-        <h2>Alta de nuevo empleado</h2>
-
-        <p>Se ha registrado un nuevo empleado en el Sistema de Asistencias.</p>
-
-        <hr>
-
-        <p><strong>Nombre:</strong> {$empleado->nombre} {$empleado->apellido_paterno}</p>
-
-        <p><strong>Código:</strong> {$empleado->codigo_empleado}</p>
-
-        <p><strong>Departamento:</strong> {$empleado->departamento?->nombre}</p>
-
-        <p><strong>Turno:</strong> {$empleado->turno?->nombre}</p>
-
-        <p><strong>Fecha de ingreso:</strong> {$empleado->fecha_ingreso}</p>
-
-        <p><strong>Estatus:</strong> {$empleado->estatus}</p>
-
-        <hr>
-
-        <p>
-            Registro realizado por:
-            <strong>{$remitente}</strong>
-        </p>
-    ";
+        $html = view('emails.empleados.alta', [
+            'empleado' => $empleado,
+            'remitente' => $remitente,
+        ])->render();
 
         $destinatariosRH = \App\Models\User::role('RH')
             ->pluck('email')
@@ -167,53 +145,11 @@ class EmpleadoController extends Controller
 
         $remitente = auth()->user()?->email;
 
-        $html = "
-            <h2>Baja de empleado</h2>
-
-            <p>
-                Se ha registrado la baja de un empleado en el
-                Sistema de Asistencias.
-            </p>
-
-            <hr>
-
-            <p>
-                <strong>Nombre:</strong>
-                {$empleado->nombre} {$empleado->apellido_paterno}
-            </p>
-
-            <p>
-                <strong>Código:</strong>
-                {$empleado->codigo_empleado}
-            </p>
-
-            <p>
-                <strong>Departamento:</strong>
-                {$empleado->departamento?->nombre}
-            </p>
-
-            <p>
-                <strong>Turno:</strong>
-                {$empleado->turno?->nombre}
-            </p>
-
-            <p>
-                <strong>Estatus anterior:</strong>
-                {$estatusAnterior}
-            </p>
-
-            <p>
-                <strong>Nuevo estatus:</strong>
-                BAJA
-            </p>
-
-            <hr>
-
-            <p>
-                Registro realizado por:
-                <strong>{$remitente}</strong>
-            </p>
-        ";
+        $html = view('emails.empleados.baja', [
+            'empleado' => $empleado,
+            'estatusAnterior' => $estatusAnterior,
+            'remitente' => $remitente,
+        ])->render();
 
         $mail->sendHtml(
             'aux.sistemas@dasavena.com',
@@ -306,53 +242,11 @@ class EmpleadoController extends Controller
         $remitente = auth()->user()?->email
             ?? config('services.microsoft.mail_from');
 
-        $html = "
-            <h2>Baja de empleado</h2>
-
-            <p>
-                Se ha registrado la baja de un empleado
-                en el Sistema de Asistencias.
-            </p>
-
-            <hr>
-
-            <p>
-                <strong>Nombre:</strong>
-                {$empleado->nombre} {$empleado->apellido_paterno}
-            </p>
-
-            <p>
-                <strong>Código:</strong>
-                {$empleado->codigo_empleado}
-            </p>
-
-            <p>
-                <strong>Departamento:</strong>
-                {$empleado->departamento?->nombre}
-            </p>
-
-            <p>
-                <strong>Turno:</strong>
-                {$empleado->turno?->nombre}
-            </p>
-
-            <p>
-                <strong>Estatus anterior:</strong>
-                {$estatusAnterior}
-            </p>
-
-            <p>
-                <strong>Nuevo estatus:</strong>
-                BAJA
-            </p>
-
-            <hr>
-
-            <p>
-                Baja registrada por:
-                <strong>{$remitente}</strong>
-            </p>
-        ";
+        $html = view('emails.empleados.baja', [
+            'empleado' => $empleado,
+            'estatusAnterior' => $estatusAnterior,
+            'remitente' => $remitente,
+        ])->render();
 
         $mail->sendHtml(
             'aux.sistemas@dasavena.com',

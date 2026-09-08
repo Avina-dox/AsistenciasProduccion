@@ -1,7 +1,21 @@
+@php
+    $colorasEstatus = [
+        'A' => 'BBF7D0',
+        'F' => 'FECACA',
+        'R' => 'FEF3C7',
+        'V' => 'DBEAFE',
+        'I' => 'E9D5FF',
+        'PCG' => 'CFFAFE',
+        'PSG' => 'E5E7EB',
+        'O' => 'FBCFE8',
+    ];
+
+    $totalColumnas = count($dias) + 15;
+@endphp
 <table>
 
     <tr>
-        <td colspan="{{ count($dias)+11 }}"
+        <td colspan="{{ $totalColumnas }}"
             style="font-size:18px;
                    font-weight:bold;
                    text-align:center;
@@ -14,7 +28,7 @@
     </tr>
 
     <tr>
-        <td colspan="{{ count($dias)+11 }}"
+        <td colspan="{{ $totalColumnas }}"
             style="font-size:14px;
                    font-weight:bold;
                    text-align:center;">
@@ -59,6 +73,19 @@
             <th style="background:#EDE9FE;font-weight:bold;">
                 Empleado
             </th>
+
+            <th style="background:#EDE9FE;font-weight:bold;">
+                Departamento
+            </th>
+
+            <th style="background:#EDE9FE;font-weight:bold;">
+                Puesto
+            </th>
+
+            <th style="background:#EDE9FE;font-weight:bold;">
+                Turno
+            </th>
+
             @foreach($dias as $fecha)
 
             <th
@@ -81,7 +108,7 @@
 
             <th style="background:#DBEAFE">V</th>
 
-            <th style="background:#E9D5FF">I</th>
+            <th style="background:#E9D5FF">INC</th>
 
             <th style="background:#CFFAFE">PCG</th>
 
@@ -90,6 +117,8 @@
             <th style="background:#FBCFE8">O</th>
 
             <th style="background:#DCFCE7">HE</th>
+
+            <th style="background:#FDE68A">Retardo (min)</th>
 
         </tr>
 
@@ -107,6 +136,12 @@
         $hasta
         );
 
+        $nombreCompleto = trim(
+            $empleado->apellido_paterno . ' ' .
+            $empleado->apellido_materno . ' ' .
+            $empleado->nombre
+        );
+
         @endphp
 
         <tr>
@@ -117,9 +152,27 @@
 
             </td>
 
-            <td>
+            <td style="text-align:left;">
 
-                {{ $empleado->nombre }}
+                {{ $nombreCompleto }}
+
+            </td>
+
+            <td style="text-align:left;">
+
+                {{ $empleado->departamento?->nombre ?? '' }}
+
+            </td>
+
+            <td style="text-align:left;">
+
+                {{ $empleado->puesto ?? '' }}
+
+            </td>
+
+            <td style="text-align:left;">
+
+                {{ $empleado->turno?->nombre ?? '' }}
 
             </td>
 
@@ -136,12 +189,14 @@
 
             ->first();
 
+            $codigo = $asistencia?->estatus?->codigo;
+
+            $fondo = $colorasEstatus[$codigo] ?? null;
+
             @endphp
 
-            <td style="text-align:center;">
-                {{ ($asistencia?->estatus?->codigo ?? '') === 'I'
-        ? 'INC'
-        : ($asistencia?->estatus?->codigo ?? '') }}
+            <td style="text-align:center;{{ $fondo ? 'background:#' . $fondo . ';' : '' }}">
+                {{ $codigo === 'I' ? 'INC' : ($codigo ?? '') }}
             </td>
 
             @endforeach
@@ -203,6 +258,15 @@
 
             </td>
 
+            <td>
+
+                {{ $totales['RETARDO_MIN'] }}
+
+            </td>
+
         </tr>
 
         @endforeach
+    </tbody>
+
+</table>

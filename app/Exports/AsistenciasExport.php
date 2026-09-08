@@ -11,6 +11,7 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
 
 class AsistenciasExport implements
@@ -87,6 +88,33 @@ class AsistenciasExport implements
                 $ultimaFila = $sheet->getHighestRow();
 
                 $ultimaColumna = $sheet->getHighestColumn();
+
+                /*
+            |--------------------------------------------------------------------------
+            | Logo de la empresa
+            |--------------------------------------------------------------------------
+            */
+
+                $logoPath = public_path('images/logo.png');
+
+                if (file_exists($logoPath)) {
+
+                    $drawing = new Drawing();
+
+                    $drawing->setPath($logoPath);
+
+                    $drawing->setHeight(46);
+
+                    $drawing->setOffsetX(6);
+
+                    $drawing->setOffsetY(4);
+
+                    $drawing->setCoordinates('A1');
+
+                    $drawing->setWorksheet(
+                        $sheet->getDelegate()
+                    );
+                }
 
                 /*
             |--------------------------------------------------------------------------
@@ -215,13 +243,33 @@ class AsistenciasExport implements
 
                 /*
             |--------------------------------------------------------------------------
-            | Centrar contenido
+            | Centrar contenido (encabezados + días/totales del cuerpo)
             |--------------------------------------------------------------------------
             */
 
                 $sheet->getStyle(
 
-                    'A6:' . $ultimaColumna . $ultimaFila
+                    'A6:' . $ultimaColumna . '6'
+
+                )
+
+                    ->getAlignment()
+
+                    ->setHorizontal(
+
+                        Alignment::HORIZONTAL_CENTER
+
+                    )
+
+                    ->setVertical(
+
+                        Alignment::VERTICAL_CENTER
+
+                    );
+
+                $sheet->getStyle(
+
+                    'F7:' . $ultimaColumna . $ultimaFila
 
                 )
 
@@ -241,11 +289,37 @@ class AsistenciasExport implements
 
                 /*
             |--------------------------------------------------------------------------
+            | Alinear a la izquierda las columnas de identificación
+            |--------------------------------------------------------------------------
+            */
+
+                $sheet->getStyle(
+
+                    'A7:E' . $ultimaFila
+
+                )
+
+                    ->getAlignment()
+
+                    ->setHorizontal(
+
+                        Alignment::HORIZONTAL_LEFT
+
+                    )
+
+                    ->setVertical(
+
+                        Alignment::VERTICAL_CENTER
+
+                    );
+
+                /*
+            |--------------------------------------------------------------------------
             | Congelar panel
             |--------------------------------------------------------------------------
             */
 
-                $sheet->freezePane('C7');
+                $sheet->freezePane('F7');
 
                 /*
             |--------------------------------------------------------------------------
@@ -279,7 +353,7 @@ class AsistenciasExport implements
 
                 $sheet->getStyle(
 
-                    'A7:B' . $ultimaFila
+                    'A7:E' . $ultimaFila
 
                 )
 

@@ -149,32 +149,11 @@ public function enviarPdf(
 
     $remitente = auth()->user()?->email;
 
-    $html = "
-        <h2>Reporte de Asistencias</h2>
-
-        <p>
-            Se ha generado un reporte de asistencias.
-        </p>
-
-        <p>
-            <strong>Desde:</strong>
-            " . \Carbon\Carbon::parse($desde)->format('d/m/Y') . "
-        </p>
-
-        <p>
-            <strong>Hasta:</strong>
-            " . \Carbon\Carbon::parse($hasta)->format('d/m/Y') . "
-        </p>
-
-        <p>
-            <strong>Generado por:</strong>
-            {$remitente}
-        </p>
-
-        <p>
-            El reporte se encuentra adjunto en formato PDF.
-        </p>
-    ";
+    $html = view('emails.reportes.asistencias', [
+        'desde' => $desde,
+        'hasta' => $hasta,
+        'remitente' => $remitente,
+    ])->render();
 
     $mail->sendHtmlWithAttachment(
         $destinatarios,

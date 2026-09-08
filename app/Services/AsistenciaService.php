@@ -132,6 +132,12 @@ class AsistenciaService
                 $hasta
             ),
 
+            'RETARDO_MIN' => $this->minutosRetardo(
+                $empleado,
+                $desde,
+                $hasta
+            ),
+
         ];
     }
 
@@ -217,5 +223,35 @@ class AsistenciaService
 
             ->sum('horas');
 
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Minutos de retardo acumulados
+    |--------------------------------------------------------------------------
+    */
+
+    private function minutosRetardo(
+        $empleado,
+        $desde,
+        $hasta
+    ) {
+
+        return $empleado->asistencias
+
+            ->filter(function ($a) use (
+                $desde,
+                $hasta
+            ) {
+
+                return Carbon::parse($a->fecha)
+                    ->between(
+                        $desde,
+                        $hasta
+                    );
+
+            })
+
+            ->sum('minutos_retardo');
     }
 }
