@@ -11,6 +11,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use App\Http\Controllers\HoraExtraController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExportController;
+use App\Http\Controllers\SoporteController;
 
 
 Route::get('/', function () {
@@ -21,6 +22,12 @@ Route::get(
     [DashboardController::class, 'index']
 )->middleware('auth')
     ->name('dashboard');
+
+Route::post(
+    '/soporte/reportar',
+    [SoporteController::class, 'reportar']
+)->middleware('auth')
+    ->name('soporte.reportar');
 
     Route::get(
     '/asistencias/exportar',

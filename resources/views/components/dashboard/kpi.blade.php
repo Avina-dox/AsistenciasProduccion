@@ -1,99 +1,54 @@
 @props([
     'titulo',
     'valor',
-    'icono' => '📊',
-    'color' => 'blue',
     'descripcion' => null,
+    'color' => 'violet',
 ])
 
 @php
+    $paleta = [
+        'amber' => ['ring' => '#B6A644', 'text' => '#92752F', 'from' => '#FBF6E4', 'to' => '#F3EDE3'],
+        'violet' => ['ring' => '#6A2C75', 'text' => '#6A2C75', 'from' => '#F3EAF5', 'to' => '#F8F0FA'],
+        'sky' => ['ring' => '#0284C7', 'text' => '#0284C7', 'from' => '#E6F4FB', 'to' => '#EFF8FF'],
+        'indigo' => ['ring' => '#4338CA', 'text' => '#4338CA', 'from' => '#EEF2FF', 'to' => '#F3F0FF'],
+        'orange' => ['ring' => '#EA580C', 'text' => '#C2410C', 'from' => '#FDECE2', 'to' => '#FFF4ED'],
+    ];
 
-$colors = [
-
-    'blue' => [
-        'bg' => 'bg-blue-100',
-        'text' => 'text-blue-600',
-    ],
-
-    'emerald' => [
-        'bg' => 'bg-emerald-100',
-        'text' => 'text-emerald-600',
-    ],
-
-    'red' => [
-        'bg' => 'bg-red-100',
-        'text' => 'text-red-600',
-    ],
-
-    'amber' => [
-        'bg' => 'bg-amber-100',
-        'text' => 'text-amber-600',
-    ],
-
-    'sky' => [
-        'bg' => 'bg-sky-100',
-        'text' => 'text-sky-600',
-    ],
-
-    'violet' => [
-        'bg' => 'bg-violet-100',
-        'text' => 'text-violet-600',
-    ],
-
-    'indigo' => [
-        'bg' => 'bg-indigo-100',
-        'text' => 'text-indigo-600',
-    ],
-
-    'slate' => [
-        'bg' => 'bg-slate-100',
-        'text' => 'text-slate-600',
-    ],
-
-];
-
-$style = $colors[$color] ?? $colors['blue'];
-
+    $c = $paleta[$color] ?? $paleta['violet'];
 @endphp
 
-<div
-    class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 hover:shadow-lg transition duration-300">
+<div class="group relative w-full rounded-2xl transition-transform duration-500 hover:-translate-y-1"
+    style="padding:1px; background: linear-gradient(135deg, {{ $c['ring'] }}66, rgba(182,166,68,.35), {{ $c['ring'] }}66);">
 
-    <div class="flex justify-between items-start">
+    <div class="hud-corners relative h-full overflow-hidden rounded-2xl bg-white p-6"
+        style="color: {{ $c['ring'] }};">
 
-        <div>
+        <div class="pointer-events-none absolute -right-6 -bottom-6 h-24 w-24 rounded-full opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-30"
+            style="background: {{ $c['ring'] }};"></div>
 
-            <p class="text-sm text-slate-500">
+        <div class="relative flex items-start justify-between gap-4">
 
-                {{ $titulo }}
-
-            </p>
-
-            <h2 class="mt-2 text-4xl font-black {{ $style['text'] }}">
-
-                {{ $valor }}
-
-            </h2>
-
-            @if($descripcion)
-
-                <p class="mt-2 text-sm text-slate-400">
-
-                    {{ $descripcion }}
-
+            <div class="min-w-0">
+                <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#6E6274]">
+                    {{ $titulo }}
                 </p>
 
-            @endif
+                <h3 class="mono-font mt-2 text-3xl font-bold tabular-nums" style="color: {{ $c['text'] }};">
+                    {{ $valor }}
+                </h3>
+
+                @if($descripcion)
+                    <p class="mt-1 text-xs text-[#A8A0AC]">
+                        {{ $descripcion }}
+                    </p>
+                @endif
+            </div>
+
+            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110"
+                style="background: linear-gradient(135deg, {{ $c['from'] }}, {{ $c['to'] }}); color: {{ $c['text'] }};">
+                {{ $slot }}
+            </div>
 
         </div>
-
-        <div
-            class="w-14 h-14 rounded-2xl {{ $style['bg'] }} flex items-center justify-center text-2xl">
-
-            {{ $icono }}
-
-        </div>
-
     </div>
-
 </div>
