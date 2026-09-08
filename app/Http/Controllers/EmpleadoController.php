@@ -96,11 +96,19 @@ class EmpleadoController extends Controller
         </p>
     ";
 
-        $mail->sendHtml(
-            'aux.sistemas@dasavena.com',
-            'Alta de nuevo empleado - ' . $empleado->nombre . ' ' . $empleado->apellido_paterno,
-            $html
-        );
+        $destinatariosRH = \App\Models\User::role('RH')
+            ->pluck('email')
+            ->filter()
+            ->all();
+
+        if (!empty($destinatariosRH)) {
+
+            $mail->sendHtml(
+                $destinatariosRH,
+                'Alta de nuevo empleado - ' . $empleado->nombre . ' ' . $empleado->apellido_paterno,
+                $html
+            );
+        }
 
         return redirect()
             ->route('empleados.index')
@@ -126,6 +134,16 @@ class EmpleadoController extends Controller
 
     $estatusAnterior = $empleado->estatus;
     $nuevoEstatus = $request->estatus;
+
+    if (
+        $nuevoEstatus === 'BAJA' &&
+        $estatusAnterior !== 'BAJA' &&
+        !auth()->user()->hasAnyRole(['RH', 'Admin', 'Coordinacion'])
+    ) {
+        return back()->withErrors([
+            'estatus' => 'No tienes permiso para dar de baja a un empleado.',
+        ]);
+    }
 
     $empleado->update([
         'estatus' => $nuevoEstatus,
@@ -249,6 +267,16 @@ class EmpleadoController extends Controller
         'estatus',
         $empleado->estatus
     );
+
+    if (
+        $nuevoEstatus === 'BAJA' &&
+        $estatusAnterior !== 'BAJA' &&
+        !auth()->user()->hasAnyRole(['RH', 'Admin', 'Coordinacion'])
+    ) {
+        return back()->withErrors([
+            'estatus' => 'No tienes permiso para dar de baja a un empleado.',
+        ])->withInput();
+    }
 
     $empleado->update([
         'codigo_empleado' => $request->codigo_empleado,

@@ -39,7 +39,8 @@ public function create()
             'name' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:8',
-            'role' => 'required'
+            'roles' => 'required|array|min:1',
+            'roles.*' => 'exists:roles,name',
         ]);
 
         $user = User::create([
@@ -51,7 +52,7 @@ public function create()
         ]);
 
         $user->assignRole(
-            $request->role
+            $request->roles
         );
 
         return redirect()
@@ -83,7 +84,8 @@ public function create()
     $request->validate([
         'name' => 'required',
         'email' => 'required|email|unique:users,email,' . $usuario->id,
-        'role' => 'required'
+        'roles' => 'required|array|min:1',
+        'roles.*' => 'exists:roles,name',
     ]);
 
     $data = [
@@ -101,9 +103,9 @@ public function create()
 
     $usuario->update($data);
 
-    $usuario->syncRoles([
-        $request->role
-    ]);
+    $usuario->syncRoles(
+        $request->roles
+    );
 
     return redirect()
         ->route('usuarios.index')

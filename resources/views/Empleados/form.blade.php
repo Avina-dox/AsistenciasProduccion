@@ -171,10 +171,12 @@
                 VACACIONES
             </option>
 
+            @hasanyrole('RH|Admin|Coordinacion')
             <option value="BAJA"
                 @selected(old('estatus', $empleado->estatus ?? 'ACTIVO') == 'BAJA')>
                 BAJA
             </option>
+            @endhasanyrole
 
         </select>
     </div>

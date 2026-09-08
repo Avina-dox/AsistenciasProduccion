@@ -106,15 +106,16 @@
 
                 @forelse($usuarios as $usuario)
                     @php
-                        $rol = $usuario->getRoleNames()->first();
+                        $rolesUsuario = $usuario->getRoleNames();
                         $iniciales = collect(explode(' ', $usuario->name))
                             ->map(fn($p) => strtoupper($p[0] ?? ''))
                             ->take(2)
                             ->implode('');
-                        $rolClasses = match($rol) {
-                            'admin'          => 'bg-purple-100 text-purple-800',
-                            'editor'         => 'bg-emerald-100 text-emerald-800',
-                            'viewer'         => 'bg-amber-100 text-amber-800',
+                        $rolClasses = fn($rol) => match($rol) {
+                            'Admin'          => 'bg-purple-100 text-purple-800',
+                            'RH'             => 'bg-emerald-100 text-emerald-800',
+                            'Supervisor'     => 'bg-amber-100 text-amber-800',
+                            'Coordinacion'   => 'bg-blue-100 text-blue-800',
                             default          => 'bg-gray-100 text-gray-500',
                         };
                     @endphp
@@ -144,9 +145,17 @@
 
                         {{-- Rol --}}
                         <td class="px-5 py-3.5 text-center">
-                            <span class="inline-block px-2.5 py-1 rounded-full text-xs font-medium {{ $rolClasses }}">
-                                {{ $rol ? ucfirst($rol) : 'Sin rol' }}
-                            </span>
+                            <div class="flex flex-wrap items-center justify-center gap-1">
+                                @forelse($rolesUsuario as $rol)
+                                    <span class="inline-block px-2.5 py-1 rounded-full text-xs font-medium {{ $rolClasses($rol) }}">
+                                        {{ $rol }}
+                                    </span>
+                                @empty
+                                    <span class="inline-block px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-500">
+                                        Sin rol
+                                    </span>
+                                @endforelse
+                            </div>
                         </td>
 
                         {{-- Estado --}}

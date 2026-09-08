@@ -249,11 +249,13 @@
                                             VACACIONES
                                         </option>
 
+                                        @hasanyrole('RH|Admin|Coordinacion')
                                         <option
                                             value="BAJA"
                                             {{ $empleado->estatus == 'BAJA' ? 'selected' : '' }}>
                                             BAJA
                                         </option>
+                                        @endhasanyrole
 
                                     </select>
 
@@ -274,6 +276,7 @@
                                     </a>
 
 
+                                    @hasanyrole('RH|Admin|Coordinacion')
                                     <form
                                         method="POST"
                                         action="{{ route('empleados.destroy', $empleado) }}"
@@ -290,6 +293,7 @@
                                         </button>
 
                                     </form>
+                                    @endhasanyrole
 
                                 </div>
 

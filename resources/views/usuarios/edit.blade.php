@@ -58,28 +58,35 @@
 
             <div class="mb-6">
                 <label class="block mb-2">
-                    Rol
+                    Roles
                 </label>
 
-                <select
-                    name="role"
-                    class="w-full border rounded-lg p-2">
+                <div class="space-y-2 border rounded-lg p-3">
 
                     @foreach($roles as $role)
 
-                        <option
-                            value="{{ $role->name }}"
-                            @selected(
-                                $usuario->hasRole($role->name)
-                            )>
+                        <label class="flex items-center gap-2">
+
+                            <input
+                                type="checkbox"
+                                name="roles[]"
+                                value="{{ $role->name }}"
+                                @checked($usuario->hasRole($role->name))
+                                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
 
                             {{ $role->name }}
 
-                        </option>
+                        </label>
 
                     @endforeach
 
-                </select>
+                </div>
+
+                @error('roles')
+                    <p class="text-red-600 text-sm mt-1">
+                        {{ $message }}
+                    </p>
+                @enderror
             </div>
 
             <div class="flex gap-3">

@@ -113,36 +113,42 @@
 
                 <label class="block text-sm font-medium mb-2">
 
-                    Rol
+                    Roles
 
                 </label>
 
-                <select
-                    name="role"
-                    class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500"
-                    required>
-
-                    <option value="">
-
-                        Seleccione un rol
-
-                    </option>
+                <div class="space-y-2 border rounded-lg px-4 py-3">
 
                     @foreach($roles as $role)
 
-                        <option
-                            value="{{ $role->name }}"
-                            @selected(old('role') == $role->name)>
+                        <label class="flex items-center gap-2">
+
+                            <input
+                                type="checkbox"
+                                name="roles[]"
+                                value="{{ $role->name }}"
+                                @checked(collect(old('roles'))->contains($role->name))
+                                class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
 
                             {{ $role->name }}
 
-                        </option>
+                        </label>
 
                     @endforeach
 
-                </select>
+                </div>
 
-                @error('role')
+                @error('roles')
+
+                    <p class="text-red-600 text-sm mt-1">
+
+                        {{ $message }}
+
+                    </p>
+
+                @enderror
+
+                @error('roles.*')
 
                     <p class="text-red-600 text-sm mt-1">
 

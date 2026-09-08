@@ -38,7 +38,15 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::resource('asistencias', AsistenciaController::class);
 });
-Route::resource('empleados', EmpleadoController::class)->middleware('role:RH|Admin');
+Route::resource('empleados', EmpleadoController::class)
+    ->except(['destroy'])
+    ->middleware('role:RH|Admin|Supervisor|Coordinacion');
+
+Route::delete(
+    'empleados/{empleado}',
+    [EmpleadoController::class, 'destroy']
+)->name('empleados.destroy')
+    ->middleware('role:RH|Admin|Coordinacion');
 
 
 Route::resource(
@@ -50,7 +58,8 @@ Route::resource(
 Route::patch(
     'empleados/{empleado}/estatus',
     [EmpleadoController::class, 'actualizarEstatus']
-)->name('empleados.estatus');
+)->name('empleados.estatus')
+    ->middleware('role:RH|Admin|Supervisor|Coordinacion');
 
 Route::resource(
     'hora-extras',
