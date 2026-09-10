@@ -122,6 +122,12 @@ new class extends Component
             color: #475569;
         }
 
+        .status-S {
+            background: #FFF1F2;
+            border-color: rgba(159, 18, 57, 0.35);
+            color: #9F1239;
+        }
+
         .stat-badge {
             box-shadow: 0 1px 2px rgba(43, 32, 48, 0.06);
         }
@@ -446,7 +452,7 @@ new class extends Component
                             <div class="flex items-center gap-3">
                                 <div class="w-1 h-5 rounded-full" style="background-color: #6a2c75;"></div>
                                 <span class="modern-font font-semibold text-sm text-[#2B2030]">
-                                    {{ $empleado->nombre }} {{ $empleado->apellido_paterno }}
+                                    {{ $empleado->apellido_paterno }} {{ $empleado->apellido_materno }} {{ $empleado->nombre }}
                                 </span>
                             </div>
                         </td>
@@ -485,6 +491,9 @@ new class extends Component
                         }
                         elseif ($asistencia?->estatus?->codigo == 'O') {
                         $statusClass = 'status-O';
+                        }
+                        elseif ($asistencia?->estatus?->codigo == 'S') {
+                        $statusClass = 'status-S';
                         }
 
                         @endphp
@@ -569,6 +578,7 @@ new class extends Component
         ['label' => 'PCG', 'class' => 'status-PCG'],
         ['label' => 'PSG', 'class' => 'status-PSG'],
         ['label' => 'Onomástico', 'class' => 'status-O'],
+        ['label' => 'Suspensión', 'class' => 'status-S'],
         ];
         @endphp
 
@@ -604,6 +614,7 @@ new class extends Component
                         <th class="px-5 py-3.5 text-center"><span class="modern-font text-xs font-bold tracking-wider uppercase status-PCG px-2 py-1 rounded-md border bg-white">PCG</span></th>
                         <th class="px-5 py-3.5 text-center"><span class="modern-font text-xs font-bold tracking-wider uppercase status-PSG px-2 py-1 rounded-md border bg-white">PSG</span></th>
                         <th class="px-5 py-3.5 text-center"><span class="modern-font text-xs font-bold tracking-wider uppercase status-O px-2 py-1 rounded-md border bg-white">Onomásticos</span></th>
+                        <th class="px-5 py-3.5 text-center"><span class="modern-font text-xs font-bold tracking-wider uppercase status-S px-2 py-1 rounded-md border bg-white">Suspensiones</span></th>
                         <th class="px-5 py-3.5 text-center">
                             <span class="modern-font text-xs font-bold tracking-wider uppercase rounded-md border border-emerald-200 bg-emerald-50 text-emerald-700 px-2 py-1">
                                 Horas Extra
@@ -701,6 +712,16 @@ new class extends Component
                     })
                     ->count();
 
+                    $suspensiones = $empleado->asistencias
+                    ->filter(function ($a) use ($desde, $hasta) {
+
+                    return $a->estatus?->codigo == 'S'
+                    && \Carbon\Carbon::parse($a->fecha)
+                    ->between($desde, $hasta);
+
+                    })
+                    ->count();
+
                     $horasExtra = $empleado->horasExtras
                     ->filter(function ($detalle) use ($desde, $hasta) {
 
@@ -720,7 +741,7 @@ new class extends Component
                             <div class="flex items-center gap-3">
                                 <span class="mono-font text-xs font-semibold text-[#A8A0AC]">{{ str_pad($i+1, 2, '0', STR_PAD_LEFT) }}</span>
                                 <span class="modern-font font-semibold text-[#2B2030]">
-                                    {{ $empleado->nombre }} {{ $empleado->apellido_paterno }}
+                                    {{ $empleado->apellido_paterno }} {{ $empleado->apellido_materno }} {{ $empleado->nombre }}
                                 </span>
                             </div>
                         </td>
@@ -768,6 +789,11 @@ new class extends Component
                         <td class="px-5 py-4 text-center">
                             <div class="inline-flex items-center justify-center w-10 h-10 rounded-xl border status-O modern-font text-base font-bold bg-white stat-badge">
                                 {{ $onomasticos }}
+                            </div>
+                        </td>
+                        <td class="px-5 py-4 text-center">
+                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-xl border status-S modern-font text-base font-bold bg-white stat-badge">
+                                {{ $suspensiones }}
                             </div>
                         </td>
                         <td class="px-5 py-4 text-center">

@@ -205,9 +205,11 @@
 
                             <td class="p-3">
 
-                                {{ $detalle->empleado->nombre }}
-
                                 {{ $detalle->empleado->apellido_paterno }}
+
+                                {{ $detalle->empleado->apellido_materno }}
+
+                                {{ $detalle->empleado->nombre }}
 
                             </td>
 

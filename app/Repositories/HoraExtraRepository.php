@@ -98,6 +98,8 @@ class HoraExtraRepository
             'estatus',
             'ACTIVO'
         )
+        ->orderBy('apellido_paterno')
+        ->orderBy('apellido_materno')
         ->orderBy('nombre')
         ->get();
     }
@@ -115,7 +117,11 @@ class HoraExtraRepository
         return Empleado::whereIn(
             'id',
             $empleados
-        )->get();
+        )
+        ->orderBy('apellido_paterno')
+        ->orderBy('apellido_materno')
+        ->orderBy('nombre')
+        ->get();
     }
 
     /*
@@ -130,6 +136,8 @@ class HoraExtraRepository
             'estatus',
             'ACTIVO'
         )
+        ->orderBy('apellido_paterno')
+        ->orderBy('apellido_materno')
         ->orderBy('nombre')
         ->get();
     }

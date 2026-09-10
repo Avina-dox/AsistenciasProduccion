@@ -126,6 +126,13 @@ class AsistenciaService
                 $hasta
             ),
 
+            'S' => $this->contar(
+                $empleado,
+                'S',
+                $desde,
+                $hasta
+            ),
+
             'HE' => $this->horasExtra(
                 $empleado,
                 $desde,

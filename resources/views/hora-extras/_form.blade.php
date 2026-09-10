@@ -153,8 +153,9 @@
 
                 <span>
 
-                    {{ $empleado->nombre }}
                     {{ $empleado->apellido_paterno }}
+                    {{ $empleado->apellido_materno }}
+                    {{ $empleado->nombre }}
 
                 </span>
 

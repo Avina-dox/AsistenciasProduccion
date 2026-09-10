@@ -179,6 +179,11 @@ $ausentismoOffset = $circumference - ($ausentismoVal / 100) * $circumference;
                         label: 'Incapacidad',
                         data: datos.map(item => item.incapacidad),
                         backgroundColor: '#64748B',
+                    },
+                    {
+                        label: 'Suspensión',
+                        data: datos.map(item => item.suspension),
+                        backgroundColor: '#E11D48',
                     }
                 ]
             },

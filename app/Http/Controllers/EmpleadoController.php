@@ -21,7 +21,9 @@ class EmpleadoController extends Controller
             'departamento',
             'turno'
         ])
-            ->latest()
+            ->orderBy('apellido_paterno')
+            ->orderBy('apellido_materno')
+            ->orderBy('nombre')
             ->paginate(10);
 
         $horarios = Horario::all()
@@ -83,7 +85,7 @@ class EmpleadoController extends Controller
 
             $mail->sendHtml(
                 $destinatariosRH,
-                'Alta de nuevo empleado - ' . $empleado->nombre . ' ' . $empleado->apellido_paterno,
+                'Alta de nuevo empleado - ' . $empleado->apellido_paterno . ' ' . $empleado->apellido_materno . ' ' . $empleado->nombre,
                 $html
             );
         }
@@ -154,8 +156,9 @@ class EmpleadoController extends Controller
         $mail->sendHtml(
             'aux.sistemas@dasavena.com',
             'Baja de empleado - ' .
-                $empleado->nombre . ' ' .
-                $empleado->apellido_paterno,
+                $empleado->apellido_paterno . ' ' .
+                $empleado->apellido_materno . ' ' .
+                $empleado->nombre,
             $html
         );
     }
@@ -251,8 +254,9 @@ class EmpleadoController extends Controller
         $mail->sendHtml(
             'aux.sistemas@dasavena.com',
             'Baja de empleado - ' .
-                $empleado->nombre . ' ' .
-                $empleado->apellido_paterno,
+                $empleado->apellido_paterno . ' ' .
+                $empleado->apellido_materno . ' ' .
+                $empleado->nombre,
             $html
         );
     }

@@ -121,6 +121,10 @@ class DashboardService
                     ->where('estatus.codigo', 'I')
                     ->count(),
 
+                'suspension' => $registros
+                    ->where('estatus.codigo', 'S')
+                    ->count(),
+
             ];
 
             $periodo->addDay();

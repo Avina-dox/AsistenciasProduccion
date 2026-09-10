@@ -54,6 +54,16 @@ class TablaAsistencias extends Component
         $estatusId
     ) {
 
+        // Seleccionar la opción vacía ("—") quita la asistencia capturada por error
+        if (empty($estatusId)) {
+
+            Asistencia::where('empleado_id', $empleadoId)
+                ->where('fecha', $fecha)
+                ->delete();
+
+            return;
+        }
+
         Asistencia::updateOrCreate(
 
             [
@@ -118,6 +128,11 @@ class TablaAsistencias extends Component
                 $this->estatusEmpleado
             );
         }
+
+        $empleados
+            ->orderBy('apellido_paterno')
+            ->orderBy('apellido_materno')
+            ->orderBy('nombre');
 
         return view(
             'components.tabla-asistencias',

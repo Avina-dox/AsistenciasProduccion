@@ -50,6 +50,11 @@ class EstatusAsistenciaSeeder extends Seeder
                 'nombre' => 'Onomástico',
                 'color' => 'pink'
             ],
+            [
+                'codigo' => 'S',
+                'nombre' => 'Suspensión',
+                'color' => 'rose'
+            ],
         ];
 
         foreach ($estatus as $item) {

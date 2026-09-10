@@ -10,7 +10,7 @@
     </p>
 
     @include('emails.partials.info-table', ['filas' => [
-        'Nombre' => trim($empleado->nombre . ' ' . $empleado->apellido_paterno),
+        'Nombre' => trim($empleado->apellido_paterno . ' ' . $empleado->apellido_materno . ' ' . $empleado->nombre),
         'Código' => $empleado->codigo_empleado,
         'Departamento' => $empleado->departamento?->nombre,
         'Turno' => $empleado->turno?->nombre,

@@ -114,6 +114,10 @@
             background: #FBCFE8;
         }
 
+        .s {
+            background: #FECDD3;
+        }
+
         .he {
             background: #DCFCE7;
         }
@@ -206,6 +210,10 @@
                     O
                 </th>
 
+                <th class="total s">
+                    S
+                </th>
+
                 <th class="total he">
                     HE
                 </th>
@@ -237,8 +245,9 @@
                     </td>
 
                     <td class="empleado">
-                        {{ $empleado->nombre }}
                         {{ $empleado->apellido_paterno }}
+                        {{ $empleado->apellido_materno }}
+                        {{ $empleado->nombre }}
                     </td>
 
 
@@ -296,6 +305,10 @@
 
                     <td>
                         {{ $totales['O'] }}
+                    </td>
+
+                    <td>
+                        {{ $totales['S'] }}
                     </td>
 
                     <td>

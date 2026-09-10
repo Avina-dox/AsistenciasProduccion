@@ -91,15 +91,7 @@
 
                     <tbody class="divide-y divide-[#2B2030]/5">
 
-                        @php
-                            $empleadosOrdenados = $empleados->sortBy([
-                                ['nombre', 'desc'],
-                                ['apellido_paterno', 'desc'],
-                                ['apellido_materno', 'desc'],
-                            ]);
-                        @endphp
-
-                        @forelse($empleadosOrdenados as $i => $empleado)
+                        @forelse($empleados as $i => $empleado)
 
                         @php
 

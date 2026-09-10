@@ -8,9 +8,10 @@
         'PCG' => 'CFFAFE',
         'PSG' => 'E5E7EB',
         'O' => 'FBCFE8',
+        'S' => 'FECDD3',
     ];
 
-    $totalColumnas = count($dias) + 15;
+    $totalColumnas = count($dias) + 16;
 @endphp
 <table>
 
@@ -115,6 +116,8 @@
             <th style="background:#E5E7EB">PSG</th>
 
             <th style="background:#FBCFE8">O</th>
+
+            <th style="background:#FECDD3">S</th>
 
             <th style="background:#DCFCE7">HE</th>
 
@@ -246,6 +249,12 @@
             <td>
 
                 {{ $totales['O'] }}
+
+            </td>
+
+            <td>
+
+                {{ $totales['S'] }}
 
             </td>
 

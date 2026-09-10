@@ -69,6 +69,8 @@ class AsistenciaRepository
 
         return $empleados
 
+            ->orderBy('apellido_paterno')
+            ->orderBy('apellido_materno')
             ->orderBy('nombre')
 
             ->get();
