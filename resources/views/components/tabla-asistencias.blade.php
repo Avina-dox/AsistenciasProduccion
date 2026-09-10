@@ -9,7 +9,7 @@ new class extends Component
 ?>
 
 
-<div class="min-h-screen p-6 space-y-6 bg-gradient-to-br from-[#FBF8F3] to-[#F3EDE3]">
+<div class="min-h-screen p-4 sm:p-6 space-y-6 bg-gradient-to-br from-[#FBF8F3] to-[#F3EDE3]">
 
 
     <style>
@@ -42,10 +42,71 @@ new class extends Component
             border: 1px solid rgba(43, 32, 48, 0.08);
             border-top: 3px solid transparent;
             border-image: linear-gradient(90deg, #B6A644, #6A2C75, #B6A644) 1;
+            transition: box-shadow .35s ease;
+        }
+
+        .clean-panel:hover {
+            box-shadow: 0 12px 28px -10px rgba(69, 25, 63, 0.18), 0 4px 10px -4px rgba(69, 25, 63, 0.08);
         }
 
         .row-animate {
             animation: fadeInUp 0.4s ease both;
+        }
+
+        .section-animate {
+            animation: fadeInUp 0.55s cubic-bezier(.4, 0, .2, 1) both;
+        }
+
+        @keyframes swipeHint {
+
+            0%,
+            100% {
+                transform: translateX(0);
+                opacity: .55;
+            }
+
+            50% {
+                transform: translateX(5px);
+                opacity: 1;
+            }
+        }
+
+        .swipe-hint {
+            animation: swipeHint 1.3s ease-in-out infinite;
+        }
+
+        @keyframes pulseSoft {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, .5);
+            }
+
+            70% {
+                box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+            }
+        }
+
+        .pulse-soft {
+            animation: pulseSoft 2s infinite;
+        }
+
+        .btn-modern {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-modern::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, transparent, rgba(255, 255, 255, .25), transparent);
+            transform: translateX(-100%);
+            transition: transform .6s ease;
+        }
+
+        .btn-modern:hover::after {
+            transform: translateX(100%);
         }
 
         .select-clean {
@@ -130,6 +191,12 @@ new class extends Component
 
         .stat-badge {
             box-shadow: 0 1px 2px rgba(43, 32, 48, 0.06);
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+        .stat-badge:hover {
+            transform: scale(1.12);
+            box-shadow: 0 4px 10px rgba(43, 32, 48, 0.12);
         }
 
         .clean-scroll::-webkit-scrollbar {
@@ -152,22 +219,20 @@ new class extends Component
     </style>
 
     {{-- ENCABEZADO --}}
-    <div class="flex items-center gap-4 mb-2">
-        <div class="w-1.5 h-8 rounded-full" style="background-color: #6a2c75;"></div>
-        <h1 class="modern-font text-2xl font-bold tracking-wide uppercase" style="color: #2B2030;">
+    <div class="section-animate flex flex-wrap items-center gap-3 sm:gap-4 mb-2" style="animation-delay: .05s;">
+        <div class="w-1.5 h-7 sm:h-8 rounded-full shrink-0" style="background-color: #6a2c75;"></div>
+        <h1 class="modern-font text-lg sm:text-2xl font-bold tracking-wide uppercase" style="color: #2B2030;">
             Control de Asistencia
         </h1>
-        <div class="flex-1 h-px bg-[#2B2030]/10"></div>
-        <span class="mono-font text-xs font-semibold px-2 py-1 rounded-md" style="background-color: rgba(106, 44, 117, 0.1); color: #6a2c75;">
+        <div class="hidden sm:block flex-1 h-px bg-[#2B2030]/10"></div>
+        <span class="mono-font inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-md" style="background-color: rgba(106, 44, 117, 0.1); color: #6a2c75;">
+            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 pulse-soft"></span>
             ACTIVO
         </span>
     </div>
     {{-- NAVEGACIÓN MES/AÑO --}}
 
-
-    <div class="flex items-center justify-between mb-6">
-
-        <div class="clean-panel p-5 mb-6">
+    <div class="clean-panel section-animate p-5 mb-6" style="animation-delay: .1s;">
 
     <div class="flex flex-col lg:flex-row lg:items-end gap-5">
 
@@ -244,7 +309,11 @@ new class extends Component
 
     <div class="mt-4 flex items-center gap-2 text-sm text-[#6A2C75]">
 
-        <span>📅</span>
+        <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3.5" y="5" width="17" height="15" rx="2.5" />
+            <path d="M3.5 9.5h17" />
+            <path d="M8 3v3.2M16 3v3.2" />
+        </svg>
 
         <span class="font-semibold">
             Periodo:
@@ -261,7 +330,7 @@ new class extends Component
 </div>
 
         
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 items-end">
+        <div class="section-animate grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4" style="animation-delay: .15s;">
 
             <div class="space-y-2">
 
@@ -329,95 +398,120 @@ new class extends Component
                     <option value="TODOS">Todos</option>
 
                 </select>
-                
 
             </div>
-            <a
-    href="{{ route('asistencias.exportar',[
-        'desde'=>$desde,
-        'hasta'=>$hasta,
-        'departamento'=>$departamento_id,
-        'turno'=>$turno_id,
-        'estatus'=>$estatusEmpleado
-    ]) }}"
-    class="modern-font inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
-
-    📊 Exportar Excel
-
-</a>
-<a
-    href="{{ route('asistencias.pdf', [
-        'desde' => $desde,
-        'hasta' => $hasta,
-        'departamento' => $departamento_id,
-        'turno' => $turno_id,
-        'estatus' => $estatusEmpleado
-    ]) }}"
-    class="modern-font inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300"
->
-    📄 Generar PDF
-</a>
-
-<form
-    action="{{ route('asistencias.enviarPdf') }}"
-    method="POST"
-    class="inline"
->
-    @csrf
-
-    <input
-        type="hidden"
-        name="desde"
-        value="{{ $desde }}"
-    >
-
-    <input
-        type="hidden"
-        name="hasta"
-        value="{{ $hasta }}"
-    >
-
-    <input
-        type="hidden"
-        name="departamento"
-        value="{{ $departamento_id }}"
-    >
-
-    <input
-        type="hidden"
-        name="turno"
-        value="{{ $turno_id }}"
-    >
-
-    <input
-        type="hidden"
-        name="estatus"
-        value="{{ $estatusEmpleado }}"
-    >
-
-    <button
-        type="submit"
-        class="modern-font inline-flex items-center justify-center gap-2 bg-[#6A2C75] hover:bg-[#45193F] text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300"
-    >
-        📧 Enviar PDF a RH
-    </button>
-</form>
-
 
         </div>
 
-    </div>
+        <div class="section-animate flex flex-col sm:flex-row flex-wrap gap-3 mb-2" style="animation-delay: .2s;">
+
+            <a
+                href="{{ route('asistencias.exportar',[
+                    'desde'=>$desde,
+                    'hasta'=>$hasta,
+                    'departamento'=>$departamento_id,
+                    'turno'=>$turno_id,
+                    'estatus'=>$estatusEmpleado
+                ]) }}"
+                class="btn-modern group modern-font w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-600 text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm hover:shadow-lg hover:shadow-emerald-500/25 hover:-translate-y-0.5 active:scale-95 active:translate-y-0 transition-all duration-300">
+
+                <svg class="h-4 w-4 shrink-0 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3.5" y="4" width="17" height="16" rx="2" />
+                    <path d="M3.5 9.5h17M9.5 4v16M15 9.5v10" />
+                </svg>
+
+                Exportar Excel
+
+            </a>
+
+            <a
+                href="{{ route('asistencias.pdf', [
+                    'desde' => $desde,
+                    'hasta' => $hasta,
+                    'departamento' => $departamento_id,
+                    'turno' => $turno_id,
+                    'estatus' => $estatusEmpleado
+                ]) }}"
+                class="btn-modern group modern-font w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-red-600 to-rose-500 hover:from-red-500 hover:to-rose-600 text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm hover:shadow-lg hover:shadow-red-500/25 hover:-translate-y-0.5 active:scale-95 active:translate-y-0 transition-all duration-300"
+            >
+                <svg class="h-4 w-4 shrink-0 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M7 3.5h7l4 4v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-16a1 1 0 0 1 1-1Z" />
+                    <path d="M14 3.5v4h4" />
+                    <path d="M9 13h6M9 16.5h6" />
+                </svg>
+
+                Generar PDF
+            </a>
+
+            <form
+                action="{{ route('asistencias.enviarPdf') }}"
+                method="POST"
+                class="w-full sm:w-auto"
+            >
+                @csrf
+
+                <input
+                    type="hidden"
+                    name="desde"
+                    value="{{ $desde }}"
+                >
+
+                <input
+                    type="hidden"
+                    name="hasta"
+                    value="{{ $hasta }}"
+                >
+
+                <input
+                    type="hidden"
+                    name="departamento"
+                    value="{{ $departamento_id }}"
+                >
+
+                <input
+                    type="hidden"
+                    name="turno"
+                    value="{{ $turno_id }}"
+                >
+
+                <input
+                    type="hidden"
+                    name="estatus"
+                    value="{{ $estatusEmpleado }}"
+                >
+
+                <button
+                    type="submit"
+                    class="btn-modern group modern-font w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#6A2C75] to-[#45193F] hover:from-[#7d3489] hover:to-[#54204b] text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm hover:shadow-lg hover:shadow-[#6A2C75]/25 hover:-translate-y-0.5 active:scale-95 active:translate-y-0 transition-all duration-300"
+                >
+                    <svg class="h-4 w-4 shrink-0 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3.5" y="5.5" width="17" height="13" rx="2" />
+                        <path d="m4 6.5 8 6.5 8-6.5" />
+                    </svg>
+
+                    Enviar PDF a RH
+                </button>
+            </form>
+
+        </div>
     {{-- TABLA PRINCIPAL --}}
-    <div class="clean-panel relative overflow-hidden">
+    <div class="clean-panel section-animate relative overflow-hidden" style="animation-delay: .25s;">
 
         <div class="flex items-center gap-3 px-5 py-3 border-b border-[#2B2030]/8" style="background: #FBF8F3;">
             <div class="flex gap-1.5">
                 <div class="w-2.5 h-2.5 rounded-full bg-red-400"></div>
                 <div class="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
-                <div class="w-2.5 h-2.5 rounded-full bg-green-400"></div>
+                <div class="w-2.5 h-2.5 rounded-full bg-green-400 pulse-soft"></div>
             </div>
             <span class="modern-font text-sm font-medium text-[#6E6274]">Registro Diario de Empleados</span>
         </div>
+
+        <p class="sm:hidden flex items-center gap-1.5 px-5 py-2 text-xs text-[#6E6274] border-b border-[#2B2030]/8">
+            <svg class="h-3.5 w-3.5 swipe-hint" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m9 6 6 6-6 6" />
+            </svg>
+            Desliza horizontalmente para ver todos los días
+        </p>
 
         <div class="overflow-x-auto clean-scroll">
             <table class="min-w-full border-collapse text-sm text-[#2B2030]">
@@ -567,7 +661,7 @@ new class extends Component
     </div>
 
     {{-- LEYENDA (COLORES) --}}
-    <div class="flex flex-wrap gap-3 px-1 mt-4 mb-2">
+    <div class="section-animate flex flex-wrap gap-3 px-1 mt-4 mb-2" style="animation-delay: .3s;">
         @php
         $leyenda = [
         ['label' => 'Asistencia', 'class' => 'status-A'],
@@ -583,7 +677,7 @@ new class extends Component
         @endphp
 
         @foreach($leyenda as $item)
-        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full border {{ $item['class'] }} bg-white stat-badge">
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full border {{ $item['class'] }} bg-white stat-badge cursor-default transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
             <div class="w-2 h-2 rounded-full" style="background: currentColor;"></div>
             <span class="modern-font text-xs font-bold">{{ $item['label'] }}</span>
         </div>
@@ -591,7 +685,7 @@ new class extends Component
     </div>
 
     {{-- RESUMEN MENSUAL --}}
-    <div class="clean-panel relative overflow-hidden">
+    <div class="clean-panel section-animate relative overflow-hidden" style="animation-delay: .35s;">
         <div class="flex items-center justify-between px-5 py-3 border-b border-[#2B2030]/8" style="background: #FBF8F3;">
             <div class="flex items-center gap-3">
                 <div class="w-1.5 h-5 rounded-full" style="background-color: #6a2c75;"></div>
@@ -601,11 +695,18 @@ new class extends Component
             </div>
         </div>
 
+        <p class="sm:hidden flex items-center gap-1.5 px-5 py-2 text-xs text-[#6E6274] border-b border-[#2B2030]/8">
+            <svg class="h-3.5 w-3.5 swipe-hint" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m9 6 6 6-6 6" />
+            </svg>
+            Desliza horizontalmente para ver todas las columnas
+        </p>
+
         <div class="overflow-x-auto clean-scroll">
             <table class="w-full text-sm text-[#2B2030]">
                 <thead>
                     <tr class="border-b border-[#2B2030]/10" style="background: #FBF8F3;">
-                        <th class="px-5 py-3.5 text-left"><span class="modern-font text-xs font-bold tracking-wider uppercase text-[#6E6274]">Empleado</span></th>
+                        <th class="cell-sticky sticky left-0 z-10 px-5 py-3.5 text-left whitespace-nowrap border-r border-[#2B2030]/10 shadow-[1px_0_0_0_rgba(43,32,48,0.08)]" style="background: #FBF8F3;"><span class="modern-font text-xs font-bold tracking-wider uppercase text-[#6E6274]">Empleado</span></th>
                         <th class="px-5 py-3.5 text-center"><span class="modern-font text-xs font-bold tracking-wider uppercase status-A px-2 py-1 rounded-md border bg-white">Asistencias</span></th>
                         <th class="px-5 py-3.5 text-center"><span class="modern-font text-xs font-bold tracking-wider uppercase status-F px-2 py-1 rounded-md border bg-white">Faltas</span></th>
                         <th class="px-5 py-3.5 text-center"><span class="modern-font text-xs font-bold tracking-wider uppercase status-V px-2 py-1 rounded-md border bg-white">Vacaciones</span></th>
@@ -737,7 +838,7 @@ new class extends Component
                     @endphp
 
                     <tr wire:key="sum-{{ $empleado->id }}" class="tr-clean row-animate border-b border-[#2B2030]/6 bg-white" style="animation-delay: {{ $i * 0.05 }}s;">
-                        <td class="px-5 py-4">
+                        <td class="cell-sticky sticky left-0 z-10 px-5 py-4 whitespace-nowrap bg-white border-r border-[#2B2030]/10 shadow-[1px_0_0_0_rgba(43,32,48,0.08)]">
                             <div class="flex items-center gap-3">
                                 <span class="mono-font text-xs font-semibold text-[#A8A0AC]">{{ str_pad($i+1, 2, '0', STR_PAD_LEFT) }}</span>
                                 <span class="modern-font font-semibold text-[#2B2030]">
