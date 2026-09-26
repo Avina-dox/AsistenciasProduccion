@@ -8,6 +8,7 @@ use App\Models\Empleado;
 use App\Models\Asistencia;
 use App\Models\HoraExtra;
 use App\Models\Permiso;
+use Illuminate\Support\Facades\DB;
 
 class DashboardService
 {
@@ -31,27 +32,29 @@ class DashboardService
         $porcentajeAusentismo = $totalActivos > 0
             ? round(($faltas / $totalActivos) * 100, 1)
             : 0;
+        $objetivoMatutino = DB::table('plantilla_autorizada')->where('turno', 'dia')->value('objetivo');
+        $objetivoNocturno = DB::table('plantilla_autorizada')->where('turno', 'noche')->value('objetivo');
+
+        // "Diurno" y "MATUTINO" son el mismo turno (MATUTINO reemplazó el nombre viejo) — se cuentan juntos.
         $personalMatutino = Empleado::where('estatus', 'ACTIVO')
             ->whereHas('turno', function ($q) {
-                $q->where('nombre', 'MATUTINO');
+                $q->whereIn('nombre', ['Diurno', 'MATUTINO']);
             })
             ->count();
 
         $personalNocturno = Empleado::where('estatus', 'ACTIVO')
             ->whereHas('turno', function ($q) {
-                $q->where('nombre', 'NOCTURNO');
+                $q->where('nombre', 'Nocturno');
             })
             ->count();
 
-        $coberturaMatutina = round(
-            ($personalMatutino / 91) * 100,
-            1
-        );
+        $coberturaMatutina = $objetivoMatutino > 0
+            ? round(($personalMatutino / $objetivoMatutino) * 100, 1)
+            : 0;
 
-        $coberturaNocturna = round(
-            ($personalNocturno / 72) * 100,
-            1
-        );
+        $coberturaNocturna = $objetivoNocturno > 0
+            ? round(($personalNocturno / $objetivoNocturno) * 100, 1)
+            : 0;
 
         /*
 |--------------------------------------------------------------------------
@@ -151,13 +154,13 @@ class DashboardService
 
                 'matutino' => [
                     'personal' => $personalMatutino,
-                    'objetivo' => 91,
+                    'objetivo' => $objetivoMatutino,
                     'porcentaje' => $coberturaMatutina,
                 ],
 
                 'nocturno' => [
                     'personal' => $personalNocturno,
-                    'objetivo' => 72,
+                    'objetivo' => $objetivoNocturno,
                     'porcentaje' => $coberturaNocturna,
                 ],
 
