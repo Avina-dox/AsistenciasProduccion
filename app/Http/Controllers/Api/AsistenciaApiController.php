@@ -36,7 +36,7 @@ class AsistenciaApiController extends Controller
             ->where('empleados.estatus', 'ACTIVO')
             ->select(
                 'empleados.id as empleado_id',
-                DB::raw("CONCAT(empleados.nombre, ' ', empleados.apellido_paterno, ' ', empleados.apellido_materno) as nombre_completo"),
+                DB::raw("CONCAT_WS(' ', empleados.nombre, empleados.apellido_paterno, empleados.apellido_materno) as nombre_completo"),
                 'departamentos.nombre as area',
                 'turnos.nombre as turno',
                 'estatus_asistencias.nombre as estatus_asistencia'
