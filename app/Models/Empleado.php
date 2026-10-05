@@ -26,6 +26,7 @@ class Empleado extends Model
         'estatus',
         'turno_id',
         'onomastico',
+        'user_id',
     ];
 
     /*

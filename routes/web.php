@@ -12,6 +12,10 @@ use App\Http\Controllers\HoraExtraController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\SoporteController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\TurnoController;
+use App\Http\Controllers\DepartamentoController;
+use App\Http\Controllers\HorarioController;
 
 
 Route::get('/', function () {
@@ -42,6 +46,7 @@ Route::get(
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile/dashboard-widgets', [ProfileController::class, 'updateDashboardWidgets'])->name('profile.dashboard-widgets.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::resource('asistencias', AsistenciaController::class);
 });
@@ -61,11 +66,32 @@ Route::resource(
     UsuarioController::class
 )->middleware('role:Admin');
 
+Route::get(
+    'admin',
+    [AdminController::class, 'index']
+)->name('admin.index')
+    ->middleware(['auth', 'role:Admin']);
+
+Route::resource('turnos', TurnoController::class)
+    ->middleware('role:Admin');
+
+Route::resource('departamentos', DepartamentoController::class)
+    ->middleware('role:Admin');
+
+Route::resource('horarios', HorarioController::class)
+    ->middleware('role:Admin');
+
 
 Route::patch(
     'empleados/{empleado}/estatus',
     [EmpleadoController::class, 'actualizarEstatus']
 )->name('empleados.estatus')
+    ->middleware('role:RH|Admin|Supervisor|Coordinacion');
+
+Route::get(
+    'empleados/{empleado}/resumen-asistencias',
+    [EmpleadoController::class, 'resumenAsistencias']
+)->name('empleados.resumenAsistencias')
     ->middleware('role:RH|Admin|Supervisor|Coordinacion');
 
 Route::resource(

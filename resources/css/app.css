@@ -1,3 +1,157 @@
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.material-symbols-outlined {
+    font-family: 'Material Symbols Outlined';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Modo claro / oscuro
+|--------------------------------------------------------------------------
+| Variables CSS consumidas por tailwind.config.js. El esquema "Material You"
+| (primary, on-surface, surface-container-*, etc.) alimenta el dashboard;
+| los tokens "brand-*" alimentan el resto de la app (morado/dorado/crema).
+*/
+
+:root {
+    --color-surface-container-highest: 211 228 254;
+    --color-on-tertiary-fixed-variant: 0 80 73;
+    --color-on-error: 255 255 255;
+    --color-on-secondary-container: 113 77 0;
+    --color-on-secondary-fixed: 40 25 0;
+    --color-primary-fixed-dim: 237 179 242;
+    --color-inverse-surface: 33 49 69;
+    --color-surface-container-low: 239 244 255;
+    --color-surface-bright: 248 249 255;
+    --color-primary-container: 74 30 82;
+    --color-tertiary: 0 32 28;
+    --color-on-primary-container: 188 134 193;
+    --color-surface-variant: 211 228 254;
+    --color-secondary-fixed-dim: 250 188 77;
+    --color-on-error-container: 147 0 10;
+    --color-error-container: 255 218 214;
+    --color-on-secondary: 255 255 255;
+    --color-surface: 248 249 255;
+    --color-tertiary-fixed-dim: 107 216 203;
+    --color-inverse-on-surface: 234 241 255;
+    --color-primary: 50 6 59;
+    --color-tertiary-fixed: 137 245 231;
+    --color-tertiary-container: 0 55 50;
+    --color-error: 186 26 26;
+    --color-surface-tint: 125 77 131;
+    --color-on-tertiary: 255 255 255;
+    --color-on-surface: 11 28 48;
+    --color-on-primary-fixed-variant: 99 53 106;
+    --color-secondary-container: 253 190 80;
+    --color-surface-container: 229 238 255;
+    --color-on-tertiary-fixed: 0 32 29;
+    --color-on-surface-variant: 77 68 77;
+    --color-secondary: 126 87 0;
+    --color-inverse-primary: 237 179 242;
+    --color-secondary-fixed: 255 222 173;
+    --color-surface-dim: 203 219 245;
+    --color-primary-fixed: 255 214 255;
+    --color-on-tertiary-container: 52 168 156;
+    --color-outline-variant: 208 194 205;
+    --color-outline: 127 116 125;
+    --color-on-secondary-fixed-variant: 96 65 0;
+    --color-surface-container-high: 220 233 255;
+    --color-on-background: 11 28 48;
+    --color-on-primary-fixed: 50 6 59;
+    --color-surface-container-lowest: 255 255 255;
+    --color-on-primary: 255 255 255;
+    --color-background: 248 249 255;
+
+    /* Tokens de marca (morado/dorado/crema) */
+    --color-brand-page-from: 251 248 243;
+    --color-brand-page-to: 243 237 227;
+    --color-brand-card: 255 255 255;
+    --color-brand-card-alt: 251 248 243;
+    --color-brand-ink: 43 32 48;
+    --color-brand-muted: 110 98 116;
+    --color-brand-border: 43 32 48;
+}
+
+.dark {
+    --color-surface-container-highest: 54 52 59;
+    --color-on-tertiary-fixed-variant: 0 80 73;
+    --color-on-error: 105 0 5;
+    --color-on-secondary-container: 255 222 173;
+    --color-on-secondary-fixed: 40 25 0;
+    --color-primary-fixed-dim: 237 179 242;
+    --color-inverse-surface: 227 226 233;
+    --color-surface-container-low: 28 27 33;
+    --color-surface-bright: 57 57 64;
+    --color-primary-container: 92 45 102;
+    --color-tertiary: 107 216 203;
+    --color-on-primary-container: 243 217 246;
+    --color-surface-variant: 77 68 77;
+    --color-secondary-fixed-dim: 250 188 77;
+    --color-on-error-container: 255 218 214;
+    --color-error-container: 147 0 10;
+    --color-on-secondary: 69 43 0;
+    --color-surface: 19 19 24;
+    --color-tertiary-fixed-dim: 107 216 203;
+    --color-inverse-on-surface: 47 48 53;
+    --color-primary: 226 184 232;
+    --color-tertiary-fixed: 137 245 231;
+    --color-tertiary-container: 0 79 71;
+    --color-error: 255 180 171;
+    --color-surface-tint: 237 179 242;
+    --color-on-tertiary: 0 55 47;
+    --color-on-surface: 227 226 233;
+    --color-on-primary-fixed-variant: 99 53 106;
+    --color-secondary-container: 95 66 0;
+    --color-surface-container: 32 31 37;
+    --color-on-tertiary-fixed: 0 32 29;
+    --color-on-surface-variant: 202 196 207;
+    --color-secondary: 255 187 92;
+    --color-inverse-primary: 50 6 59;
+    --color-secondary-fixed: 255 222 173;
+    --color-surface-dim: 19 19 24;
+    --color-primary-fixed: 255 214 255;
+    --color-on-tertiary-container: 137 245 231;
+    --color-outline-variant: 74 69 78;
+    --color-outline: 148 142 153;
+    --color-on-secondary-fixed-variant: 96 65 0;
+    --color-surface-container-high: 43 42 48;
+    --color-on-background: 227 226 233;
+    --color-on-primary-fixed: 50 6 59;
+    --color-surface-container-lowest: 14 14 19;
+    --color-on-primary: 69 5 63;
+    --color-background: 19 19 24;
+
+    /* Tokens de marca (morado/dorado/crema) en oscuro */
+    --color-brand-page-from: 21 18 28;
+    --color-brand-page-to: 15 12 23;
+    --color-brand-card: 30 26 39;
+    --color-brand-card-alt: 23 19 32;
+    --color-brand-ink: 243 237 227;
+    --color-brand-muted: 167 157 176;
+    --color-brand-border: 255 255 255;
+}
+
+/* Evita el flash de scrollbar/fondo blanco mientras carga el CSS */
+html.dark,
+html.dark body {
+    background-color: rgb(var(--color-brand-page-to));
+}

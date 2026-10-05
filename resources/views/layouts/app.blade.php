@@ -7,6 +7,20 @@
 
         <title>{{ config('app.name', 'Dasaasistencias') }}</title>
 
+        {{-- Aplica el tema guardado (o el del sistema) antes de pintar, para evitar parpadeo --}}
+        <script>
+            (function () {
+                try {
+                    const guardado = localStorage.getItem('theme');
+                    const prefiereOscuro = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+                    if (guardado === 'dark' || (!guardado && prefiereOscuro)) {
+                        document.documentElement.classList.add('dark');
+                    }
+                } catch (e) {}
+            })();
+        </script>
+
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
@@ -15,8 +29,8 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @livewireStyles
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
+    <body class="font-sans antialiased bg-brand-page-to dark:bg-brand-page-to">
+        <div class="min-h-screen bg-gray-100 dark:bg-brand-page-to">
             @include('layouts.navigation')
 
             <!-- Page Heading -->

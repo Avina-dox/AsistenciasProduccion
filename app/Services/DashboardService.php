@@ -15,14 +15,23 @@ class DashboardService
     public function obtenerDashboard(): array
     {
         $hoy = Carbon::today();
-        $totalActivos = Empleado::where('estatus', 'ACTIVO')->count();
+
+        // Los empleados con cuenta de usuario vinculada (Supervisor, Coordinación, etc.)
+        // se excluyen de los KPIs de asistencia/cobertura: no son personal de piso.
+        $sinCuentaUsuario = fn($q) => $q->whereNull('user_id');
+
+        $totalActivos = Empleado::where('estatus', 'ACTIVO')
+            ->whereNull('user_id')
+            ->count();
 
         $presentes = Asistencia::whereDate('fecha', $hoy)
             ->whereHas('estatus', fn($q) => $q->where('codigo', 'A'))
+            ->whereHas('empleado', $sinCuentaUsuario)
             ->count();
 
         $faltas = Asistencia::whereDate('fecha', $hoy)
             ->whereHas('estatus', fn($q) => $q->where('codigo', 'F'))
+            ->whereHas('empleado', $sinCuentaUsuario)
             ->count();
 
         $porcentajeAsistencia = $totalActivos > 0
@@ -37,12 +46,14 @@ class DashboardService
 
         // "Diurno" y "MATUTINO" son el mismo turno (MATUTINO reemplazó el nombre viejo) — se cuentan juntos.
         $personalMatutino = Empleado::where('estatus', 'ACTIVO')
+            ->whereNull('user_id')
             ->whereHas('turno', function ($q) {
                 $q->whereIn('nombre', ['Diurno', 'MATUTINO']);
             })
             ->count();
 
         $personalNocturno = Empleado::where('estatus', 'ACTIVO')
+            ->whereNull('user_id')
             ->whereHas('turno', function ($q) {
                 $q->where('nombre', 'Nocturno');
             })
@@ -55,6 +66,61 @@ class DashboardService
         $coberturaNocturna = $objetivoNocturno > 0
             ? round(($personalNocturno / $objetivoNocturno) * 100, 1)
             : 0;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cobertura por área (departamento) y turno
+        |--------------------------------------------------------------------------
+        */
+
+        $objetivosPorArea = [
+            'MATUTINO' => [
+                'Mezclado' => 14,
+                'Formado' => 10,
+                'Horneado' => 26,
+                'Empaque Granola' => 22,
+                'Empaque Barras' => 17,
+            ],
+            'NOCTURNO' => [
+                'Mezclado' => 10,
+                'Formado' => 8,
+                'Horneado' => 22,
+                'Empaque Granola' => 18,
+                'Empaque Barras' => 14,
+            ],
+        ];
+
+        $personalPorAreaTurno = Empleado::where('estatus', 'ACTIVO')
+            ->whereNull('empleados.user_id')
+            ->join('departamentos', 'empleados.departamento_id', '=', 'departamentos.id')
+            ->join('turnos', 'empleados.turno_id', '=', 'turnos.id')
+            ->selectRaw('departamentos.nombre as departamento, turnos.nombre as turno, count(*) as total')
+            ->groupBy('departamentos.nombre', 'turnos.nombre')
+            ->get();
+
+        $conteoPorAreaTurno = [];
+
+        foreach ($personalPorAreaTurno as $fila) {
+            $conteoPorAreaTurno[$fila->turno][$fila->departamento] = (int) $fila->total;
+        }
+
+        $coberturaPorArea = [];
+
+        foreach ($objetivosPorArea as $turno => $areas) {
+
+            foreach ($areas as $area => $objetivo) {
+
+                $personal = $conteoPorAreaTurno[$turno][$area] ?? 0;
+
+                $coberturaPorArea[$area][$turno] = [
+                    'personal' => $personal,
+                    'objetivo' => $objetivo,
+                    'porcentaje' => $objetivo > 0
+                        ? round(($personal / $objetivo) * 100, 1)
+                        : 0,
+                ];
+            }
+        }
 
         /*
 |--------------------------------------------------------------------------
@@ -70,6 +136,7 @@ class DashboardService
                 $inicioMes,
                 $finMes
             ])
+            ->whereHas('empleado', $sinCuentaUsuario)
             ->get()
             ->groupBy(function ($asistencia) {
                 return Carbon::parse($asistencia->fecha)
@@ -165,6 +232,9 @@ class DashboardService
                 ],
 
             ],
+
+            'cobertura_por_area' => $coberturaPorArea,
+
             'grafica_asistencia' => $graficaAsistencia,
 
 
@@ -187,6 +257,7 @@ class DashboardService
 
                     $q->where('codigo', 'R');
                 })
+                ->whereHas('empleado', $sinCuentaUsuario)
                 ->count(),
 
             'vacaciones' => Asistencia::whereDate(
@@ -197,6 +268,7 @@ class DashboardService
 
                     $q->where('codigo', 'V');
                 })
+                ->whereHas('empleado', $sinCuentaUsuario)
                 ->count(),
 
             'incapacidades' => Asistencia::whereDate(
@@ -207,6 +279,7 @@ class DashboardService
 
                     $q->where('codigo', 'I');
                 })
+                ->whereHas('empleado', $sinCuentaUsuario)
                 ->count(),
 
             /*

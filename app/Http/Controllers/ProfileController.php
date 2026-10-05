@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -35,6 +36,23 @@ class ProfileController extends Controller
         $request->user()->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    }
+
+    /**
+     * Update which dashboard widgets the user wants to see.
+     */
+    public function updateDashboardWidgets(Request $request): RedirectResponse
+    {
+        $widgets = array_values(array_intersect(
+            (array) $request->input('widgets', []),
+            User::WIDGETS_DASHBOARD_DEFAULT
+        ));
+
+        $request->user()->update([
+            'dashboard_widgets' => $widgets,
+        ]);
+
+        return Redirect::route('profile.edit')->with('status', 'dashboard-widgets-updated');
     }
 
     /**

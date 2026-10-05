@@ -15,16 +15,30 @@ class EmpleadoController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $search = $request->input('search');
+
         $empleados = Empleado::with([
             'departamento',
-            'turno'
+            'turno',
+            'user.roles'
         ])
+            ->when($search, function ($query, $search) {
+
+                $query->where(function ($q) use ($search) {
+
+                    $q->where('nombre', 'like', "%{$search}%")
+                        ->orWhere('apellido_paterno', 'like', "%{$search}%")
+                        ->orWhere('apellido_materno', 'like', "%{$search}%")
+                        ->orWhere('codigo_empleado', 'like', "%{$search}%");
+                });
+            })
             ->orderBy('apellido_paterno')
             ->orderBy('apellido_materno')
             ->orderBy('nombre')
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
         $horarios = Horario::all()
             ->keyBy(function ($horario) {
@@ -50,7 +64,8 @@ class EmpleadoController extends Controller
     {
         $departamentos = Departamento::all();
         $turnos = Turno::all();
-        return view('empleados.create', compact('departamentos', 'turnos'));
+        $usuarios = \App\Models\User::orderBy('name')->get();
+        return view('empleados.create', compact('departamentos', 'turnos', 'usuarios'));
     }
 
     /**
@@ -65,6 +80,7 @@ class EmpleadoController extends Controller
             'nombre' => 'required',
             'apellido_paterno' => 'required',
             'turno_id' => 'required|exists:turnos,id',
+            'user_id' => 'nullable|exists:users,id',
         ]);
 
         $empleado = Empleado::create($request->all());
@@ -101,6 +117,63 @@ class EmpleadoController extends Controller
     public function show(string $id)
     {
         //
+    }
+
+    /**
+     * Resumen de asistencias de un empleado para un periodo (usado en el modal de la lista).
+     * Por defecto muestra el mes actual; acepta ?desde= y ?hasta= para ajustar el rango.
+     */
+    public function resumenAsistencias(
+        Empleado $empleado,
+        Request $request,
+        \App\Services\AsistenciaService $service
+    ) {
+        $request->validate([
+            'desde' => 'nullable|date',
+            'hasta' => 'nullable|date',
+        ]);
+
+        $desde = $request->filled('desde')
+            ? \Carbon\Carbon::parse($request->desde)->startOfDay()
+            : now()->startOfMonth();
+
+        $hasta = $request->filled('hasta')
+            ? \Carbon\Carbon::parse($request->hasta)->endOfDay()
+            : now()->endOfMonth();
+
+        if ($desde->gt($hasta)) {
+            [$desde, $hasta] = [$hasta->copy()->startOfDay(), $desde->copy()->endOfDay()];
+        }
+
+        $empleado->load([
+            'departamento',
+            'turno',
+
+            'asistencias' => function ($query) use ($desde, $hasta) {
+
+                $query->whereBetween('fecha', [
+                    $desde->format('Y-m-d'),
+                    $hasta->format('Y-m-d'),
+                ]);
+            },
+
+            'asistencias.estatus',
+
+            'horasExtras.horaExtra.estatus',
+        ]);
+
+        $totales = $service->obtenerTotalesEmpleado(
+            $empleado,
+            $desde,
+            $hasta
+        );
+
+        return view('empleados.partials.resumen-asistencias', [
+            'empleado' => $empleado,
+            'totales' => $totales,
+            'desde' => $desde,
+            'hasta' => $hasta,
+        ]);
     }
 
     public function actualizarEstatus(
@@ -153,14 +226,24 @@ class EmpleadoController extends Controller
             'remitente' => $remitente,
         ])->render();
 
-        $mail->sendHtml(
-            'aux.sistemas@dasavena.com',
-            'Baja de empleado - ' .
-                $empleado->apellido_paterno . ' ' .
-                $empleado->apellido_materno . ' ' .
-                $empleado->nombre,
-            $html
-        );
+        $destinatariosBaja = \App\Models\User::role(['RH', 'Admin', 'Supervisor', 'Coordinacion'])
+            ->pluck('email')
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        if (!empty($destinatariosBaja)) {
+
+            $mail->sendHtml(
+                $destinatariosBaja,
+                'Baja de empleado - ' .
+                    $empleado->apellido_paterno . ' ' .
+                    $empleado->apellido_materno . ' ' .
+                    $empleado->nombre,
+                $html
+            );
+        }
     }
 
     return back()->with(
@@ -176,10 +259,11 @@ class EmpleadoController extends Controller
     {
         $departamentos = Departamento::all();
         $turnos = Turno::all();
+        $usuarios = \App\Models\User::orderBy('name')->get();
 
         return view(
             'empleados.edit',
-            compact('empleado', 'departamentos', 'turnos')
+            compact('empleado', 'departamentos', 'turnos', 'usuarios')
         );
     }
 
@@ -196,6 +280,7 @@ class EmpleadoController extends Controller
         'nombre' => 'required',
         'apellido_paterno' => 'required',
         'turno_id' => 'required|exists:turnos,id',
+        'user_id' => 'nullable|exists:users,id',
     ]);
 
     // Guardamos el estatus anterior antes de actualizar
@@ -224,6 +309,7 @@ class EmpleadoController extends Controller
         'departamento_id' => $request->departamento_id,
         'turno_id' => $request->turno_id,
         'estatus' => $nuevoEstatus,
+        'user_id' => $request->user_id,
     ]);
 
     /*
@@ -251,14 +337,24 @@ class EmpleadoController extends Controller
             'remitente' => $remitente,
         ])->render();
 
-        $mail->sendHtml(
-            'aux.sistemas@dasavena.com',
-            'Baja de empleado - ' .
-                $empleado->apellido_paterno . ' ' .
-                $empleado->apellido_materno . ' ' .
-                $empleado->nombre,
-            $html
-        );
+        $destinatariosBaja = \App\Models\User::role(['RH', 'Admin', 'Supervisor', 'Coordinacion'])
+            ->pluck('email')
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        if (!empty($destinatariosBaja)) {
+
+            $mail->sendHtml(
+                $destinatariosBaja,
+                'Baja de empleado - ' .
+                    $empleado->apellido_paterno . ' ' .
+                    $empleado->apellido_materno . ' ' .
+                    $empleado->nombre,
+                $html
+            );
+        }
     }
 
     return redirect()

@@ -34,7 +34,7 @@
         x-transition:leave-end="opacity-0 scale-95"
         @click.outside="open = false"
         style="display:none;"
-        class="absolute bottom-[4.5rem] right-0 flex w-[22rem] max-w-[90vw] flex-col overflow-hidden rounded-2xl border border-[#2B2030]/10 bg-white shadow-2xl shadow-[#45193F]/20">
+        class="absolute bottom-[4.5rem] right-0 flex w-[22rem] max-w-[90vw] flex-col overflow-hidden rounded-2xl border border-[#2B2030]/10 dark:border-brand-border/10 bg-white dark:bg-brand-card shadow-2xl shadow-[#45193F]/20">
 
         {{-- Header --}}
         <div class="flex items-center gap-3 px-5 py-4" style="background: linear-gradient(135deg,#6A2C75,#45193F);">
@@ -55,12 +55,12 @@
         <div x-ref="hilo" class="max-h-80 space-y-3 overflow-y-auto px-4 py-4">
 
             <div class="flex gap-2">
-                <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full" style="background:#F3EAF5; color:#6A2C75;">
+                <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#F3EAF5] text-[#6A2C75] dark:bg-[#6A2C75]/25 dark:text-[#edb3f2]">
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 3.5 5 6v5.5c0 4.3 2.9 7.4 7 9 4.1-1.6 7-4.7 7-9V6l-7-2.5Z" />
                     </svg>
                 </div>
-                <div class="max-w-[80%] rounded-2xl rounded-tl-sm bg-[#F3EDE3] px-3.5 py-2.5 text-sm text-[#2B2030]">
+                <div class="max-w-[80%] rounded-2xl rounded-tl-sm bg-[#F3EDE3] dark:bg-brand-card-alt px-3.5 py-2.5 text-sm text-[#2B2030] dark:text-brand-ink">
                     ¡Hola! Cuéntame qué problema tienes. Antes de mandarlo a IT te voy a pedir que confirmes que todo está correcto.
                 </div>
             </div>
@@ -69,13 +69,13 @@
                 <div class="flex" :class="m.tipo === 'usuario' ? 'justify-end' : ''">
                     <div
                         class="max-w-[80%] whitespace-pre-wrap rounded-2xl px-3.5 py-2.5 text-sm"
-                        :class="m.tipo === 'usuario' ? 'rounded-tr-sm text-white' : 'rounded-tl-sm bg-[#F3EDE3] text-[#2B2030]'"
+                        :class="m.tipo === 'usuario' ? 'rounded-tr-sm text-white' : 'rounded-tl-sm bg-[#F3EDE3] dark:bg-brand-card-alt text-[#2B2030] dark:text-brand-ink'"
                         :style="m.tipo === 'usuario' ? 'background: linear-gradient(135deg,#6A2C75,#45193F);' : ''"
                         x-text="m.texto"></div>
                 </div>
             </template>
 
-            <div x-show="enviando" style="display:none;" class="flex items-center gap-2 pl-1 text-xs text-[#6E6274]">
+            <div x-show="enviando" style="display:none;" class="flex items-center gap-2 pl-1 text-xs text-[#6E6274] dark:text-brand-muted">
                 <span class="h-1.5 w-1.5 animate-bounce rounded-full" style="background:#6A2C75;"></span>
                 <span class="h-1.5 w-1.5 animate-bounce rounded-full" style="background:#6A2C75; animation-delay:.15s;"></span>
                 <span class="h-1.5 w-1.5 animate-bounce rounded-full" style="background:#6A2C75; animation-delay:.3s;"></span>
@@ -85,7 +85,7 @@
         </div>
 
         {{-- Respuestas rápidas de confirmación --}}
-        <div x-show="paso === 'confirmando' && !enviando" style="display:none;" class="flex gap-2 border-t border-[#2B2030]/10 px-4 pt-3">
+        <div x-show="paso === 'confirmando' && !enviando" style="display:none;" class="flex gap-2 border-t border-[#2B2030]/10 dark:border-brand-border/10 px-4 pt-3">
             <button
                 type="button"
                 @click="responderRapido('Sí, enviar')"
@@ -96,13 +96,13 @@
             <button
                 type="button"
                 @click="responderRapido('No, corregir')"
-                class="flex-1 rounded-xl border border-[#2B2030]/15 px-3 py-2 text-xs font-semibold text-[#6E6274] transition-colors hover:bg-[#F3EDE3]">
+                class="flex-1 rounded-xl border border-[#2B2030]/15 dark:border-brand-border/15 px-3 py-2 text-xs font-semibold text-[#6E6274] dark:text-brand-muted transition-colors hover:bg-[#F3EDE3] dark:hover:bg-brand-card-alt">
                 ✕ No, corregir
             </button>
         </div>
 
         {{-- Input --}}
-        <form @submit.prevent="enviarMensaje()" class="flex items-end gap-2 border-t border-[#2B2030]/10 p-3">
+        <form @submit.prevent="enviarMensaje()" class="flex items-end gap-2 border-t border-[#2B2030]/10 dark:border-brand-border/10 p-3">
 
             <textarea
                 x-ref="textarea"
@@ -112,7 +112,7 @@
                 maxlength="2000"
                 :placeholder="paso === 'confirmando' ? 'Escribe una corrección o toca una opción…' : 'Describe el problema…'"
                 :disabled="enviando"
-                class="max-h-24 flex-1 resize-none rounded-xl border border-[#2B2030]/15 px-3 py-2 text-sm text-[#2B2030] focus:outline-none focus:ring-2 focus:ring-[#6A2C75]/30 disabled:opacity-60"></textarea>
+                class="max-h-24 flex-1 resize-none rounded-xl border border-[#2B2030]/15 dark:border-brand-border/15 bg-transparent px-3 py-2 text-sm text-[#2B2030] dark:text-brand-ink dark:placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-[#6A2C75]/30 disabled:opacity-60"></textarea>
 
             <button
                 type="submit"

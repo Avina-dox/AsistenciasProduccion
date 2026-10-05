@@ -1,335 +1,563 @@
 <x-app-layout>
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Questrial&display=swap');
-
-        .font-century {
-            font-family: 'Century Gothic', CenturyGothic, 'Century Gothic Paneuropean',
-                Questrial, 'Avenir Next', sans-serif;
-        }
-
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(14px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .row-fade {
-            opacity: 0;
-            animation: fadeUp .5s ease forwards;
-        }
-
-        .estatus-select {
-            appearance: none;
-            -webkit-appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236E6274'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.19l3.71-3.96a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right .6rem center;
-            background-size: 1rem;
-            padding-right: 2rem;
-        }
-    </style>
-
     @php
-    $estatusColor = function ($estatus) {
+    $estatusBadge = function ($estatus) {
     return match ($estatus) {
-    'ACTIVO' => ['bg' => '#ECFDF5', 'fg' => '#059669'],
-    'INACTIVO' => ['bg' => '#F1F0EF', 'fg' => '#6E6274'],
-    'VACACIONES' => ['bg' => '#F7F2DE', 'fg' => '#B6A644'],
-    'BAJA' => ['bg' => '#FEF2F2', 'fg' => '#DC2626'],
-    default => ['bg' => '#F3EAF5', 'fg' => '#6A2C75'],
+    'ACTIVO' => 'bg-tertiary-container/20 text-on-tertiary-container',
+    'INACTIVO' => 'bg-surface-container-high/60 text-outline',
+    'VACACIONES' => 'bg-secondary-container/40 text-on-secondary-container',
+    'BAJA' => 'bg-error-container/40 text-error',
+    default => 'bg-primary-container/25 text-on-primary-container',
+    };
+    };
+
+    $rolClasses = function ($rol) {
+    return match ($rol) {
+    'Admin' => 'bg-primary-container/25 text-on-primary-container',
+    'RH' => 'bg-tertiary-container/20 text-on-tertiary-container',
+    'Supervisor' => 'bg-secondary-container/40 text-on-secondary-container',
+    'Coordinacion' => 'bg-primary/10 text-primary',
+    default => 'bg-surface-container-high/60 text-outline',
     };
     };
     @endphp
 
-    <div class="font-century min-h-screen bg-gradient-to-br from-[#FBF8F3] to-[#F3EDE3] p-6">
+    <div x-data="resumenAsistenciasModal()" class="relative bg-background min-h-screen">
 
-        {{-- HEADER --}}
-        <div class="max-w-7xl mx-auto flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8 opacity-0" style="animation: fadeUp .6s ease forwards;">
+        <div class="fixed top-[-10%] left-[-5%] w-[500px] h-[500px] rounded-full bg-gradient-to-br from-primary-fixed-dim/20 to-transparent blur-3xl pointer-events-none -z-10"></div>
+        <div class="fixed bottom-[-10%] right-[-5%] w-[500px] h-[450px] rounded-full bg-gradient-to-tr from-primary-container/10 via-surface-variant/30 to-transparent blur-3xl pointer-events-none -z-10"></div>
 
-            <div>
-                <p class="uppercase tracking-[0.30em] text-[#6A2C75]/60 text-xs font-semibold mb-1">
-                    Gestión de Personal
-                </p>
-                <h1 class="text-3xl font-bold text-[#2B2030]">Empleados</h1>
-                <p class="mt-1 text-sm text-[#6E6274]">Gestiona empleados y turnos desde un solo lugar.</p>
+        <div class="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+            {{-- HEADER --}}
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <p class="font-label-caps text-label-caps uppercase tracking-wider text-outline font-semibold mb-1">Gestión de Personal</p>
+                    <h1 class="font-headline-lg text-headline-lg text-primary font-bold tracking-tight flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary-container">badge</span>
+                        Empleados
+                    </h1>
+                    <p class="mt-1 font-body-sm text-body-sm text-on-surface-variant">Gestiona empleados y turnos desde un solo lugar.</p>
+                </div>
+
+                <a href="{{ route('empleados.create') }}"
+                    class="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-primary to-primary-container px-6 py-3 font-label-lg text-label-lg font-semibold text-white shadow-[0_8px_20px_rgba(74,30,82,0.22),inset_0_1px_1px_rgba(255,255,255,0.4)] hover:brightness-110 active:scale-95 transition-all">
+                    <span class="material-symbols-outlined text-[18px]">person_add</span> Nuevo Empleado
+                </a>
             </div>
 
-            <a href="{{ route('empleados.create') }}"
-                class="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#6A2C75] to-[#45193F] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#45193F]/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl">
-                <span class="text-lg leading-none">+</span> Nuevo Empleado
-            </a>
+            {{-- BUSCADOR --}}
+            <div>
+                <form method="GET" action="{{ route('empleados.index') }}" class="flex flex-col sm:flex-row gap-3">
 
-        </div>
+                    <div class="relative flex-1">
 
-        {{-- TABLE CARD --}}
-        <div class="max-w-7xl mx-auto relative overflow-hidden rounded-2xl bg-white shadow-sm border border-[#2B2030]/10 opacity-0" style="animation: fadeUp .6s .1s ease forwards;">
+                        <span class="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span>
 
-            {{-- gold hairline --}}
-            <div class="h-[3px] bg-gradient-to-r from-[#B6A644] via-[#6A2C75] to-[#B6A644]"></div>
+                        <input
+                            type="text"
+                            name="search"
+                            value="{{ request('search') }}"
+                            placeholder="Buscar por nombre, apellido o código…"
+                            class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white/70 dark:bg-surface-container-high/40 text-on-surface py-2.5 pl-10 pr-4 font-body-md text-body-md shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all">
 
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-[#2B2030]/5">
+                    </div>
 
-                    <thead>
-                        <tr class="border-b border-[#2B2030]/10">
-                            <th class="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-[#6E6274]">Código</th>
-                            <th class="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-[#6E6274]">Nombre</th>
-                            <th class="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-[#6E6274]">Departamento</th>
-                            <th class="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-[#6E6274]">Turno</th>
-                            <th class="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-[#6E6274]">Horario</th>
-                            <th class="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-[#6E6274]">Estatus</th>
-                            <th class="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-[#6E6274]">Acciones</th>
-                        </tr>
-                    </thead>
+                    <div class="flex gap-2">
 
-                    <tbody class="divide-y divide-[#2B2030]/5">
+                        <button
+                            type="submit"
+                            class="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-primary to-primary-container px-5 py-2.5 font-label-lg text-label-lg font-semibold text-white shadow-[0_8px_20px_rgba(74,30,82,0.22),inset_0_1px_1px_rgba(255,255,255,0.4)] hover:brightness-110 active:scale-95 transition-all">
+                            <span class="material-symbols-outlined text-[18px]">search</span> Buscar
+                        </button>
 
-                        @forelse($empleados as $i => $empleado)
+                        @if(request('search'))
+                            <a
+                                href="{{ route('empleados.index') }}"
+                                class="inline-flex items-center justify-center gap-1.5 rounded-full bg-white/80 dark:bg-surface-container-high/50 hover:bg-white dark:hover:bg-surface-container-high px-5 py-2.5 font-label-lg text-label-lg font-semibold text-on-surface-variant shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all">
+                                <span class="material-symbols-outlined text-[18px]">close</span> Limpiar
+                            </a>
+                        @endif
 
-                        @php
+                    </div>
 
-                        $c = $estatusColor($empleado->estatus);
+                </form>
+            </div>
 
-                        $claveHorario =
-                        $empleado->turno_id .
-                        '-' .
-                        $empleado->departamento_id;
+            {{-- TABLE CARD --}}
+            <div class="relative overflow-hidden rounded-3xl bg-surface-container-lowest/85 backdrop-blur-2xl shadow-[0_10px_30px_rgba(74,30,82,0.04),inset_0_1px_2px_rgba(255,255,255,0.95)]">
 
-                        $horario = $horarios->get($claveHorario);
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-black/[0.04]">
 
-                        @endphp
+                        <thead>
+                            <tr class="bg-surface-container-high/40">
+                                <th class="px-5 py-4 text-left font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant w-14">#</th>
+                                <th class="px-5 py-4 text-left font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Código</th>
+                                <th class="px-5 py-4 text-left font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Nombre</th>
+                                <th class="px-5 py-4 text-left font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Cuenta / Rol</th>
+                                <th class="px-5 py-4 text-left font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Departamento</th>
+                                <th class="px-5 py-4 text-left font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Turno</th>
+                                <th class="px-5 py-4 text-left font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Horario</th>
+                                <th class="px-5 py-4 text-left font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Estatus</th>
+                                <th class="px-5 py-4 text-left font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Acciones</th>
+                            </tr>
+                        </thead>
 
-                        <tr
-                            class="row-fade transition-colors duration-200 hover:bg-[#6A2C75]/[0.03]"
-                            style="animation-delay: {{ $i * 0.04 }}s;">
+                        <tbody class="divide-y divide-black/[0.04]">
 
-                            {{-- Código --}}
-                            <td class="px-5 py-4 text-sm text-[#6E6274]">
+                            @forelse($empleados as $i => $empleado)
 
-                                {{ $empleado->codigo_empleado }}
+                            @php
 
-                            </td>
+                            $claveHorario =
+                            $empleado->turno_id .
+                            '-' .
+                            $empleado->departamento_id;
 
+                            $horario = $horarios->get($claveHorario);
 
-                            {{-- Nombre --}}
-                            <td class="px-5 py-4 text-sm">
+                            @endphp
 
-                                <div class="font-semibold text-[#2B2030]">
+                            <tr class="hover:bg-white/60 dark:hover:bg-white/5 transition-colors">
 
-                                    {{ $empleado->apellido_paterno }}
-                                    {{ $empleado->apellido_materno }}
-                                    {{ $empleado->nombre }}
+                                {{-- # --}}
+                                <td class="px-5 py-4 font-label-md text-label-md text-outline">
 
-                                </div>
+                                    {{ $empleados->firstItem() + $i }}
 
-                            </td>
+                                </td>
 
+                                {{-- Código --}}
+                                <td class="px-5 py-4 font-body-md text-body-md text-on-surface-variant">
 
-                            {{-- Departamento --}}
-                            <td class="px-5 py-4 text-sm text-[#2B2030]">
+                                    {{ $empleado->codigo_empleado }}
 
-                                {{ $empleado->departamento->nombre ?? 'Sin departamento' }}
+                                </td>
 
-                            </td>
 
+                                {{-- Nombre --}}
+                                <td class="px-5 py-4 font-label-lg text-label-lg">
 
-                            {{-- Turno --}}
-                            <td class="px-5 py-4 text-sm text-[#2B2030]">
+                                    <div class="font-semibold text-on-surface">
 
-                                {{ $empleado->turno->nombre ?? 'Sin turno' }}
+                                        {{ $empleado->apellido_paterno }}
+                                        {{ $empleado->apellido_materno }}
+                                        {{ $empleado->nombre }}
 
-                            </td>
+                                    </div>
 
+                                </td>
 
-                            {{-- Horario --}}
-                            <td class="px-5 py-4 text-sm text-[#6E6274]">
 
-                                @if($horario)
+                                {{-- Cuenta / Rol --}}
+                                <td class="px-5 py-4 font-body-md text-body-md">
 
-                                <span class="font-medium text-[#2B2030]">
+                                    @if($empleado->user)
 
-                                    {{ \Carbon\Carbon::parse($horario->hora_entrada)->format('H:i') }}
+                                        <div class="flex flex-col gap-1">
 
-                                    -
+                                            <span class="font-body-sm text-body-sm text-on-surface-variant">
+                                                {{ $empleado->user->name }}
+                                            </span>
 
-                                    {{ \Carbon\Carbon::parse($horario->hora_salida)->format('H:i') }}
+                                            <div class="flex flex-wrap gap-1">
 
-                                </span>
+                                                @forelse($empleado->user->roles as $rol)
 
-                                @else
+                                                    <span class="inline-block rounded-full px-2 py-0.5 font-label-md text-label-md font-semibold {{ $rolClasses($rol->name) }}">
+                                                        {{ $rol->name }}
+                                                    </span>
 
-                                <span class="text-gray-400">
+                                                @empty
 
-                                    Sin horario
+                                                    <span class="inline-block rounded-full bg-surface-container-high/60 px-2 py-0.5 font-label-md text-label-md font-semibold text-outline">
+                                                        Sin rol
+                                                    </span>
 
-                                </span>
+                                                @endforelse
 
-                                @endif
+                                            </div>
 
-                            </td>
+                                        </div>
 
+                                    @else
 
-                            {{-- Estatus --}}
-                            <td class="px-5 py-4 text-sm">
+                                        <span class="font-label-md text-label-md font-medium text-outline">
+                                            Sin cuenta vinculada
+                                        </span>
 
-                                <form
-                                    action="{{ route('empleados.update', $empleado) }}"
-                                    method="POST">
+                                    @endif
 
-                                    @csrf
+                                </td>
 
-                                    @method('PUT')
 
+                                {{-- Departamento --}}
+                                <td class="px-5 py-4 font-body-md text-body-md text-on-surface">
 
-                                    <input
-                                        type="hidden"
-                                        name="codigo_empleado"
-                                        value="{{ $empleado->codigo_empleado }}">
+                                    {{ $empleado->departamento->nombre ?? 'Sin departamento' }}
 
-                                    <input
-                                        type="hidden"
-                                        name="nombre"
-                                        value="{{ $empleado->nombre }}">
+                                </td>
 
-                                    <input
-                                        type="hidden"
-                                        name="apellido_paterno"
-                                        value="{{ $empleado->apellido_paterno }}">
 
-                                    <input
-                                        type="hidden"
-                                        name="departamento_id"
-                                        value="{{ $empleado->departamento_id }}">
+                                {{-- Turno --}}
+                                <td class="px-5 py-4 font-body-md text-body-md text-on-surface">
 
-                                    <input
-                                        type="hidden"
-                                        name="turno_id"
-                                        value="{{ $empleado->turno_id }}">
+                                    {{ $empleado->turno->nombre ?? 'Sin turno' }}
 
+                                </td>
 
-                                    <select
-                                        name="estatus"
-                                        onchange="this.form.submit()"
-                                        class="estatus-select rounded-full border-0 px-3 py-1.5 text-xs font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#6A2C75]/30"
-                                        style="
-                            background-color: {{ $c['bg'] }};
-                            color: {{ $c['fg'] }};
-                        ">
 
-                                        <option
-                                            value="ACTIVO"
-                                            {{ $empleado->estatus == 'ACTIVO' ? 'selected' : '' }}>
-                                            ACTIVO
-                                        </option>
+                                {{-- Horario --}}
+                                <td class="px-5 py-4 font-body-md text-body-md text-on-surface-variant">
 
-                                        <option
-                                            value="INACTIVO"
-                                            {{ $empleado->estatus == 'INACTIVO' ? 'selected' : '' }}>
-                                            INACTIVO
-                                        </option>
+                                    @if($horario)
 
-                                        <option
-                                            value="VACACIONES"
-                                            {{ $empleado->estatus == 'VACACIONES' ? 'selected' : '' }}>
-                                            VACACIONES
-                                        </option>
+                                    <span class="font-semibold text-on-surface">
 
-                                        @hasanyrole('RH|Admin|Coordinacion')
-                                        <option
-                                            value="BAJA"
-                                            {{ $empleado->estatus == 'BAJA' ? 'selected' : '' }}>
-                                            BAJA
-                                        </option>
-                                        @endhasanyrole
+                                        {{ \Carbon\Carbon::parse($horario->hora_entrada)->format('H:i') }}
 
-                                    </select>
+                                        -
 
-                                </form>
+                                        {{ \Carbon\Carbon::parse($horario->hora_salida)->format('H:i') }}
 
-                            </td>
+                                    </span>
 
+                                    @else
 
-                            {{-- Acciones --}}
-                            <td class="px-5 py-4 text-sm">
+                                    <span class="text-outline">
 
-                                <div class="flex flex-wrap gap-2">
+                                        Sin horario
 
-                                    <a
-                                        href="{{ route('empleados.edit', $empleado) }}"
-                                        class="inline-flex items-center rounded-xl bg-gradient-to-r from-[#E4D9A0] to-[#B6A644] px-4 py-2 text-sm font-semibold text-[#45193F] shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
-                                        Editar
-                                    </a>
+                                    </span>
 
+                                    @endif
 
-                                    @hasanyrole('RH|Admin|Coordinacion')
+                                </td>
+
+
+                                {{-- Estatus --}}
+                                <td class="px-5 py-4 font-body-md text-body-md">
+
                                     <form
-                                        method="POST"
-                                        action="{{ route('empleados.destroy', $empleado) }}"
-                                        onsubmit="return confirm('¿Eliminar este empleado?');">
+                                        action="{{ route('empleados.update', $empleado) }}"
+                                        method="POST">
 
                                         @csrf
 
-                                        @method('DELETE')
+                                        @method('PUT')
 
-                                        <button
-                                            type="submit"
-                                            class="inline-flex items-center rounded-xl bg-red-50 px-4 py-2 text-sm font-semibold text-red-600 transition-all duration-300 hover:-translate-y-0.5 hover:bg-red-600 hover:text-white hover:shadow-md">
-                                            Eliminar
-                                        </button>
+
+                                        <input
+                                            type="hidden"
+                                            name="codigo_empleado"
+                                            value="{{ $empleado->codigo_empleado }}">
+
+                                        <input
+                                            type="hidden"
+                                            name="nombre"
+                                            value="{{ $empleado->nombre }}">
+
+                                        <input
+                                            type="hidden"
+                                            name="apellido_paterno"
+                                            value="{{ $empleado->apellido_paterno }}">
+
+                                        <input
+                                            type="hidden"
+                                            name="departamento_id"
+                                            value="{{ $empleado->departamento_id }}">
+
+                                        <input
+                                            type="hidden"
+                                            name="turno_id"
+                                            value="{{ $empleado->turno_id }}">
+
+
+                                        <select
+                                            name="estatus"
+                                            onchange="this.form.submit()"
+                                            class="appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2020%2020%27%20fill=%27%239AA0A6%27%3E%3Cpath%20fill-rule=%27evenodd%27%20d=%27M5.23%207.21a.75.75%200%20011.06.02L10%2011.19l3.71-3.96a.75.75%200%20111.08%201.04l-4.25%204.5a.75.75%200%2001-1.08%200l-4.25-4.5a.75.75%200%2001.02-1.06z%27%20clip-rule=%27evenodd%27/%3E%3C/svg%3E')] bg-no-repeat bg-[right_0.6rem_center] bg-[length:1rem] rounded-full border-0 pl-3 pr-8 py-1.5 font-label-md text-label-md font-bold cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30 {{ $estatusBadge($empleado->estatus) }}">
+
+                                            <option
+                                                value="ACTIVO"
+                                                {{ $empleado->estatus == 'ACTIVO' ? 'selected' : '' }}>
+                                                ACTIVO
+                                            </option>
+
+                                            <option
+                                                value="INACTIVO"
+                                                {{ $empleado->estatus == 'INACTIVO' ? 'selected' : '' }}>
+                                                INACTIVO
+                                            </option>
+
+                                            <option
+                                                value="VACACIONES"
+                                                {{ $empleado->estatus == 'VACACIONES' ? 'selected' : '' }}>
+                                                VACACIONES
+                                            </option>
+
+                                            @hasanyrole('RH|Admin|Coordinacion')
+                                            <option
+                                                value="BAJA"
+                                                {{ $empleado->estatus == 'BAJA' ? 'selected' : '' }}>
+                                                BAJA
+                                            </option>
+                                            @endhasanyrole
+
+                                        </select>
 
                                     </form>
-                                    @endhasanyrole
 
-                                </div>
+                                </td>
 
-                            </td>
 
-                        </tr>
+                                {{-- Acciones --}}
+                                <td class="px-5 py-4 font-body-md text-body-md">
 
-                        @empty
+                                    <div class="flex flex-wrap gap-2">
 
-                        <tr>
+                                        <button
+                                            type="button"
+                                            @click="abrir({{ $empleado->id }})"
+                                            class="inline-flex items-center gap-1.5 rounded-full bg-white/80 dark:bg-surface-container-high/50 hover:bg-white dark:hover:bg-surface-container-high px-4 py-2 font-label-md text-label-md font-semibold text-primary shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all">
+                                            <span class="material-symbols-outlined text-[16px]">visibility</span>
+                                            Ver
+                                        </button>
 
-                            <td
-                                colspan="7"
-                                class="text-center p-12">
+                                        <a
+                                            href="{{ route('empleados.edit', $empleado) }}"
+                                            class="inline-flex items-center gap-1.5 rounded-full bg-secondary-container/50 hover:bg-secondary-container px-4 py-2 font-label-md text-label-md font-semibold text-on-secondary-container transition-all">
+                                            <span class="material-symbols-outlined text-[16px]">edit</span>
+                                            Editar
+                                        </a>
 
-                                <div class="flex flex-col items-center gap-2 text-[#6E6274]">
 
-                                    <span class="text-3xl">
-                                        🗂️
-                                    </span>
+                                        @hasanyrole('RH|Admin|Coordinacion')
+                                        <form
+                                            method="POST"
+                                            action="{{ route('empleados.destroy', $empleado) }}"
+                                            onsubmit="return confirm('¿Eliminar este empleado?');">
 
-                                    <p class="font-medium">
-                                        No hay empleados registrados.
-                                    </p>
+                                            @csrf
 
-                                </div>
+                                            @method('DELETE')
 
-                            </td>
+                                            <button
+                                                type="submit"
+                                                class="inline-flex items-center gap-1.5 rounded-full bg-error-container/50 hover:bg-error hover:text-on-error px-4 py-2 font-label-md text-label-md font-semibold text-error transition-all">
+                                                <span class="material-symbols-outlined text-[16px]">delete</span>
+                                                Eliminar
+                                            </button>
 
-                        </tr>
+                                        </form>
+                                        @endhasanyrole
 
-                        @endforelse
+                                    </div>
 
-                    </tbody>
+                                </td>
 
-                </table>
+                            </tr>
+
+                            @empty
+
+                            <tr>
+
+                                <td
+                                    colspan="9"
+                                    class="text-center p-12">
+
+                                    <div class="flex flex-col items-center gap-2 text-on-surface-variant">
+
+                                        <span class="material-symbols-outlined text-[32px] text-outline">
+                                            folder_off
+                                        </span>
+
+                                        @if(request('search'))
+
+                                            <p class="font-label-lg text-label-lg font-medium">
+                                                No se encontraron empleados para "{{ request('search') }}".
+                                            </p>
+
+                                            <a href="{{ route('empleados.index') }}" class="font-body-sm text-body-sm font-semibold text-primary hover:underline">
+                                                Limpiar búsqueda
+                                            </a>
+
+                                        @else
+
+                                            <p class="font-label-lg text-label-lg font-medium">
+                                                No hay empleados registrados.
+                                            </p>
+
+                                        @endif
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                            @endforelse
+
+                        </tbody>
+
+                    </table>
+                </div>
+
+            </div>
+
+            <div>
+                {{ $empleados->links() }}
             </div>
 
         </div>
 
-        <div class="max-w-7xl mx-auto mt-6 opacity-0" style="animation: fadeUp .6s .2s ease forwards;">
-            {{ $empleados->links() }}
+        {{-- MODAL: Resumen de asistencias --}}
+        <div
+            x-show="abierto"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            @keydown.escape.window="cerrar()"
+            style="display:none;"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+
+            <div
+                @click.outside="cerrar()"
+                x-show="abierto"
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+                x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100 scale-100"
+                x-transition:leave-end="opacity-0 scale-95"
+                class="relative w-full max-w-lg overflow-hidden rounded-3xl bg-surface-container-lowest/95 backdrop-blur-2xl shadow-[0_20px_60px_rgba(74,30,82,0.25)]">
+
+                {{-- Selector de periodo --}}
+                <div class="flex items-end gap-3 border-b border-black/[0.06] dark:border-white/10 bg-surface-container-high/40 px-5 py-3">
+
+                    <div class="flex-1">
+                        <label class="block font-label-caps text-label-caps uppercase tracking-wider text-outline font-semibold">
+                            Desde
+                        </label>
+                        <input
+                            type="date"
+                            x-model="desde"
+                            :max="hasta"
+                            @change="cargar()"
+                            class="mt-1 w-full rounded-xl border border-black/10 dark:border-white/10 bg-white/70 dark:bg-surface-container-high/40 text-on-surface px-2 py-1.5 font-body-sm text-body-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+                    </div>
+
+                    <div class="flex-1">
+                        <label class="block font-label-caps text-label-caps uppercase tracking-wider text-outline font-semibold">
+                            Hasta
+                        </label>
+                        <input
+                            type="date"
+                            x-model="hasta"
+                            :min="desde"
+                            @change="cargar()"
+                            class="mt-1 w-full rounded-xl border border-black/10 dark:border-white/10 bg-white/70 dark:bg-surface-container-high/40 text-on-surface px-2 py-1.5 font-body-sm text-body-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+                    </div>
+
+                    <button
+                        type="button"
+                        @click="cerrar()"
+                        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-on-surface-variant transition-colors duration-200 hover:bg-black/10 dark:hover:bg-white/10"
+                        aria-label="Cerrar">
+                        <span class="material-symbols-outlined text-[18px]">close</span>
+                    </button>
+
+                </div>
+
+                <div class="max-h-[65vh] overflow-y-auto">
+
+                    <div x-show="cargando" style="display:none;" class="flex items-center justify-center gap-2 px-6 py-20 text-on-surface-variant">
+                        <span class="h-2 w-2 animate-bounce rounded-full bg-primary"></span>
+                        <span class="h-2 w-2 animate-bounce rounded-full bg-primary" style="animation-delay:.15s;"></span>
+                        <span class="h-2 w-2 animate-bounce rounded-full bg-primary" style="animation-delay:.3s;"></span>
+                    </div>
+
+                    <div x-show="!cargando" style="display:none;" x-html="contenido"></div>
+
+                </div>
+
+            </div>
+
         </div>
 
     </div>
+
+    <script>
+        function resumenAsistenciasModal() {
+            return {
+                abierto: false,
+                cargando: false,
+                contenido: '',
+                empleadoId: null,
+                desde: '',
+                hasta: '',
+
+                formatoFecha(fecha) {
+                    const anio = fecha.getFullYear();
+                    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+                    const dia = String(fecha.getDate()).padStart(2, '0');
+                    return `${anio}-${mes}-${dia}`;
+                },
+
+                abrir(empleadoId) {
+                    const hoy = new Date();
+
+                    this.empleadoId = empleadoId;
+                    this.desde = this.formatoFecha(new Date(hoy.getFullYear(), hoy.getMonth(), 1));
+                    this.hasta = this.formatoFecha(new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0));
+                    this.abierto = true;
+
+                    this.cargar();
+                },
+
+                async cargar() {
+
+                    if (!this.empleadoId || !this.desde || !this.hasta) {
+                        return;
+                    }
+
+                    this.cargando = true;
+
+                    try {
+
+                        const parametros = new URLSearchParams({
+                            desde: this.desde,
+                            hasta: this.hasta,
+                        });
+
+                        const respuesta = await fetch(`/empleados/${this.empleadoId}/resumen-asistencias?${parametros}`, {
+                            headers: { 'Accept': 'text/html' },
+                        });
+
+                        if (!respuesta.ok) {
+                            throw new Error('Respuesta no válida');
+                        }
+
+                        this.contenido = await respuesta.text();
+
+                    } catch (error) {
+
+                        this.contenido = '<p class="p-10 text-center font-body-sm text-body-sm text-error">No se pudo cargar el resumen de asistencias. Intenta de nuevo.</p>';
+
+                    } finally {
+                        this.cargando = false;
+                    }
+                },
+
+                cerrar() {
+                    this.abierto = false;
+                },
+            };
+        }
+    </script>
 
 </x-app-layout>
