@@ -5,7 +5,7 @@ import { createConveyor } from './conveyor.js';
 import { createFactory } from './factory.js';
 import { createInteractions, createLabels } from './interactions.js';
 import { animateStation, createStations, normalizeStatus, setStationStatus } from './machines.js';
-import { applyPalette, createGeometries, createMaterials, disposeAll, part } from './materials.js';
+import { applyPalette, boxFaceMaterials, createGeometries, createMaterials, disposeAll, loadBoxLogo, part } from './materials.js';
 import { createProductFlow } from './products.js';
 import { applyScenePalette, createSceneContext, resizeContext } from './scene.js';
 
@@ -61,7 +61,10 @@ export function initProductionBackground(container, options = {}) {
     const ctx = createSceneContext(container, opts, palette);
     const { scene, camera, renderer, lights } = ctx;
     const shadows = opts.shadows;
-    const build = { geometries, materials, shadows };
+    const boxFaces = boxFaceMaterials(materials);
+    const build = { geometries, materials, shadows, boxFaces };
+
+    materials.boxLogo.map.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
 
     /*
     | Planta
@@ -107,7 +110,7 @@ export function initProductionBackground(container, options = {}) {
             {
                 at: packaging.x,
                 layers: [
-                    { geometry: geometries.box, material: materials.box, scale: [0.62, 0.42, 0.55] },
+                    { geometry: geometries.box, material: boxFaces, scale: [0.62, 0.42, 0.55] },
                     { geometry: geometries.box, material: materials.tape, scale: [0.64, 0.05, 0.14], offset: [0, 0.19, 0] },
                 ],
             },
@@ -138,7 +141,7 @@ export function initProductionBackground(container, options = {}) {
             stages: [{
                 at: -7.6,
                 layers: [
-                    { geometry: geometries.box, material: materials.box, scale: [0.55, 0.38, 0.5] },
+                    { geometry: geometries.box, material: boxFaces, scale: [0.55, 0.38, 0.5] },
                     { geometry: geometries.box, material: materials.tape, scale: [0.57, 0.05, 0.12], offset: [0, 0.17, 0] },
                 ],
             }],
@@ -293,6 +296,9 @@ export function initProductionBackground(container, options = {}) {
     }
 
     loop = createLoop({ maxFps: opts.maxFps, onFrame: frame, onSlow });
+
+    // Logo en las cajas (se pinta cuando la imagen termina de cargar)
+    loadBoxLogo(materials, opts.logoUrl, () => palette, () => loop.requestRender());
 
     /*
     | Movimiento reducido

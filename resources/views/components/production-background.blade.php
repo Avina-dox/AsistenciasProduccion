@@ -20,6 +20,7 @@
         class="production-bg__scene"
         data-production-background
         data-mode="{{ $mode }}"
+        data-logo="{{ asset('images/logo-caja.png') }}"
         @if ($data) data-production='@json($data)' @endif
     ></div>
 

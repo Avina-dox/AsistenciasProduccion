@@ -290,7 +290,7 @@ function buildPalletizer(def, ctx, { robot = true } = {}) {
     for (let layer = 0; layer < 3; layer++) {
         for (const dx of [-0.36, 0.36]) {
             for (const dz of [-0.32, 0.32]) {
-                b.add(part(g.box, m.box, [0.66, 0.42, 0.58], [palletX + dx, 0.37 + layer * 0.43, dz], { shadows }));
+                b.add(part(g.box, ctx.boxFaces ?? m.box, [0.66, 0.42, 0.58], [palletX + dx, 0.37 + layer * 0.43, dz], { shadows }));
             }
         }
     }

@@ -40,6 +40,7 @@ if (fondosProduccion.length) {
             const controller = initProductionBackground(el, {
                 mode: el.dataset.mode,
                 data,
+                logoUrl: el.dataset.logo,
                 labelsContainer: el.parentElement?.querySelector('[data-production-labels]') ?? null,
             });
 

@@ -293,6 +293,7 @@ export function resolveOptions(options = {}) {
         movementScale: isMobile ? 0.5 : 1,
         data: options.data ?? MOCK_PRODUCTION_DATA,
         labelsContainer: options.labelsContainer ?? null,
+        logoUrl: options.logoUrl ?? null,
         tooltip: options.tooltip ?? null,
     };
 }

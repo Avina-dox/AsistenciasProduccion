@@ -53,7 +53,85 @@ function createBeltTexture() {
     return texture;
 }
 
+/*
+| Cara frontal de las cajas: color de cartón + logo circular. El canvas es
+| cuadrado (potencia de 2) pero la cara es más ancha que alta, así que el
+| logo se dibuja "comprimido" en X para que en la caja se vea redondo.
+*/
+const BOX_FACE_ASPECT = 0.62 / 0.42;
+
+function createBoxFaceTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+
+    let logo = null;
+
+    function draw(boxColor) {
+        const ctx = canvas.getContext('2d');
+        const size = canvas.width;
+
+        ctx.fillStyle = boxColor;
+        ctx.fillRect(0, 0, size, size);
+
+        if (logo) {
+            const h = size * 0.78;
+            const w = h / BOX_FACE_ASPECT;
+            const x = (size - w) / 2;
+            const y = (size - h) / 2;
+
+            // Disco claro detrás del logo para que su borde morado contraste con el cartón.
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.ellipse(size / 2, size / 2, w / 2 + 10 / BOX_FACE_ASPECT, h / 2 + 10, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(logo, x, y, w, h);
+        }
+
+        texture.needsUpdate = true;
+    }
+
+    return {
+        texture,
+        draw,
+        setLogo(image, boxColor) {
+            logo = image;
+            draw(boxColor);
+        },
+    };
+}
+
+/*
+| Carga el logo y lo pinta en las cajas. Si falla, las cajas quedan lisas.
+*/
+export function loadBoxLogo(materials, url, palette, onLoad) {
+    if (!url) return;
+
+    const image = new Image();
+    image.decoding = 'async';
+    image.onload = () => {
+        materials.boxLogo.userData.face.setLogo(image, palette().box);
+        onLoad?.();
+    };
+    image.src = url;
+}
+
+/*
+| Materiales por cara para BoxGeometry (+x, -x, +y, -y, +z, -z):
+| logo al frente y atrás, cartón liso en el resto.
+*/
+export function boxFaceMaterials(m) {
+    return [m.box, m.box, m.box, m.box, m.boxLogo, m.boxLogo];
+}
+
 export function createMaterials(palette) {
+    const boxFace = createBoxFaceTexture();
+
     const m = {
         floor: standard({ roughness: 0.92 }),
         floorPad: standard({ roughness: 0.85 }),
@@ -68,6 +146,7 @@ export function createMaterials(palette) {
         raw: standard({ roughness: 0.85 }),
         baked: standard({ roughness: 0.7 }),
         box: standard({ roughness: 0.75 }),
+        boxLogo: standard({ roughness: 0.7, map: boxFace.texture }),
         tape: standard({ roughness: 0.6 }),
         pallet: standard({ roughness: 0.9 }),
         rack: standard({ roughness: 0.6, metalness: 0.2 }),
@@ -80,6 +159,8 @@ export function createMaterials(palette) {
         rubber: standard({ roughness: 0.75, flatShading: true }),
         grid: new THREE.LineBasicMaterial({ transparent: true, depthWrite: false }),
     };
+
+    m.boxLogo.userData.face = boxFace;
 
     applyPalette(m, palette);
 
@@ -99,6 +180,9 @@ export function applyPalette(m, palette) {
     for (const role of roles) {
         m[role].color.set(palette[role]);
     }
+
+    // El color del cartón va pintado en la textura (el material queda en blanco).
+    m.boxLogo.userData.face.draw(palette.box);
 
     m.glow.color.set(palette.glow);
     m.glow.emissive.set(palette.glow);
