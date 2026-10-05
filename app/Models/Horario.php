@@ -11,11 +11,13 @@ class Horario extends Model
         'departamento_id',
         'hora_entrada',
         'hora_salida',
+        'plantilla_autorizada',
     ];
 
     protected $casts = [
         'hora_entrada' => 'datetime:H:i',
         'hora_salida' => 'datetime:H:i',
+        'plantilla_autorizada' => 'integer',
     ];
 
     public function turno()

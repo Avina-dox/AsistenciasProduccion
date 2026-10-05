@@ -44,6 +44,7 @@
                                 <th class="px-5 py-4 text-left font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Departamento</th>
                                 <th class="px-5 py-4 text-left font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Entrada</th>
                                 <th class="px-5 py-4 text-left font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Salida</th>
+                                <th class="px-5 py-4 text-left font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Plantilla</th>
                                 <th class="px-5 py-4 text-left font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Acciones</th>
                             </tr>
                         </thead>
@@ -71,6 +72,14 @@
                                         {{ \Carbon\Carbon::parse($horario->hora_salida)->format('H:i') }}
                                     </td>
 
+                                    <td class="px-5 py-4 font-label-lg text-label-lg font-semibold text-on-surface">
+                                        @if(is_null($horario->plantilla_autorizada))
+                                            <span class="font-body-sm text-body-sm font-normal text-outline">Sin definir</span>
+                                        @else
+                                            {{ $horario->plantilla_autorizada }}
+                                        @endif
+                                    </td>
+
                                     <td class="px-5 py-4">
                                         <div class="flex flex-wrap gap-2">
 
@@ -95,7 +104,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center p-12">
+                                    <td colspan="6" class="text-center p-12">
                                         <div class="flex flex-col items-center gap-2 text-on-surface-variant">
                                             <span class="material-symbols-outlined text-[36px] text-outline">folder_off</span>
                                             <p class="font-body-md text-body-md font-medium">No hay horarios registrados.</p>

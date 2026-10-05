@@ -43,6 +43,7 @@ class HorarioController extends Controller
             'departamento_id' => 'required|exists:departamentos,id',
             'hora_entrada' => 'required|date_format:H:i',
             'hora_salida' => 'required|date_format:H:i',
+            'plantilla_autorizada' => 'nullable|integer|min:0|max:9999',
         ], [
             'turno_id.unique' => 'Ya existe un horario para esta combinación de turno y departamento.',
         ]);
@@ -51,7 +52,8 @@ class HorarioController extends Controller
             'turno_id',
             'departamento_id',
             'hora_entrada',
-            'hora_salida'
+            'hora_salida',
+            'plantilla_autorizada'
         ));
 
         return redirect()
@@ -80,6 +82,7 @@ class HorarioController extends Controller
             'departamento_id' => 'required|exists:departamentos,id',
             'hora_entrada' => 'required|date_format:H:i',
             'hora_salida' => 'required|date_format:H:i',
+            'plantilla_autorizada' => 'nullable|integer|min:0|max:9999',
         ], [
             'turno_id.unique' => 'Ya existe un horario para esta combinación de turno y departamento.',
         ]);
@@ -88,7 +91,8 @@ class HorarioController extends Controller
             'turno_id',
             'departamento_id',
             'hora_entrada',
-            'hora_salida'
+            'hora_salida',
+            'plantilla_autorizada'
         ));
 
         return redirect()

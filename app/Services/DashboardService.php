@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Empleado;
 use App\Models\Asistencia;
 use App\Models\HoraExtra;
+use App\Models\Horario;
 use App\Models\Permiso;
 use Illuminate\Support\Facades\DB;
 
@@ -73,54 +74,10 @@ class DashboardService
         |--------------------------------------------------------------------------
         */
 
-        $objetivosPorArea = [
-            'MATUTINO' => [
-                'Mezclado' => 14,
-                'Formado' => 10,
-                'Horneado' => 26,
-                'Empaque Granola' => 22,
-                'Empaque Barras' => 17,
-            ],
-            'NOCTURNO' => [
-                'Mezclado' => 10,
-                'Formado' => 8,
-                'Horneado' => 22,
-                'Empaque Granola' => 18,
-                'Empaque Barras' => 14,
-            ],
-        ];
-
-        $personalPorAreaTurno = Empleado::where('estatus', 'ACTIVO')
-            ->whereNull('empleados.user_id')
-            ->join('departamentos', 'empleados.departamento_id', '=', 'departamentos.id')
-            ->join('turnos', 'empleados.turno_id', '=', 'turnos.id')
-            ->selectRaw('departamentos.nombre as departamento, turnos.nombre as turno, count(*) as total')
-            ->groupBy('departamentos.nombre', 'turnos.nombre')
-            ->get();
-
-        $conteoPorAreaTurno = [];
-
-        foreach ($personalPorAreaTurno as $fila) {
-            $conteoPorAreaTurno[$fila->turno][$fila->departamento] = (int) $fila->total;
-        }
-
-        $coberturaPorArea = [];
-
-        foreach ($objetivosPorArea as $turno => $areas) {
-
-            foreach ($areas as $area => $objetivo) {
-
-                $personal = $conteoPorAreaTurno[$turno][$area] ?? 0;
-
-                $coberturaPorArea[$area][$turno] = [
-                    'personal' => $personal,
-                    'objetivo' => $objetivo,
-                    'porcentaje' => $objetivo > 0
-                        ? round(($personal / $objetivo) * 100, 1)
-                        : 0,
-                ];
-            }
-        }
+        // Se arma a partir de los Horarios del panel de administración:
+        // cada turno con horarios es una columna, cada departamento con
+        // horarios es una fila y la plantilla autorizada es el objetivo.
+        [$coberturaTurnos, $coberturaPorArea] = $this->coberturaPorArea();
 
         /*
 |--------------------------------------------------------------------------
@@ -232,6 +189,8 @@ class DashboardService
                 ],
 
             ],
+
+            'cobertura_turnos' => $coberturaTurnos,
 
             'cobertura_por_area' => $coberturaPorArea,
 
@@ -355,5 +314,67 @@ class DashboardService
                 ->get(),
 
         ];
+    }
+
+    /**
+     * Cobertura por área (departamento) y turno según los Horarios registrados.
+     *
+     * Devuelve [turnos, cobertura]:
+     *   turnos    → [['id' => 1, 'nombre' => 'MATUTINO'], ...] ordenados por hora de entrada
+     *   cobertura → ['Mezclado' => [turno_id => info|null, ...], ...]
+     *
+     * info = ['personal', 'objetivo', 'porcentaje']. Es null cuando el
+     * departamento no tiene horario en ese turno (no opera). Si el horario
+     * no tiene plantilla autorizada, objetivo y porcentaje son null.
+     */
+    private function coberturaPorArea(): array
+    {
+        $horarios = Horario::with(['turno:id,nombre', 'departamento:id,nombre'])
+            ->get()
+            ->filter(fn($horario) => $horario->turno && $horario->departamento);
+
+        // Turnos: el que entra más temprano primero (Matutino antes que Nocturno).
+        $turnos = $horarios
+            ->groupBy('turno_id')
+            ->map(fn($grupo) => [
+                'id' => $grupo->first()->turno->id,
+                'nombre' => $grupo->first()->turno->nombre,
+                'entrada' => $grupo->min(fn($h) => $h->hora_entrada?->format('H:i')),
+            ])
+            ->sortBy([['entrada', 'asc'], ['nombre', 'asc']])
+            ->map(fn($turno) => ['id' => $turno['id'], 'nombre' => $turno['nombre']])
+            ->values()
+            ->all();
+
+        $conteo = Empleado::where('estatus', 'ACTIVO')
+            ->whereNull('user_id')
+            ->whereNotNull('turno_id')
+            ->whereNotNull('departamento_id')
+            ->selectRaw('departamento_id, turno_id, count(*) as total')
+            ->groupBy('departamento_id', 'turno_id')
+            ->get()
+            ->mapWithKeys(fn($fila) => [$fila->departamento_id . ':' . $fila->turno_id => (int) $fila->total]);
+
+        $cobertura = [];
+
+        foreach ($horarios->sortBy(fn($h) => $h->departamento->nombre) as $horario) {
+            $area = $horario->departamento->nombre;
+
+            // Todas las columnas existen en cada fila; las que no opera quedan en null.
+            $cobertura[$area] ??= array_fill_keys(array_column($turnos, 'id'), null);
+
+            $personal = $conteo[$horario->departamento_id . ':' . $horario->turno_id] ?? 0;
+            $objetivo = $horario->plantilla_autorizada;
+
+            $cobertura[$area][$horario->turno_id] = [
+                'personal' => $personal,
+                'objetivo' => $objetivo,
+                'porcentaje' => $objetivo > 0
+                    ? round(($personal / $objetivo) * 100, 1)
+                    : null,
+            ];
+        }
+
+        return [$turnos, $cobertura];
     }
 }

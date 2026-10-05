@@ -21,12 +21,18 @@
         return strtoupper(mb_substr($nombre, 0, 2));
     };
 
-    // Estatus operativo de cobertura por área, según el mejor de los dos turnos
+    // Estatus operativo de cobertura por área, según el mejor de sus turnos
+    // (sólo cuentan los turnos donde opera y tienen plantilla autorizada).
     $estatusCobertura = function (array $turnos) {
-        $max = max(
-            $turnos['MATUTINO']['porcentaje'] ?? 0,
-            $turnos['NOCTURNO']['porcentaje'] ?? 0
-        );
+        $porcentajes = collect($turnos)
+            ->filter(fn($info) => $info && $info['porcentaje'] !== null)
+            ->pluck('porcentaje');
+
+        if ($porcentajes->isEmpty()) {
+            return ['label' => 'Sin plantilla', 'clase' => 'bg-surface-container-high text-on-surface-variant', 'punto' => 'bg-outline'];
+        }
+
+        $max = $porcentajes->max();
 
         return match (true) {
             $max <= 0 => ['label' => 'Crítico · Sin personal', 'clase' => 'bg-error-container/40 text-error', 'punto' => 'bg-error'],
@@ -369,18 +375,25 @@
                     </p>
                 </div>
 
+                @php
+                    $turnosCobertura = $data['cobertura_turnos'];
+                    // El área y el estatus conservan su ancho; los turnos se reparten el resto.
+                    $anchoTurno = count($turnosCobertura) ? round(48 / count($turnosCobertura), 2) : 48;
+                @endphp
+
                 <div class="overflow-x-auto rounded-2xl glass-inset">
-                    <table class="w-full table-fixed text-left border-collapse">
+                    <table class="w-full {{ count($turnosCobertura) > 3 ? 'min-w-[860px]' : '' }} table-fixed text-left border-collapse">
                         <thead>
                             <tr class="bg-surface-container-high/40 text-on-surface-variant font-label-caps text-label-caps uppercase tracking-wider">
                                 <th class="py-3.5 px-5 w-[30%]">Área / Departamento</th>
-                                <th class="py-3.5 px-5 w-[24%]">Turno Matutino</th>
-                                <th class="py-3.5 px-5 w-[24%]">Turno Nocturno</th>
+                                @foreach($turnosCobertura as $turno)
+                                    <th class="py-3.5 px-5" style="width: {{ $anchoTurno }}%;">Turno {{ \Illuminate\Support\Str::title(mb_strtolower($turno['nombre'])) }}</th>
+                                @endforeach
                                 <th class="py-3.5 px-5 w-[22%] text-right">Estatus Operativo</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-black/[0.03] font-body-md text-body-md">
-                            @foreach($data['cobertura_por_area'] as $area => $turnos)
+                            @forelse($data['cobertura_por_area'] as $area => $turnos)
                                 @php $estatus = $estatusCobertura($turnos); @endphp
                                 <tr class="hover:bg-white/60 dark:hover:bg-white/5 transition-colors">
                                     <td class="py-4 px-5">
@@ -392,18 +405,32 @@
                                         </div>
                                     </td>
 
-                                    @foreach(['MATUTINO', 'NOCTURNO'] as $turno)
-                                        @php $info = $turnos[$turno] ?? ['personal' => 0, 'objetivo' => 0, 'porcentaje' => 0]; @endphp
+                                    @foreach($turnosCobertura as $turno)
+                                        @php $info = $turnos[$turno['id']] ?? null; @endphp
                                         <td class="py-4 px-5">
-                                            <div class="space-y-1.5 w-full">
-                                                <div class="flex justify-between font-label-md text-label-md">
-                                                    <span class="text-on-surface font-semibold">{{ $info['personal'] }} / {{ $info['objetivo'] }}</span>
-                                                    <span class="text-outline">{{ $info['porcentaje'] }}%</span>
+                                            @if(is_null($info))
+                                                {{-- El departamento no tiene horario en este turno --}}
+                                                <span class="font-label-md text-label-md text-outline">No opera</span>
+                                            @elseif(is_null($info['porcentaje']))
+                                                {{-- Tiene horario pero no plantilla autorizada --}}
+                                                <div class="space-y-1.5 w-full">
+                                                    <div class="flex justify-between font-label-md text-label-md">
+                                                        <span class="text-on-surface font-semibold">{{ $info['personal'] }} / —</span>
+                                                        <span class="text-outline">Sin plantilla</span>
+                                                    </div>
+                                                    <div class="w-full h-1.5 rounded-full bg-surface-container"></div>
                                                 </div>
-                                                <div class="w-full h-1.5 rounded-full bg-surface-container overflow-hidden">
-                                                    <div class="h-full {{ $info['porcentaje'] >= 50 ? 'bg-primary-container' : ($info['porcentaje'] > 0 ? 'bg-secondary-container' : 'bg-error') }} rounded-full" style="width: {{ min($info['porcentaje'], 100) }}%;"></div>
+                                            @else
+                                                <div class="space-y-1.5 w-full">
+                                                    <div class="flex justify-between font-label-md text-label-md">
+                                                        <span class="text-on-surface font-semibold">{{ $info['personal'] }} / {{ $info['objetivo'] }}</span>
+                                                        <span class="text-outline">{{ $info['porcentaje'] }}%</span>
+                                                    </div>
+                                                    <div class="w-full h-1.5 rounded-full bg-surface-container overflow-hidden">
+                                                        <div class="h-full {{ $info['porcentaje'] >= 50 ? 'bg-primary-container' : ($info['porcentaje'] > 0 ? 'bg-secondary-container' : 'bg-error') }} rounded-full" style="width: {{ min($info['porcentaje'], 100) }}%;"></div>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            @endif
                                         </td>
                                     @endforeach
 
@@ -414,7 +441,13 @@
                                         </span>
                                     </td>
                                 </tr>
-                            @endforeach
+                            @empty
+                                <tr>
+                                    <td colspan="{{ count($turnosCobertura) + 2 }}" class="py-10 px-5 text-center font-body-sm text-body-sm text-on-surface-variant">
+                                        No hay horarios registrados. Configúralos en Panel de Administración → Horarios.
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
