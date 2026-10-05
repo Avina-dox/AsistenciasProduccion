@@ -76,14 +76,17 @@
     }
 </style>
 
-<div class="relative bg-background min-h-screen">
+<div class="relative bg-background min-h-screen" data-production-passthrough>
+
+    {{-- Gemelo digital de la planta (Three.js) como fondo. Ver components/production-background --}}
+    <x-production-background mode="dashboard" :data="$productionData ?? null" />
 
     {{-- Luces ambientales decorativas --}}
     <div class="fixed top-[-10%] left-[-5%] w-[600px] h-[600px] rounded-full bg-gradient-to-br from-primary-fixed-dim/25 to-transparent blur-3xl pointer-events-none -z-10"></div>
     <div class="fixed top-[30%] right-[-10%] w-[550px] h-[550px] rounded-full bg-gradient-to-bl from-tertiary-fixed/20 via-secondary-fixed/15 to-transparent blur-3xl pointer-events-none -z-10"></div>
     <div class="fixed bottom-[-10%] left-[20%] w-[700px] h-[500px] rounded-full bg-gradient-to-tr from-primary-container/10 via-surface-variant/40 to-transparent blur-3xl pointer-events-none -z-10"></div>
 
-    <div class="relative w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div class="relative z-10 w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8" data-production-passthrough>
 
         {{-- HERO --}}
         <section class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-surface-container-lowest/90 via-white/80 to-surface-container-low/70 backdrop-blur-2xl shadow-[0_20px_50px_rgba(74,30,82,0.06),inset_0_1px_2px_rgba(255,255,255,0.9)] p-6 sm:p-8">
@@ -179,7 +182,7 @@
 
         {{-- KPIs PRINCIPALES --}}
         @if(in_array('kpis_principales', $widgetsVisibles))
-        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5" data-production-passthrough>
 
             {{-- Plantilla --}}
             <div class="relative overflow-hidden rounded-3xl bg-surface-container-lowest/85 backdrop-blur-2xl p-5 shadow-[0_10px_30px_rgba(74,30,82,0.04),inset_0_1px_2px_rgba(255,255,255,0.95)] hover:-translate-y-1 transition-transform duration-300 flex flex-col justify-between">
@@ -351,7 +354,7 @@
 
         {{-- BENTO: COBERTURA POR ÁREA + DISTRIBUCIÓN DE ASISTENCIA --}}
         @if(in_array('cobertura_area', $widgetsVisibles) || in_array('distribucion_asistencia', $widgetsVisibles))
-        <div class="grid grid-cols-1  gap-8 items-start">
+        <div class="grid grid-cols-1  gap-8 items-start" data-production-passthrough>
 
             @if(in_array('cobertura_area', $widgetsVisibles))
             <section class="xl:col-span-{{ in_array('distribucion_asistencia', $widgetsVisibles) ? '8' : '12' }} rounded-3xl bg-surface-container-lowest/80 backdrop-blur-2xl p-6 sm:p-7 shadow-[0_15px_40px_rgba(74,30,82,0.03),inset_0_1px_2px_rgba(255,255,255,0.9)] space-y-5">

@@ -1,4 +1,4 @@
-<x-guest-layout>
+<x-guest-layout background="production">
     <style>
         /* Personalización de los componentes con tu color #6A2C75 */
         
