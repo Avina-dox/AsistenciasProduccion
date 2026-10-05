@@ -89,7 +89,7 @@
     <div class="relative z-10 w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8" data-production-passthrough>
 
         {{-- HERO --}}
-        <section class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-surface-container-lowest/90 via-white/80 to-surface-container-low/70 backdrop-blur-2xl shadow-[0_20px_50px_rgba(74,30,82,0.06),inset_0_1px_2px_rgba(255,255,255,0.9)] p-6 sm:p-8">
+        <section class="relative overflow-hidden rounded-3xl glass-panel p-6 sm:p-8">
 
             <div class="absolute -top-24 -right-16 w-80 h-80 rounded-full bg-gradient-to-br from-primary-fixed-dim/30 to-secondary-container/20 blur-3xl pointer-events-none"></div>
             <div class="absolute -bottom-24 left-1/3 w-96 h-96 rounded-full bg-gradient-to-tr from-surface-variant/40 to-tertiary-fixed/20 blur-3xl pointer-events-none"></div>
@@ -134,7 +134,7 @@
 
                 <div class="flex flex-wrap sm:flex-nowrap items-center gap-4">
 
-                    <div class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/70 backdrop-blur-xl shadow-[0_4px_16px_rgba(74,30,82,0.05),inset_0_1px_2px_rgba(255,255,255,0.9)] flex-shrink-0">
+                    <div class="flex items-center gap-3 px-4 py-3 rounded-2xl glass-inset flex-shrink-0">
                         <div class="w-12 h-12 rounded-xl bg-gradient-to-b from-primary-container to-primary text-white flex flex-col items-center justify-center shadow-md">
                             <span class="font-label-caps text-label-caps text-secondary-container tracking-wider uppercase">HOY</span>
                             <span class="font-headline-sm text-headline-sm font-bold leading-none mt-0.5">{{ now()->format('d') }}</span>
@@ -154,14 +154,14 @@
 
                         <div class="flex items-center gap-2">
                             <a href="{{ route('hora-extras.create') }}"
-                                class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-full bg-white/80 hover:bg-white text-primary font-label-md text-label-md font-semibold shadow-[0_2px_8px_rgba(0,0,0,0.04),inset_0_1px_1px_rgba(255,255,255,0.9)] transition-all">
+                                class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-full glass-inset hover:bg-white/80 dark:hover:bg-white/10 text-primary font-label-md text-label-md font-semibold transition-all">
                                 <span class="material-symbols-outlined text-[16px] text-secondary">alarm_add</span>
                                 <span>Hora Extra</span>
                             </a>
 
                             @hasanyrole('Admin|RH|Supervisor|Coordinacion')
                             <a href="{{ route('empleados.create') }}"
-                                class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-full bg-white/80 hover:bg-white text-primary font-label-md text-label-md font-semibold shadow-[0_2px_8px_rgba(0,0,0,0.04),inset_0_1px_1px_rgba(255,255,255,0.9)] transition-all">
+                                class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-full glass-inset hover:bg-white/80 dark:hover:bg-white/10 text-primary font-label-md text-label-md font-semibold transition-all">
                                 <span class="material-symbols-outlined text-[16px] text-primary-container">person_add</span>
                                 <span>Empleado</span>
                             </a>
@@ -169,7 +169,7 @@
 
                             @role('Admin')
                             <a href="{{ route('usuarios.create') }}"
-                                class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-full bg-white/80 hover:bg-white text-primary font-label-md text-label-md font-semibold shadow-[0_2px_8px_rgba(0,0,0,0.04),inset_0_1px_1px_rgba(255,255,255,0.9)] transition-all">
+                                class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-full glass-inset hover:bg-white/80 dark:hover:bg-white/10 text-primary font-label-md text-label-md font-semibold transition-all">
                                 <span class="material-symbols-outlined text-[16px] text-outline">badge</span>
                                 <span>Usuario</span>
                             </a>
@@ -185,7 +185,7 @@
         <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5" data-production-passthrough>
 
             {{-- Plantilla --}}
-            <div class="relative overflow-hidden rounded-3xl bg-surface-container-lowest/85 backdrop-blur-2xl p-5 shadow-[0_10px_30px_rgba(74,30,82,0.04),inset_0_1px_2px_rgba(255,255,255,0.95)] hover:-translate-y-1 transition-transform duration-300 flex flex-col justify-between">
+            <div class="relative overflow-hidden rounded-3xl glass-card p-5 hover:-translate-y-1 flex flex-col justify-between">
                 <div class="flex items-center justify-between">
                     <div class="w-10 h-10 rounded-2xl bg-primary-container/10 text-primary-container flex items-center justify-center shadow-inner">
                         <span class="material-symbols-outlined text-[22px]">badge</span>
@@ -208,7 +208,7 @@
             </div>
 
             {{-- Presentes --}}
-            <div class="relative overflow-hidden rounded-3xl bg-surface-container-lowest/85 backdrop-blur-2xl p-5 shadow-[0_10px_30px_rgba(74,30,82,0.04),inset_0_1px_2px_rgba(255,255,255,0.95)] hover:-translate-y-1 transition-transform duration-300 flex flex-col justify-between">
+            <div class="relative overflow-hidden rounded-3xl glass-card p-5 hover:-translate-y-1 flex flex-col justify-between">
                 <div class="flex items-center justify-between">
                     <div class="w-10 h-10 rounded-2xl bg-tertiary-container/10 text-on-tertiary-container flex items-center justify-center shadow-inner">
                         <span class="material-symbols-outlined text-[22px]">check_circle</span>
@@ -229,7 +229,7 @@
             </div>
 
             {{-- Faltas --}}
-            <div class="relative overflow-hidden rounded-3xl bg-surface-container-lowest/85 backdrop-blur-2xl p-5 shadow-[0_10px_30px_rgba(74,30,82,0.04),inset_0_1px_2px_rgba(255,255,255,0.95)] hover:-translate-y-1 transition-transform duration-300 flex flex-col justify-between">
+            <div class="relative overflow-hidden rounded-3xl glass-card p-5 hover:-translate-y-1 flex flex-col justify-between">
                 <div class="flex items-center justify-between">
                     <div class="w-10 h-10 rounded-2xl bg-error-container/30 text-error flex items-center justify-center shadow-inner">
                         <span class="material-symbols-outlined text-[22px]">person_off</span>
@@ -255,7 +255,7 @@
             </div>
 
             {{-- Horas Extra Pendientes --}}
-            <div class="relative overflow-hidden rounded-3xl bg-surface-container-lowest/85 backdrop-blur-2xl p-5 shadow-[0_10px_30px_rgba(74,30,82,0.04),inset_0_1px_2px_rgba(255,255,255,0.95)] hover:-translate-y-1 transition-transform duration-300 flex flex-col justify-between">
+            <div class="relative overflow-hidden rounded-3xl glass-card p-5 hover:-translate-y-1 flex flex-col justify-between">
                 <div class="flex items-center justify-between">
                     <div class="w-10 h-10 rounded-2xl bg-secondary-container/20 text-on-secondary-container flex items-center justify-center shadow-inner">
                         <span class="material-symbols-outlined text-[22px]">pending_actions</span>
@@ -286,7 +286,7 @@
 
         {{-- INDICADORES OPERATIVOS --}}
         @if(in_array('indicadores_operativos', $widgetsVisibles))
-        <section class="rounded-3xl bg-surface-container-lowest/70 backdrop-blur-2xl p-6 sm:p-7 shadow-[0_10px_35px_rgba(74,30,82,0.03),inset_0_1px_2px_rgba(255,255,255,0.9)] space-y-6">
+        <section class="rounded-3xl glass-panel p-6 sm:p-7 space-y-6">
 
             <div>
                 <h2 class="font-headline-md text-headline-md text-primary font-bold tracking-tight flex items-center gap-2">
@@ -298,7 +298,7 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
-                <div class="rounded-2xl bg-white/80 p-4 shadow-[0_2px_8px_rgba(0,0,0,0.02),inset_0_1px_1px_rgba(255,255,255,0.9)] flex items-center justify-between">
+                <div class="rounded-2xl glass-inset p-4 flex items-center justify-between">
                     <div>
                         <span class="font-label-caps text-label-caps uppercase text-outline font-semibold">Retardos</span>
                         <div class="font-headline-lg text-headline-lg text-on-surface font-bold mt-0.5">{{ $data['retardos'] }}</div>
@@ -309,7 +309,7 @@
                     </div>
                 </div>
 
-                <div class="rounded-2xl bg-white/80 p-4 shadow-[0_2px_8px_rgba(0,0,0,0.02),inset_0_1px_1px_rgba(255,255,255,0.9)] flex items-center justify-between">
+                <div class="rounded-2xl glass-inset p-4 flex items-center justify-between">
                     <div>
                         <span class="font-label-caps text-label-caps uppercase text-outline font-semibold">Horas Extra</span>
                         <div class="font-headline-lg text-headline-lg text-secondary font-bold mt-0.5">{{ $data['horas_extra_autorizadas'] }}</div>
@@ -320,7 +320,7 @@
                     </div>
                 </div>
 
-                <div class="rounded-2xl bg-white/80 p-4 shadow-[0_2px_8px_rgba(0,0,0,0.02),inset_0_1px_1px_rgba(255,255,255,0.9)] space-y-2">
+                <div class="rounded-2xl glass-inset p-4 space-y-2">
                     <div class="flex items-center justify-between">
                         <span class="font-label-caps text-label-caps uppercase text-outline font-semibold">Cobertura Matutina</span>
                         <span class="font-label-lg text-label-lg font-bold text-primary">{{ $data['cobertura']['matutino']['porcentaje'] }}%</span>
@@ -334,7 +334,7 @@
                     </div>
                 </div>
 
-                <div class="rounded-2xl bg-white/80 p-4 shadow-[0_2px_8px_rgba(0,0,0,0.02),inset_0_1px_1px_rgba(255,255,255,0.9)] space-y-2">
+                <div class="rounded-2xl glass-inset p-4 space-y-2">
                     <div class="flex items-center justify-between">
                         <span class="font-label-caps text-label-caps uppercase text-outline font-semibold">Cobertura Nocturna</span>
                         <span class="font-label-lg text-label-lg font-bold text-outline">{{ $data['cobertura']['nocturno']['porcentaje'] }}%</span>
@@ -357,7 +357,7 @@
         <div class="grid grid-cols-1  gap-8 items-start" data-production-passthrough>
 
             @if(in_array('cobertura_area', $widgetsVisibles))
-            <section class="xl:col-span-{{ in_array('distribucion_asistencia', $widgetsVisibles) ? '8' : '12' }} rounded-3xl bg-surface-container-lowest/80 backdrop-blur-2xl p-6 sm:p-7 shadow-[0_15px_40px_rgba(74,30,82,0.03),inset_0_1px_2px_rgba(255,255,255,0.9)] space-y-5">
+            <section class="xl:col-span-{{ in_array('distribucion_asistencia', $widgetsVisibles) ? '8' : '12' }} rounded-3xl glass-panel p-6 sm:p-7 space-y-5">
 
                 <div>
                     <div class="flex items-center gap-2">
@@ -369,7 +369,7 @@
                     </p>
                 </div>
 
-                <div class="overflow-x-auto rounded-2xl bg-white/60 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)]">
+                <div class="overflow-x-auto rounded-2xl glass-inset">
                     <table class="w-full table-fixed text-left border-collapse">
                         <thead>
                             <tr class="bg-surface-container-high/40 text-on-surface-variant font-label-caps text-label-caps uppercase tracking-wider">
@@ -382,7 +382,7 @@
                         <tbody class="divide-y divide-black/[0.03] font-body-md text-body-md">
                             @foreach($data['cobertura_por_area'] as $area => $turnos)
                                 @php $estatus = $estatusCobertura($turnos); @endphp
-                                <tr class="hover:bg-white/80 transition-colors">
+                                <tr class="hover:bg-white/60 dark:hover:bg-white/5 transition-colors">
                                     <td class="py-4 px-5">
                                         <div class="flex items-center gap-3">
                                             <div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary font-bold text-xs">
@@ -422,7 +422,7 @@
             @endif
 
             @if(in_array('distribucion_asistencia', $widgetsVisibles))
-            <section class="xl:col-span-{{ in_array('cobertura_area', $widgetsVisibles) ? '4' : '12' }} rounded-3xl bg-surface-container-lowest/80 backdrop-blur-2xl p-6 sm:p-7 shadow-[0_15px_40px_rgba(74,30,82,0.03),inset_0_1px_2px_rgba(255,255,255,0.9)] space-y-6">
+            <section class="xl:col-span-{{ in_array('cobertura_area', $widgetsVisibles) ? '4' : '12' }} rounded-3xl glass-panel p-6 sm:p-7 space-y-6">
 
                 <div>
                     <div class="flex items-center gap-2">
@@ -445,7 +445,7 @@
                     <div class="space-y-2.5">
 
                         @foreach($desglosePrincipal as $item)
-                            <div class="flex items-center justify-between p-2.5 rounded-xl bg-white/70 shadow-sm">
+                            <div class="flex items-center justify-between p-2.5 rounded-xl glass-inset">
                                 <div class="flex items-center gap-2.5">
                                     <span class="w-3 h-3 rounded-full {{ $item['color'] }}"></span>
                                     <span class="font-label-lg text-label-lg text-on-surface font-semibold">{{ $item['label'] }}</span>
@@ -458,7 +458,7 @@
                         @endforeach
 
                         @foreach($desgloseSecundario as $item)
-                            <div class="flex items-center justify-between p-2.5 rounded-xl bg-white/50 opacity-75">
+                            <div class="flex items-center justify-between p-2.5 rounded-xl glass-inset opacity-75">
                                 <div class="flex items-center gap-2.5">
                                     <span class="w-3 h-3 rounded-full bg-outline"></span>
                                     <span class="font-label-lg text-label-lg text-on-surface-variant font-medium">{{ $item['label'] }}</span>
