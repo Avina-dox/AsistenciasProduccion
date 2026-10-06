@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { STATUS_COLORS, STATUS_LABELS } from './config.js';
+import { STATUS_COLORS, STATUS_LABELS, WORKER_STATUS_COLORS, WORKER_STATUS_LABELS } from './config.js';
 
 /*
 |--------------------------------------------------------------------------
@@ -19,11 +19,15 @@ function isPassthrough(target) {
     return target.hasAttribute('data-production-passthrough');
 }
 
-export function createInteractions({ camera, stations, onChange }) {
+/*
+| targets: estaciones y trabajadores. Cada uno expone hitbox (con
+| userData.targetId), hoverTarget e interactive.
+*/
+export function createInteractions({ camera, targets, onChange }) {
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
-    const hitboxes = stations.map((s) => s.hitbox);
-    const byId = new Map(stations.map((s) => [s.id, s]));
+    const hitboxes = targets.map((t) => t.hitbox);
+    const byId = new Map(targets.map((t) => [t.id, t]));
 
     let active = false;
     let dirty = false;
@@ -48,19 +52,20 @@ export function createInteractions({ camera, stations, onChange }) {
     document.documentElement.addEventListener('pointerleave', onPointerLeave);
     window.addEventListener('blur', onPointerLeave);
 
-    function setHovered(station) {
-        if (hovered === station) return;
+    function setHovered(target) {
+        if (hovered === target) return;
 
         if (hovered) hovered.hoverTarget = 0;
-        hovered = station;
+        hovered = target;
         if (hovered) hovered.hoverTarget = 1;
     }
 
     /*
-    | Se llama desde el loop. Sólo hace raycast si el puntero se movió.
+    | Se llama desde el loop. Con el puntero sobre el fondo se re-evalúa cada
+    | frame (los trabajadores caminan bajo el cursor); son pocas cajas.
     */
     function update() {
-        if (!dirty) return hovered;
+        if (!dirty && !active) return hovered;
         dirty = false;
 
         if (!active) {
@@ -70,8 +75,10 @@ export function createInteractions({ camera, stations, onChange }) {
         }
 
         raycaster.setFromCamera(pointer, camera);
-        const hit = raycaster.intersectObjects(hitboxes, false)[0];
-        setHovered(hit ? byId.get(hit.object.userData.stationId) : null);
+        const hit = raycaster
+            .intersectObjects(hitboxes, false)
+            .find((h) => byId.get(h.object.userData.targetId)?.interactive !== false);
+        setHovered(hit ? byId.get(hit.object.userData.targetId) : null);
 
         return hovered;
     }
@@ -139,6 +146,66 @@ export function createLabels(container, stations) {
 
     function dispose() {
         items.forEach(({ el }) => el.remove());
+    }
+
+    return { update, dispose };
+}
+
+/*
+| Etiqueta del trabajador en hover (dashboard). Un solo elemento HTML
+| reutilizado, anclado sobre la cabeza del trabajador.
+*/
+export function createWorkerTooltip(container, stationLabel) {
+    if (!container) return null;
+
+    const el = document.createElement('div');
+    el.className = 'production-tooltip is-hidden';
+    el.innerHTML = `
+        <div class="production-tooltip__role"></div>
+        <div class="production-tooltip__row">Estación: <strong class="production-tooltip__station"></strong></div>
+        <div class="production-tooltip__row">
+            Estado: <span class="production-tooltip__dot"></span><strong class="production-tooltip__status"></strong>
+        </div>
+    `;
+    container.appendChild(el);
+
+    const role = el.querySelector('.production-tooltip__role');
+    const station = el.querySelector('.production-tooltip__station');
+    const status = el.querySelector('.production-tooltip__status');
+    const projected = new THREE.Vector3();
+    let shown = null;
+    let shownState = null;
+
+    function update(worker, camera, width, height) {
+        if (!worker || worker.kind !== 'worker') {
+            el.classList.add('is-hidden');
+            shown = null;
+
+            return;
+        }
+
+        // El estado mostrado es el efectivo (p. ej. "En espera" si su estación está detenida).
+        const state = worker.status === 'working' && worker.animation === 'idle' ? 'idle' : worker.status;
+
+        if (shown !== worker || shownState !== state) {
+            shown = worker;
+            shownState = state;
+            role.textContent = worker.role;
+            station.textContent = stationLabel(worker.stationId);
+            status.textContent = WORKER_STATUS_LABELS[state] ?? state;
+            el.style.setProperty('--status-color', WORKER_STATUS_COLORS[state] ?? '#34D399');
+        }
+
+        projected.copy(worker.anchor).project(camera);
+        const x = (projected.x * 0.5 + 0.5) * width;
+        const y = (-projected.y * 0.5 + 0.5) * height;
+
+        el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) translate(-50%, -100%)`;
+        el.classList.toggle('is-hidden', projected.z > 1);
+    }
+
+    function dispose() {
+        el.remove();
     }
 
     return { update, dispose };

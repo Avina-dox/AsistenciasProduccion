@@ -66,6 +66,7 @@ function createStationBase(def, { geometries: g, materials: m, shadows }, layout
     hitbox.scale.set(...layout.hitbox.size);
     hitbox.position.set(...layout.hitbox.center);
     hitbox.userData.stationId = def.id;
+    hitbox.userData.targetId = def.id;
     group.add(hitbox);
 
     // Panel de control frontal con pantalla
@@ -82,6 +83,8 @@ function createStationBase(def, { geometries: g, materials: m, shadows }, layout
     };
 
     return {
+        kind: 'station',
+        interactive: true,
         id: def.id,
         label: def.label,
         group,
@@ -106,7 +109,7 @@ function buildMixer(def, ctx) {
     const station = createStationBase(def, ctx, {
         beacon: [-1.7, -1.5],
         beaconHeight: 2.4,
-        panel: [1.7, 1.5],
+        panel: [-1.7, 1.5],
         hitbox: { center: [0, 2.4, 0], size: [3.2, 4.8, 3.2] },
         haloRadius: 2.2,
         anchor: [0, 5.4, 0],
@@ -132,6 +135,19 @@ function buildMixer(def, ctx) {
     rotor.add(part(g.roller, m.rubber, [0.95, 0.1, 0.95], [0, 0, 0], { shadows: false }));
     rotor.add(part(g.box, m.glow, [1.0, 0.04, 0.08], [0, 0.06, 0], { shadows: false }));
     b.add(rotor);
+
+    // Mesa de preparación de acero (el operador trabaja del lado de la cámara)
+    const tx = 0.9;
+    const tz = 1.85;
+    b.add(part(g.box, m.metal, [1.2, 0.05, 0.62], [tx, 0.9, tz], { shadows }));
+    b.add(part(g.box, m.metalDark, [1.1, 0.03, 0.52], [tx, 0.3, tz], { shadows: false }));
+    for (const [lx, lz] of [[-0.55, -0.27], [0.55, -0.27], [-0.55, 0.27], [0.55, 0.27]]) {
+        b.add(part(g.box, m.metalDark, [0.05, 0.88, 0.05], [tx + lx, 0.44, tz + lz], { shadows: false }));
+    }
+    // Charola con barritas recién formadas
+    b.add(part(g.box, m.metal, [0.56, 0.02, 0.56], [tx - 0.22, 0.935, tz], { shadows: false }));
+    b.add(part(g.bars, m.raw, [1, 0.05, 1], [tx - 0.22, 0.97, tz], { shadows }));
+    b.add(part(g.bars, m.raw, [1, 0.05, 1], [tx + 0.36, 0.95, tz + 0.04], { shadows }));
 
     station.animate = (t, dt, { speedFactor }) => {
         if (isActive(station.status)) {

@@ -404,3 +404,181 @@ html.dark body {
         }
     }
 }
+
+/* Etiqueta de trabajador en hover (dashboard) */
+.production-tooltip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    min-width: 180px;
+    padding: .55rem .75rem;
+    border-radius: 12px;
+    font: 500 11px/1.45 Inter, ui-sans-serif, system-ui, sans-serif;
+    color: rgb(var(--color-on-surface) / .85);
+    background: rgb(var(--color-surface-container-lowest) / .88);
+    border: 1px solid rgb(var(--color-outline-variant) / .6);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
+    backdrop-filter: blur(8px);
+    transition: opacity .2s ease;
+    will-change: transform;
+}
+
+.production-tooltip.is-hidden {
+    opacity: 0;
+}
+
+.production-tooltip__role {
+    margin-bottom: .3rem;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: rgb(var(--color-primary));
+}
+
+.production-tooltip__row strong {
+    font-weight: 600;
+    color: rgb(var(--color-on-surface));
+}
+
+.production-tooltip__dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin: 0 .3rem 1px .15rem;
+    border-radius: 999px;
+    background: var(--status-color, #34D399);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Login corporativo (Dasavena Gourmet)
+|--------------------------------------------------------------------------
+| Paleta tomada del logotipo: morado corporativo, morado oscuro del aro,
+| dorado de las espigas, lila del sello y marfil de la marca.
+|
+| Capas: #production-background (Three.js, futuro) → overlay → UI.
+| El contenedor 3D existe pero NO se inicializa: para activarlo agrega
+| data-production-background data-mode="login" en el Blade.
+*/
+.login-page {
+    --dsv-purple: #6A2C75;
+    --dsv-purple-hover: #5A2364;
+    --dsv-purple-dark: #3B1748;
+    --dsv-purple-deep: #2A0F33;
+    --dsv-gold: #E2B45A;
+    --dsv-gold-soft: #F0D493;
+    --dsv-lilac: #C9AFCD;
+    --dsv-ivory: #FBF8F3;
+    --dsv-ink: #2B2030;
+    --dsv-muted: #6E6274;
+
+    position: relative;
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: var(--dsv-ivory);
+    color: var(--dsv-ink);
+}
+
+.login-page .production-background,
+.login-page .production-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+}
+
+.login-page .production-background {
+    z-index: 0;
+}
+
+/* Overlay vacío hasta que exista la escena; entonces dará legibilidad. */
+.login-page .production-overlay {
+    z-index: 1;
+    background: transparent;
+}
+
+.login-page .login-content {
+    position: relative;
+    z-index: 10;
+}
+
+/* Fondo del panel de marca: degradado sobrio con brillo muy tenue */
+.login-brand-panel {
+    background:
+        radial-gradient(120% 70% at 100% 0%, rgba(201, 175, 205, .14) 0%, transparent 55%),
+        radial-gradient(90% 60% at 0% 100%, rgba(226, 180, 90, .10) 0%, transparent 60%),
+        linear-gradient(160deg, var(--dsv-purple-dark) 0%, #4F1F5B 45%, var(--dsv-purple) 100%);
+}
+
+/* Campos del formulario */
+.login-field {
+    display: block;
+    width: 100%;
+    height: 3.25rem;
+    padding: 0 1rem 0 2.85rem;
+    border: 1px solid #E4DFE6;
+    border-radius: .875rem;
+    background: #fff;
+    color: var(--dsv-ink);
+    font-size: .95rem;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.login-field::placeholder {
+    color: #A79DAB;
+}
+
+.login-field:hover {
+    border-color: #D3CAD6;
+}
+
+.login-field:focus {
+    outline: none;
+    border-color: var(--dsv-purple);
+    box-shadow: 0 0 0 4px rgba(106, 44, 117, .12);
+}
+
+.login-field[aria-invalid="true"] {
+    border-color: #C2413B;
+}
+
+.login-field[aria-invalid="true"]:focus {
+    box-shadow: 0 0 0 4px rgba(194, 65, 59, .12);
+}
+
+/* Botón principal */
+.login-submit {
+    background: var(--dsv-purple);
+    transition: background-color .15s ease, box-shadow .15s ease, transform .1s ease;
+}
+
+.login-submit:hover:not(:disabled) {
+    background: var(--dsv-purple-hover);
+    box-shadow: 0 6px 16px rgba(106, 44, 117, .22);
+}
+
+.login-submit:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+.login-submit:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--dsv-ivory), 0 0 0 5px var(--dsv-purple);
+}
+
+.login-submit:disabled {
+    cursor: progress;
+    opacity: .75;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .login-field,
+    .login-submit {
+        transition: none;
+    }
+}
+
+/* Alpine: oculta elementos con x-cloak hasta que Alpine inicializa */
+[x-cloak] {
+    display: none !important;
+}

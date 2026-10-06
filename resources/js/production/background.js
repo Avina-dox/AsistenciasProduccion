@@ -1,13 +1,14 @@
 import * as THREE from 'three';
 import { createCameraRig, createLoop } from './animation.js';
-import { CAMERA_MOVEMENT, LINE, PALETTES, STATIONS, prefersReducedMotion, resolveOptions } from './config.js';
+import { CAMERA_MOVEMENT, LINE, PALETTES, STATIONS, WORKERS, prefersReducedMotion, resolveOptions } from './config.js';
 import { createConveyor } from './conveyor.js';
 import { createFactory } from './factory.js';
-import { createInteractions, createLabels } from './interactions.js';
+import { createInteractions, createLabels, createWorkerTooltip } from './interactions.js';
 import { animateStation, createStations, normalizeStatus, setStationStatus } from './machines.js';
 import { applyPalette, boxFaceMaterials, createGeometries, createMaterials, disposeAll, loadBoxLogo, part } from './materials.js';
 import { createProductFlow } from './products.js';
 import { applyScenePalette, createSceneContext, resizeContext } from './scene.js';
+import { createWorkerSystem, setWorkerState, stationLabel } from './workers.js';
 
 /*
 |--------------------------------------------------------------------------
@@ -18,6 +19,8 @@ import { applyScenePalette, createSceneContext, resizeContext } from './scene.js
 | Devuelve un controlador:
 |   setData(productionData)          → estados/velocidad desde Laravel
 |   setStationStatus(id, status)     → running | warning | stopped | maintenance
+|   setWorkerState(id, state)        → working | idle | walking | break | offline
+|   walkWorkerTo(id, [x, z], { then, facing })
 |   setTheme('dark' | 'light' | 'auto')
 |   pause() / resume() / destroy()
 */
@@ -101,11 +104,13 @@ export function initProductionBackground(container, options = {}) {
         stages: [
             {
                 at: LINE.spawnX,
-                layers: [{ geometry: geometries.portion, material: materials.raw, scale: [0.5, 0.16, 0.5] }],
+                // Barritas recién formadas (mezcla cruda de avena)
+                layers: [{ geometry: geometries.bars, material: materials.raw, scale: [1, 0.06, 1] }],
             },
             {
                 at: processing.x,
-                layers: [{ geometry: geometries.portion, material: materials.baked, scale: [0.58, 0.2, 0.58] }],
+                // Barritas horneadas: doradas y un poco más infladas
+                layers: [{ geometry: geometries.bars, material: materials.baked, scale: [1.02, 0.075, 1.02] }],
             },
             {
                 at: packaging.x,
@@ -166,13 +171,33 @@ export function initProductionBackground(container, options = {}) {
     const stationsById = new Map(stations.map((s) => [s.id, s]));
 
     /*
-    | Interacción y etiquetas (dashboard)
+    | Trabajadores (login: pocos y lentos; dashboard: más e interactivos)
     */
     let loop = null;
+    const workerIds = opts.densityConfig.workers ?? [];
+    const workerSystem = createWorkerSystem({
+        defs: WORKERS.filter((w) => workerIds.includes(w.id)),
+        shadows,
+        isMobile: opts.isMobile,
+        activity: opts.workerActivity,
+        onModelLoaded: () => loop?.requestRender(),
+    });
+    scene.add(workerSystem.group);
+
+    const isStationActive = (id) => {
+        const status = stationsById.get(id)?.status ?? 'running';
+
+        return status === 'running' || status === 'warning';
+    };
+
+    /*
+    | Interacción y etiquetas (dashboard)
+    */
     const interactions = opts.interactive
-        ? createInteractions({ camera, stations, onChange: () => loop?.requestRender() })
+        ? createInteractions({ camera, targets: [...stations, ...workerSystem.workers], onChange: () => loop?.requestRender() })
         : null;
     const labels = opts.labels ? createLabels(opts.labelsContainer, stations) : null;
+    const workerTooltip = opts.interactive ? createWorkerTooltip(opts.labelsContainer, stationLabel) : null;
 
     /*
     | Estado de producción
@@ -199,6 +224,8 @@ export function initProductionBackground(container, options = {}) {
         const ratio = Number(next.speed) > 0 ? Number(next.speed) / LINE.referenceSpeed : 1;
 
         targetSpeed = halted ? 0 : LINE.baseSpeed * THREE.MathUtils.clamp(ratio, 0.3, 2);
+
+        workerSystem.setData(next.workers);
 
         loop?.requestRender();
     }
@@ -255,10 +282,15 @@ export function initProductionBackground(container, options = {}) {
         stationCtx.haloOpacity = palette.haloOpacity;
         stationCtx.instant = instant;
         stations.forEach((s) => animateStation(s, t, dt, stationCtx));
+        workerSystem.update(t, dt, { instant, stationActive: isStationActive });
 
-        // Luz de hover: se coloca sobre la estación y se enciende suavemente.
-        const hoverTarget = hovered ? 6 : 0;
-        if (hovered) {
+        // Luz de hover: estación → color de su estado; trabajador → luz blanca suave.
+        const isWorker = hovered?.kind === 'worker';
+        const hoverTarget = hovered ? (isWorker ? 1.6 : 6) : 0;
+        if (isWorker) {
+            lights.hoverLight.position.set(hovered.root.position.x, 2.6, hovered.root.position.z + 1.2);
+            lights.hoverLight.color.set(0xffffff);
+        } else if (hovered) {
             lights.hoverLight.position.set(hovered.anchor.x, 3.2, 1.8);
             lights.hoverLight.color.copy(hoverColor.set(hovered.beaconMaterial.color));
         }
@@ -273,6 +305,7 @@ export function initProductionBackground(container, options = {}) {
 
         renderer.render(scene, camera);
         labels?.update(camera, ctx.width, ctx.height);
+        workerTooltip?.update(hovered, camera, ctx.width, ctx.height);
 
         if (firstFrame) {
             firstFrame = false;
@@ -387,6 +420,20 @@ export function initProductionBackground(container, options = {}) {
             setData({ ...current, stations: [...others, { id, status }] });
         },
 
+        setWorkerState(id, state) {
+            const worker = workerSystem.byId.get(id);
+            if (worker) setWorkerState(worker, state);
+            loop?.requestRender();
+        },
+
+        walkWorkerTo(id, position, options = {}) {
+            workerSystem.byId.get(id)?.walkTo(position, options);
+        },
+
+        get workers() {
+            return workerSystem.workers;
+        },
+
         setTheme(theme) {
             themeSetting = theme;
             applyTheme();
@@ -406,6 +453,8 @@ export function initProductionBackground(container, options = {}) {
         destroy() {
             loop.stop();
             interactions?.dispose();
+            workerTooltip?.dispose();
+            workerSystem.dispose();
             labels?.dispose();
             themeObserver.disconnect();
             motionQuery.removeEventListener('change', onMotionChange);

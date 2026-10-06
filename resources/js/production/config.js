@@ -33,6 +33,85 @@ export const STATIONS = [
 ];
 
 /*
+| Trabajadores. Estados válidos: working, idle, walking, break, offline.
+| Los colores son para indicadores/UI, no se pintan sobre el personaje.
+*/
+export const WORKER_STATUS_COLORS = {
+    working: '#34D399',
+    idle: '#60A5FA',
+    walking: '#FBBF24',
+    break: '#A78BFA',
+    offline: '#6B7280',
+};
+
+export const WORKER_STATUS_LABELS = {
+    working: 'Trabajando',
+    idle: 'En espera',
+    walking: 'Caminando',
+    break: 'En descanso',
+    offline: 'Fuera de línea',
+};
+
+/*
+| Cada trabajador está ligado a una estación y parado en su puesto
+| (posición [x, z] en metros; facing = rotación Y, Math.PI = mirando a la
+| banda desde el frente). `task` elige la animación de trabajo.
+| `model` es el GLB opcional en resources/models/workers/: si no existe se
+| usa el maniquí procedural con el mismo uniforme.
+*/
+export const WORKERS = [
+    {
+        id: 'worker-01',
+        role: 'Operador',
+        station: 'preparation',
+        task: 'preparation',
+        position: [-11.6, 2.55],
+        facing: Math.PI,
+        height: 1.74,
+        skin: 0,
+        model: 'worker-01.glb',
+    },
+    {
+        id: 'worker-02',
+        role: 'Operador',
+        station: 'processing',
+        task: 'processing',
+        position: [-0.45, 2.0],
+        facing: Math.PI,
+        height: 1.79,
+        skin: 1,
+        model: 'worker-02.glb',
+    },
+    {
+        id: 'worker-03',
+        role: 'Operador',
+        station: 'packaging',
+        task: 'packaging',
+        position: [3.3, 1.15],
+        facing: Math.PI,
+        height: 1.71,
+        skin: 2,
+        model: 'worker-03.glb',
+    },
+    {
+        id: 'worker-04',
+        role: 'Inspector de calidad',
+        station: 'finished',
+        task: 'inspection',
+        position: [8.4, 1.25],
+        facing: Math.PI,
+        height: 1.76,
+        skin: 1,
+        model: 'worker-04.glb',
+        // Recorre la salida de la línea revisando cajas.
+        patrol: [
+            { position: [8.4, 1.25], facing: Math.PI, dwell: 7 },
+            { position: [11.0, 1.3], facing: Math.PI, dwell: 6 },
+        ],
+    },
+];
+
+/*
 | Geometría de la línea principal. Los productos nacen bajo la tolva de
 | preparación (spawnX) y desaparecen al llegar al paletizado (despawnX).
 */
@@ -61,6 +140,7 @@ export const DENSITY = {
         pillars: 4,
         pipes: 2,
         robot: true,
+        workers: ['worker-02', 'worker-03'],
     },
     medium: {
         productSpacing: 1.6,
@@ -70,6 +150,7 @@ export const DENSITY = {
         pillars: 6,
         pipes: 3,
         robot: true,
+        workers: ['worker-01', 'worker-02', 'worker-03', 'worker-04'],
     },
     high: {
         productSpacing: 1.25,
@@ -79,6 +160,7 @@ export const DENSITY = {
         pillars: 8,
         pipes: 4,
         robot: true,
+        workers: ['worker-01', 'worker-02', 'worker-03', 'worker-04'],
     },
 };
 
@@ -104,8 +186,8 @@ export const PALETTES = {
         accent: '#7B3A88',
         glow: '#4FD1C5',
         heat: '#FF8A3D',
-        raw: '#E6D6B0',
-        baked: '#CF9443',
+        raw: '#E8D3A2', // avena cruda
+        baked: '#C48A3F', // granola horneada
         box: '#7B3A88',
         tape: '#D9B45A',
         pallet: '#5E4730',
@@ -141,8 +223,8 @@ export const PALETTES = {
         accent: '#6A2C75',
         glow: '#23A89B',
         heat: '#FF8A3D',
-        raw: '#E6D6B0',
-        baked: '#CF9443',
+        raw: '#E8D3A2', // avena cruda
+        baked: '#C48A3F', // granola horneada
         box: '#7B3A88',
         tape: '#D9B45A',
         pallet: '#B08A5E',
@@ -205,8 +287,8 @@ export const MODES = {
         theme: 'auto',
         scrollParallax: true,
         camera: {
-            position: [0, 9.5, 20],
-            target: [0, 0.6, -1.5],
+            position: [-1.5, 9.5, 20],
+            target: [-1.5, 0.6, -1.5],
             fov: 38,
             fitWidth: 26,
             offsetX: 0,
@@ -247,6 +329,8 @@ export const MOCK_PRODUCTION_DATA = {
         { id: 'packaging', status: 'warning' },
         { id: 'finished', status: 'running' },
     ],
+    // Opcional: estado por trabajador (si falta, todos "working").
+    workers: [],
 };
 
 export function isMobileViewport() {
@@ -284,13 +368,15 @@ export function resolveOptions(options = {}) {
         labels: (options.labels ?? base.labels) && !isMobile,
         theme: options.theme ?? base.theme,
         scrollParallax: (options.scrollParallax ?? base.scrollParallax) && !isMobile,
-        camera: isMobile ? base.mobileCamera : base.camera,
+        camera: options.camera ?? (isMobile ? base.mobileCamera : base.camera),
         shadows: options.shadows ?? !isMobile,
         antialias: !isMobile,
         maxPixelRatio: isMobile ? 1.5 : 2,
         // 60 ó 30 para que el ritmo de frames sea parejo en monitores de 60/120 Hz.
         maxFps: options.maxFps ?? (isMobile ? 30 : 60),
         movementScale: isMobile ? 0.5 : 1,
+        // Ritmo de los trabajadores: en login más lento (baja actividad).
+        workerActivity: options.workerActivity ?? (mode === 'login' ? 0.65 : 1),
         data: options.data ?? MOCK_PRODUCTION_DATA,
         labelsContainer: options.labelsContainer ?? null,
         logoUrl: options.logoUrl ?? null,

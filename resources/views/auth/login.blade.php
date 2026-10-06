@@ -1,101 +1,157 @@
-<x-guest-layout background="production">
-    <style>
-        /* Personalización de los componentes con tu color #6A2C75 */
-        
-        /* Enfoque de los campos de texto */
-        input[type="email"]:focus, 
-        input[type="password"]:focus {
-            border-color: #6A2C75 !important;
-            --tw-ring-color: rgba(106, 44, 117, 0.2) !important;
-            outline: 2px solid transparent !important;
-            outline-offset: 2px !important;
-        }
-
-        /* Checkbox */
-        input[type="checkbox"]:checked {
-            background-color: #6A2C75 !important;
-            border-color: #6A2C75 !important;
-        }
-        input[type="checkbox"]:focus {
-            --tw-ring-color: rgba(106, 44, 117, 0.2) !important;
-        }
-
-        /* Enlaces */
-        .hover-color-accent:hover {
-            color: #6A2C75 !important;
-        }
-        .focus-ring-accent:focus {
-            --tw-ring-color: #6A2C75 !important;
-        }
-
-        /* Botón Principal */
-        .btn-accent {
-            background-color: #6A2C75 !important;
-            transition: all 0.2s ease-in-out !important;
-        }
-        .btn-accent:hover {
-            background-color: #53205c !important; /* Tono más oscuro al pasar el cursor */
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(106, 44, 117, 0.2);
-        }
-        .btn-accent:active {
-            transform: translateY(0);
-        }
-    </style>
-
-    <div class="mb-6 text-center">
-        <!-- Logo o icono opcional arriba del título -->
-        <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl text-white shadow-md" style="background-color: #6A2C75;">
-            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-        </div>
-        <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Bienvenido</h2>
-        <p class="text-sm text-gray-500 mt-1 dark:text-gray-400">Ingresa tus datos para acceder</p>
+<x-guest-layout layout="split">
+    {{-- Logo real (sin filtros ni deformación; ya incluye el nombre "Dasavena") --}}
+    <div class="flex justify-center">
+        <img src="{{ asset('images/logo-caja.png') }}"
+            alt="Dasavena — Recetas de familia"
+            width="112"
+            height="112"
+            class="h-24 w-24 object-contain sm:h-28 sm:w-28">
     </div>
 
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+    {{-- Encabezado --}}
+    <div class="mt-6 text-center">
+        <h2 class="font-headline-xl text-[2rem] font-bold leading-tight tracking-tight text-[color:var(--dsv-ink)] sm:text-4xl">Bienvenido</h2>
+        <p class="mt-2 text-sm text-[color:var(--dsv-muted)]">Sistema de Control de Asistencias</p>
+    </div>
 
-    <form method="POST" action="{{ route('login') }}" class="space-y-5">
+    {{-- Estado de sesión (p. ej. "contraseña restablecida") --}}
+    <x-auth-session-status class="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm !text-emerald-800" :status="session('status')" />
+
+    <form method="POST"
+        action="{{ route('login') }}"
+        class="mt-8 space-y-5"
+        x-data="{ enviando: false }"
+        @submit="enviando = true">
         @csrf
 
-        <!-- Email Address -->
+        {{-- Correo (la autenticación actual es por correo electrónico) --}}
         <div>
-            <x-input-label for="email" :value="__('Email')" class="font-semibold text-gray-700 dark:text-gray-300" />
-            <x-text-input id="email" class="block mt-1 w-full rounded-lg border-gray-300 shadow-sm transition duration-150 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+            <label for="email" class="mb-1.5 block text-sm font-medium text-[color:var(--dsv-ink)]">Correo electrónico</label>
+            <div class="relative">
+                <svg class="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#A79DAB]" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="8" r="4" />
+                    <path stroke-linecap="round" d="M4 20c1.5-3.5 4.4-5 8-5s6.5 1.5 8 5" />
+                </svg>
+                <input id="email"
+                    type="email"
+                    name="email"
+                    value="{{ old('email') }}"
+                    required
+                    autofocus
+                    autocomplete="username"
+                    placeholder="nombre@dasavena.com"
+                    class="login-field"
+                    @if ($errors->has('email')) aria-invalid="true" aria-describedby="email-error" @endif>
+            </div>
+            <x-input-error id="email-error" :messages="$errors->get('email')" class="mt-2 !text-[#C2413B]" />
         </div>
 
-        <!-- Password -->
-        <div>
-            <x-input-label for="password" :value="__('Password')" class="font-semibold text-gray-700 dark:text-gray-300" />
-            <x-text-input id="password" class="block mt-1 w-full rounded-lg border-gray-300 shadow-sm transition duration-150 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        {{-- Contraseña con mostrar / ocultar --}}
+        <div x-data="{ visible: false }">
+            <label for="password" class="mb-1.5 block text-sm font-medium text-[color:var(--dsv-ink)]">Contraseña</label>
+            <div class="relative">
+                <svg class="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#A79DAB]" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" aria-hidden="true">
+                    <rect x="5" y="10.5" width="14" height="10" rx="2" />
+                    <path stroke-linecap="round" d="M8 10.5V7.5a4 4 0 0 1 8 0v3" />
+                </svg>
+                <input id="password"
+                    type="password"
+                    :type="visible ? 'text' : 'password'"
+                    name="password"
+                    required
+                    autocomplete="current-password"
+                    placeholder="Contraseña"
+                    class="login-field !pr-12"
+                    @if ($errors->has('password')) aria-invalid="true" aria-describedby="password-error" @endif>
+                <button type="button"
+                    @click="visible = !visible"
+                    :aria-pressed="visible.toString()"
+                    :aria-label="visible ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                    aria-label="Mostrar contraseña"
+                    class="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-[#8B7F8F] transition-colors hover:bg-[#F3EEF4] hover:text-[color:var(--dsv-purple)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--dsv-purple)]">
+                    {{-- Ojo abierto --}}
+                    <svg x-show="!visible" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" />
+                        <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    {{-- Ojo tachado --}}
+                    <svg x-show="visible" x-cloak class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18M10.6 6.1A9.6 9.6 0 0 1 12 6c6 0 9.5 6 9.5 6a17 17 0 0 1-3 3.6M6.4 7.9A16.6 16.6 0 0 0 2.5 12S6 18 12 18a9.4 9.4 0 0 0 4.2-1M9.9 10a3 3 0 0 0 4.1 4.1" />
+                    </svg>
+                </button>
+            </div>
+            <x-input-error id="password-error" :messages="$errors->get('password')" class="mt-2 !text-[#C2413B]" />
         </div>
 
-        <!-- Remember Me & Forgot Password -->
-        <div class="flex items-center justify-between mt-4">
-            <label for="remember_me" class="inline-flex items-center cursor-pointer">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 shadow-sm dark:border-gray-700 dark:bg-gray-800" name="remember">
-                <span class="ms-2 text-sm text-gray-600 select-none dark:text-gray-400">{{ __('Remember me') }}</span>
+        {{-- Opciones --}}
+        <div class="flex items-center justify-between gap-4">
+            <label for="remember_me" class="inline-flex cursor-pointer select-none items-center gap-2.5">
+                <input id="remember_me"
+                    type="checkbox"
+                    name="remember"
+                    class="h-4 w-4 rounded border-[#CFC6D2] text-[color:var(--dsv-purple)] focus:ring-2 focus:ring-[rgba(106,44,117,0.3)] focus:ring-offset-0">
+                <span class="text-sm text-[color:var(--dsv-muted)]">Recordarme</span>
             </label>
 
             @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-500 hover-color-accent rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus-ring-accent dark:text-gray-400" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
+                <a href="{{ route('password.request') }}"
+                    class="rounded text-sm font-medium text-[color:var(--dsv-purple)] underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--dsv-purple)]">
+                    ¿Olvidaste tu contraseña?
                 </a>
             @endif
         </div>
 
-        <!-- Submit Button -->
-        <div class="pt-2">
-            <x-primary-button class="w-full justify-center py-2.5 rounded-lg text-sm font-semibold tracking-wide btn-accent">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
+        {{-- Entrar (Enter también envía; se deshabilita mientras procesa) --}}
+        <button type="submit"
+            class="login-submit inline-flex h-[3.25rem] w-full items-center justify-center gap-2 rounded-xl text-[15px] font-semibold text-white"
+            :disabled="enviando"
+            :aria-busy="enviando.toString()">
+            <span x-text="enviando ? 'Entrando…' : 'Entrar'">Entrar</span>
+            <svg x-show="!enviando" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
+            <svg x-show="enviando" x-cloak class="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-opacity=".3" stroke-width="2.5" />
+                <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
+            </svg>
+        </button>
     </form>
+
+    {{--
+        Microsoft 365: el proyecto aún no tiene inicio de sesión con Microsoft
+        (Graph se usa sólo para enviar correos). El botón aparece en cuanto
+        exista una ruta llamada "login.microsoft".
+    --}}
+    @if (Route::has('login.microsoft'))
+        <div class="my-6 flex items-center gap-4" role="separator">
+            <span class="h-px flex-1 bg-[#E4DFE6]"></span>
+            <span class="text-xs uppercase tracking-widest text-[#A79DAB]">o</span>
+            <span class="h-px flex-1 bg-[#E4DFE6]"></span>
+        </div>
+
+        <a href="{{ route('login.microsoft') }}"
+            class="flex h-[3.25rem] w-full items-center justify-center gap-3 rounded-xl border border-[#E4DFE6] bg-white text-sm font-medium text-[color:var(--dsv-ink)] transition-colors hover:border-[#D3CAD6] hover:bg-[#FAF8FB] focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--dsv-purple)]">
+            <svg class="h-5 w-5" viewBox="0 0 21 21" aria-hidden="true">
+                <rect x="1" y="1" width="9" height="9" fill="#F25022" />
+                <rect x="11" y="1" width="9" height="9" fill="#7FBA00" />
+                <rect x="1" y="11" width="9" height="9" fill="#00A4EF" />
+                <rect x="11" y="11" width="9" height="9" fill="#FFB900" />
+            </svg>
+            Iniciar sesión con Microsoft 365
+        </a>
+    @endif
+
+    {{-- Pie del sistema --}}
+    <div class="mt-10 flex items-center justify-center gap-3 border-t border-[#ECE7EE] pt-6">
+        {{-- Calendario con palomita (asistencia registrada) --}}
+        <svg class="h-7 w-7 text-[color:var(--dsv-gold)]" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 28 28" aria-hidden="true">
+            <rect x="4" y="5.5" width="20" height="18.5" rx="3" />
+            <path d="M4 11h20M9.5 3.5v4M18.5 3.5v4" />
+            <path d="m10.5 17.2 2.4 2.3 4.8-4.8" stroke="var(--dsv-purple)" />
+        </svg>
+        <div class="leading-tight">
+            <p class="text-xs text-[color:var(--dsv-muted)]">Sistema de Control de Asistencias</p>
+            <p class="text-[11px] font-semibold uppercase tracking-[0.25em] text-[color:var(--dsv-ink)]">Dasavena Gourmet</p>
+        </div>
+    </div>
 </x-guest-layout>

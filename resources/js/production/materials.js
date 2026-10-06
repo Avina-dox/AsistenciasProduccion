@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 /*
 |--------------------------------------------------------------------------
@@ -20,10 +21,74 @@ export function createGeometries(isMobile) {
         cone: new THREE.CylinderGeometry(0.5, 0.12, 1, radial),
         roof: new THREE.CylinderGeometry(0.08, 0.5, 1, radial),
         sphere: new THREE.SphereGeometry(0.5, 16, 12),
-        // Porción de producto crudo / horneado (disco con borde redondeado).
-        portion: new THREE.CylinderGeometry(0.5, 0.46, 1, 14),
+        // Producto: fila de 4 barritas de granola atravesadas en la banda.
+        // Alto unitario (se escala por etapa); largo y ancho reales.
+        bars: createBarsGeometry(),
         halo: new THREE.RingGeometry(0.82, 1, 48),
     };
+}
+
+/*
+| 4 barritas (0.44 × 0.11 m) separadas 3 cm, unidas en una sola geometría
+| para que cada etapa sea un único InstancedMesh.
+*/
+function createBarsGeometry() {
+    const bars = [-0.21, -0.07, 0.07, 0.21].map((z) => {
+        const bar = new THREE.BoxGeometry(0.44, 1, 0.11);
+        bar.translate(0, 0, z);
+
+        return bar;
+    });
+
+    const merged = mergeGeometries(bars);
+    bars.forEach((bar) => bar.dispose());
+
+    return merged;
+}
+
+/*
+| Textura de granola: copos de avena y motas sobre base clara. Es neutra
+| (casi blanca) y se tiñe con el color del material: crudo o horneado.
+*/
+function createGranolaTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 128;
+    canvas.height = 64;
+
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#f2ede4';
+    ctx.fillRect(0, 0, 128, 64);
+
+    // Pseudoaleatorio determinista: misma textura en cada carga.
+    let seed = 11;
+    const rand = () => {
+        seed = (seed * 16807) % 2147483647;
+
+        return (seed - 1) / 2147483646;
+    };
+
+    const flakes = ['#fffaf0', '#d8cbb4', '#c9b89a', '#e9dfcc'];
+    for (let i = 0; i < 220; i++) {
+        ctx.fillStyle = flakes[i % flakes.length];
+        ctx.beginPath();
+        ctx.ellipse(rand() * 128, rand() * 64, 1.5 + rand() * 3, 1 + rand() * 1.8, rand() * Math.PI, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // Motas oscuras (semillas / pasas)
+    ctx.fillStyle = '#8a7560';
+    for (let i = 0; i < 28; i++) {
+        ctx.beginPath();
+        ctx.arc(rand() * 128, rand() * 64, 0.6 + rand() * 1.1, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+
+    return texture;
 }
 
 function standard(params) {
@@ -131,6 +196,7 @@ export function boxFaceMaterials(m) {
 
 export function createMaterials(palette) {
     const boxFace = createBoxFaceTexture();
+    const granola = createGranolaTexture();
 
     const m = {
         floor: standard({ roughness: 0.92 }),
@@ -143,8 +209,9 @@ export function createMaterials(palette) {
         accent: standard({ roughness: 0.45 }),
         glow: standard({ roughness: 0.4, emissiveIntensity: 1.1 }),
         heat: standard({ roughness: 0.4, emissiveIntensity: 1.2 }),
-        raw: standard({ roughness: 0.85 }),
-        baked: standard({ roughness: 0.7 }),
+        // Barritas de granola: misma textura, distinto tono (cruda / horneada).
+        raw: standard({ roughness: 0.9, map: granola }),
+        baked: standard({ roughness: 0.75, map: granola }),
         box: standard({ roughness: 0.75 }),
         boxLogo: standard({ roughness: 0.7, map: boxFace.texture }),
         tape: standard({ roughness: 0.6 }),
